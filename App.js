@@ -11,6 +11,9 @@ import {
   Text,
   Button,
   View,
+  ScrollView,
+  SafeAreaView,
+  StatusBar
 } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
@@ -18,13 +21,15 @@ import Membership from './src/membership/index';
 import Headers from './src/commons/Headers.js';
 
 
-
 function App() {
   return (
-    <NavigationContainer>
-      <Headers />
-      <Membership />
-    </NavigationContainer>
+    <SafeAreaView>
+      <StatusBar barStyle='light-content' backgroundColor="#ff6f00"></StatusBar>
+      <ScrollView>
+        <Headers />
+        <Membership />
+      </ScrollView>
+    </SafeAreaView>
   );
 }
 
