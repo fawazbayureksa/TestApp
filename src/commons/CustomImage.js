@@ -1,7 +1,16 @@
 import React from 'react'
+import { View, Image, StyleSheet } from 'react-native'
 
-export default function CustomImage() {
+export default function CustomImage(props) {
     return (
-        <div>CustomImage</div>
+
+        <View>
+            <Image
+                style={props.style}
+                source={{
+                    uri: `${props.filename}`
+                }}
+            />
+        </View>
     )
 }

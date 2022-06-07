@@ -1,11 +1,19 @@
 import React, { useState } from 'react';
-import { View, Button, Text, TextInput, StyleSheet, Image, Modal, Pressable } from 'react-native';
+import { View, Button, Text, TextInput, StyleSheet, Image, Pressable } from 'react-native';
+import Modal from '../commons/Modal';
 import Icon from 'react-native-vector-icons/FontAwesome';
+import CustomImage from '../commons/CustomImage';
+import MembershipRows from './membershipRows';
+
 
 export default function Membership() {
     const [text, onChangeText] = useState();
     const [modalDetail, setModalDetail] = useState(false);
 
+
+    const handleSubmit = () => {
+        setModalDetail(true)
+    }
 
 
     return (
@@ -16,28 +24,29 @@ export default function Membership() {
                 value={text}
                 placeholder="Cari produk/toko"
             />
-            <Image
+            <CustomImage
                 style={styles.logo}
-                source={{
-                    // uri: '../assets/img/Rectangle.png',
-                    uri: 'https://images.unsplash.com/photo-1654190556461-3919acf03f0a?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=870&q=80',
-                }}
+                filename={'https://images.unsplash.com/photo-1654190556461-3919acf03f0a?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=870&q=80'}
             />
+
             <View style={styles.section1}>
                 <View style={styles.section2}>
                     <Image
                         style={styles.profil}
                         source={{
-                            // uri: '../assets/img/Rectangle.png',
                             uri: 'https://images.unsplash.com/photo-1633332755192-727a05c4013d?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=580&q=80',
                         }}
                     />
                     <Text style={{ fontSize: 18, fontWeight: "800", color: "#ffffff" }}>
                         Silver Member
                     </Text>
-                    <Text style={styles.text}>
-                        Detail
-                    </Text>
+                    <Pressable
+                        onPress={() => setModalDetail(true)}
+                    >
+                        <Text style={styles.text}>
+                            Detail
+                        </Text>
+                    </Pressable>
                     <Icon style={{ marginLeft: 60 }} size={24} color="white" name="clock-o" />
                 </View>
                 <View style={styles.section3}>
@@ -45,9 +54,13 @@ export default function Membership() {
                         <Text style={{ fontSize: 16, color: "black", fontWeight: "700" }}>
                             Tokodapur Point
                         </Text>
-                        <Text style={{ fontSize: 14, color: "#F18910", }}>
-                            Info Selengkapnya
-                        </Text>
+                        <Pressable
+                            onPress={() => setModalDetail(true)}
+                        >
+                            <Text style={{ fontSize: 14, color: "#F18910" }}>
+                                Info Selengkapnya
+                            </Text>
+                        </Pressable>
                     </View>
                     <Text style={{ fontSize: 32, color: "#F18910", fontWeight: "700" }}>
                         50
@@ -83,72 +96,14 @@ export default function Membership() {
             <Text style={{ fontSize: 20, fontWeight: "700", color: "black", marginTop: 20 }}>
                 Tukar Poin dengan Voucher
             </Text>
-
-
-            <View style={styles.section4}>
-                <Image
-                    style={styles.imageVoucher}
-                    source={{
-                        // uri: '../assets/img/Rectangle.png',
-                        uri: 'https://images.unsplash.com/photo-1654190556461-3919acf03f0a?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=870&q=80',
-                    }}
-                />
-                <Text style={{ fontSize: 20, color: "black" }}>Diskon 40% Hingga Rp 200.000 </Text>
-                <Text style={{ fontSize: 18, color: "#A6A6A6" }}>VCH40 </Text>
-                <Text style={{ color: "#F18910", fontSize: 20 }}>600 Poin </Text>
-                <Pressable
-                    onPress={() => setModalDetail(true)}
-                >
-                    <Text style={{ color: "#F18910", fontSize: 18 }}>
-                        Detail
-                    </Text>
-                </Pressable>
-                <Button
-                    onPress
-                    title="Tukar Point"
-                    color="#F18910"
-                />
-            </View>
-
-            <View style={styles.section4}>
-                <Image
-                    style={styles.imageVoucher}
-                    source={{
-                        // uri: '../assets/img/Rectangle.png',
-                        uri: 'https://images.unsplash.com/photo-1654190556461-3919acf03f0a?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=870&q=80',
-                    }}
-                />
-                <Text style={{ fontSize: 20, color: "black" }}>Diskon 40% Hingga Rp 200.000 </Text>
-                <Text style={{ fontSize: 18, color: "#A6A6A6" }}>VCH40 </Text>
-                <Text style={{ color: "#F18910", fontSize: 20 }}>600 Poin </Text>
-                <Text style={{ color: "#F18910", fontSize: 18 }}>Detail</Text>
-                <Button
-                    onPress
-                    title="Tukar Point"
-                    color="#F18910"
-                />
-            </View>
+            <MembershipRows />
+            <MembershipRows />
 
             <Modal
-                animationType="slide"
-                transparent={true}
-                visible={modalDetail}
-                onRequestClose={() => {
-                    Alert.alert("Modal has been closed.");
-                    setModalVisible(!modalVisible);
-                }}
+                onShow={modalDetail}
+                onHide={() => setModalDetail(false)}
+                contentText="Modal Content"
             >
-                <View style={styles.centeredView}>
-                    <View style={styles.modalView}>
-                        <Text style={styles.modalText}>Hello World!</Text>
-                        <Pressable
-                            style={[styles.button, styles.buttonClose]}
-                            onPress={() => setModalDetail(!modalDetail)}
-                        >
-                            <Text style={styles.textStyle}>Hide Modal</Text>
-                        </Pressable>
-                    </View>
-                </View>
             </Modal>
         </View>
 
@@ -170,12 +125,14 @@ const styles = StyleSheet.create({
     logo: {
         width: "90%",
         height: 125,
-        borderRadius: 10
+        borderRadius: 10,
+        resizeMode: "cover",
     },
     imageVoucher: {
-        width: "100%",
-        height: 125,
-        borderRadius: 10
+        width: "30%",
+        height: "auto",
+        borderRadius: 10,
+        resizeMode: "cover",
     },
     section1: {
         padding: 20,
@@ -202,8 +159,10 @@ const styles = StyleSheet.create({
         width: "90%",
         borderRadius: 10,
         borderWidth: 2,
-        borderColor: "#F18910"
-
+        borderColor: "#F18910",
+        display: "flex",
+        flexDirection: "row",
+        // flexWrap: "wrap"
     },
     section2: {
         display: "flex",
@@ -221,45 +180,4 @@ const styles = StyleSheet.create({
         fontSize: 16,
         textDecorationLine: "underline",
     },
-    centeredView: {
-        flex: 1,
-        justifyContent: "center",
-        alignItems: "center",
-        marginTop: 22
-    },
-    modalView: {
-        margin: 20,
-        backgroundColor: "white",
-        borderRadius: 20,
-        padding: 35,
-        alignItems: "center",
-        shadowColor: "#000",
-        shadowOffset: {
-            width: 0,
-            height: 2
-        },
-        shadowOpacity: 0.25,
-        shadowRadius: 4,
-        elevation: 5
-    },
-    button: {
-        borderRadius: 20,
-        padding: 10,
-        elevation: 2
-    },
-    buttonOpen: {
-        backgroundColor: "#F194FF",
-    },
-    buttonClose: {
-        backgroundColor: "#2196F3",
-    },
-    textStyle: {
-        color: "white",
-        fontWeight: "bold",
-        textAlign: "center"
-    },
-    modalText: {
-        marginBottom: 15,
-        textAlign: "center"
-    }
 })

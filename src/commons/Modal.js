@@ -1,52 +1,57 @@
-import { View, Button, Text, TextInput, StyleSheet, Image, Modal, Pressable } from 'react-native';
-import react, { useState } from 'react';
+import { View, Button, Text, TextInput, StyleSheet, Image, Pressable } from 'react-native';
+import Modal from "react-native-modal";
+import React from 'react';
+import Icon from "react-native-vector-icons/Ionicons"
 
-export default function Modal() {
-
-    const [modalVisible, setModalVisible] = useState(false);
-
+export default function ModalDialog(
+    {
+        onShow,
+        contentText,
+        onHide
+    }
+) {
     return (
-        <View>
-            <Modal
-                animationType="slide"
-                transparent={true}
-                visible={modalVisible}
-                onRequestClose={() => {
-                    Alert.alert("Modal has been closed.");
-                    setModalVisible(!modalVisible);
-                }}
-            >
-                <View style={styles.centeredView}>
-                    <View style={styles.modalView}>
-                        <Text style={styles.modalText}>Hello World!</Text>
-                        <Pressable
-                            style={[styles.button, styles.buttonClose]}
-                            onPress={() => setModalVisible(!modalVisible)}
-                        >
-                            <Text style={styles.textStyle}>Hide Modal</Text>
-                        </Pressable>
+        <Modal
+            isVisible={onShow}
+            animationIn="slideInUp"
+            animationInTiming={300}
+            animationOut="slideOutDown"
+            coverScreen={true}
+        >
+            <View>
+                <View style={styles.modalView}>
+                    <View style={{ display: "flex", flexDirection: "row", justifyContent: "space-between" }}>
+                        <View>
+                            <Text style={{ fontSize: 20, fontWeight: "500" }}>
+                                Header
+                            </Text>
+                        </View>
+                        <View >
+                            <Pressable
+                                onPress={onHide}
+                            >
+                                <Text style={{ fontSize: 20, fontWeight: "700" }}>
+                                    X
+                                </Text>
+                            </Pressable>
+                        </View>
                     </View>
+                    <Text style={{ marginTop: 20 }}>
+                        {contentText}
+                    </Text>
                 </View>
-            </Modal>
-
-        </View>
-
+            </View>
+        </Modal>
     )
 }
 
 const styles = StyleSheet.create({
-    centeredView: {
-        flex: 1,
-        justifyContent: "center",
-        alignItems: "center",
-        marginTop: 22
-    },
     modalView: {
-        margin: 20,
+        margin: 0,
         backgroundColor: "white",
         borderRadius: 20,
-        padding: 35,
-        alignItems: "center",
+        padding: 20,
+        // alignItems: "center",
         shadowColor: "#000",
         shadowOffset: {
             width: 0,
