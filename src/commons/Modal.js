@@ -7,7 +7,8 @@ export default function ModalDialog(
     {
         onShow,
         contentText,
-        onHide
+        onHide,
+        contentHeader
     }
 ) {
     return (
@@ -22,8 +23,8 @@ export default function ModalDialog(
                 <View style={styles.modalView}>
                     <View style={{ display: "flex", flexDirection: "row", justifyContent: "space-between" }}>
                         <View>
-                            <Text style={{ fontSize: 20, fontWeight: "500" }}>
-                                Header
+                            <Text style={{ fontSize: 20, fontWeight: "500", color: "black" }}>
+                                {contentHeader}
                             </Text>
                         </View>
                         <View >
@@ -36,9 +37,11 @@ export default function ModalDialog(
                             </Pressable>
                         </View>
                     </View>
-                    <Text style={{ marginTop: 20 }}>
-                        {contentText}
-                    </Text>
+                    <View style={{ marginTop: 20 }}>
+                        <Text>
+                            {contentText}
+                        </Text>
+                    </View>
                 </View>
             </View>
         </Modal>

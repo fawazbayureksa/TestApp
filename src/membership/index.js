@@ -1,20 +1,17 @@
 import React, { useState } from 'react';
 import { View, Button, Text, TextInput, StyleSheet, Image, Pressable } from 'react-native';
-import Modal from '../commons/Modal';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import CustomImage from '../commons/CustomImage';
 import MembershipRows from './membershipRows';
+import ModalDialog from '../commons/Modal';
 
 
 export default function Membership() {
     const [text, onChangeText] = useState();
     const [modalDetail, setModalDetail] = useState(false);
-
-
-    const handleSubmit = () => {
-        setModalDetail(true)
-    }
-
+    const [modalTdPoint, setModalTdPoint] = useState(false);
+    const [modalPoint, setModalPoint] = useState(false);
+    const [modalHistroyActivity, setModalHistoryActivity] = useState(false);
 
     return (
         <View style={styles.membership}>
@@ -47,64 +44,194 @@ export default function Membership() {
                             Detail
                         </Text>
                     </Pressable>
-                    <Icon style={{ marginLeft: 60 }} size={24} color="white" name="clock-o" />
+                    <View>
+                        <Pressable onPress={() => setModalHistoryActivity(true)}>
+                            <Icon style={{ marginLeft: 60 }} size={24} color="white" name="clock-o" />
+                        </Pressable>
+                    </View>
                 </View>
                 <View style={styles.section3}>
-                    <View style={{ display: "flex", flexDirection: "row", justifyContent: "space-between" }}>
-                        <Text style={{ fontSize: 16, color: "black", fontWeight: "700" }}>
+                    <View style={{
+                        display: "flex",
+                        flexDirection: "row",
+                        justifyContent: "space-between"
+                    }}
+                    >
+                        <Text style={{
+                            fontSize: 16,
+                            color: "black",
+                            fontWeight: "700"
+                        }}
+                        >
                             Tokodapur Point
                         </Text>
                         <Pressable
-                            onPress={() => setModalDetail(true)}
+                            onPress={() => setModalTdPoint(true)}
                         >
-                            <Text style={{ fontSize: 14, color: "#F18910" }}>
+                            <Text
+                                style={{
+                                    fontSize: 14,
+                                    color: "#F18910"
+                                }}>
                                 Info Selengkapnya
                             </Text>
                         </Pressable>
                     </View>
-                    <Text style={{ fontSize: 32, color: "#F18910", fontWeight: "700" }}>
+                    <Text
+                        style={{
+                            fontSize: 32,
+                            color: "#F18910",
+                            fontWeight: "700"
+                        }}>
                         50
-                        <Text style={{ fontSize: 20, color: "#A6A6A6" }}>
+                        <Text style={{
+                            fontSize: 20,
+                            color: "#A6A6A6"
+                        }}>
                             Point
                         </Text>
                     </Text>
-                    <Text style={{ fontSize: 14, color: "red", marginTop: 20 }}>
+                    <Text
+                        style={{
+                            fontSize: 14,
+                            color: "red",
+                            marginTop: 20
+                        }}>
                         25 poin akan hangus pada 01 Juni 2022
                     </Text>
                 </View>
                 <View style={styles.section3}>
-                    <View style={{ display: "flex", flexDirection: "row", justifyContent: "space-between" }}>
-                        <Text style={{ fontSize: 16, color: "black", fontWeight: "700" }}>
-                            Tokodapur Point
+                    <View style={{
+                        display: "flex",
+                        flexDirection: "row",
+                        justifyContent: "space-between"
+                    }}>
+                        <Text
+                            style={{
+                                fontSize: 16, color: "black", fontWeight: "700"
+                            }}>
+                            Poin Loyalitas
                         </Text>
-                        <Text style={{ fontSize: 14, color: "#F18910", }}>
-                            Info Selengkapnya
-                        </Text>
+                        <Pressable
+                            onPress={() => setModalPoint(true)}
+                        >
+                            <Text style={{
+                                fontSize: 14,
+                                color: "#F18910",
+                            }} >
+                                Info Selengkapnya
+                            </Text>
+                        </Pressable>
                     </View>
-                    <Text style={{ fontSize: 32, color: "#F18910", fontWeight: "700" }}>
+                    <Text
+                        style={{
+                            fontSize: 32,
+                            color: "#F18910",
+                            fontWeight: "700"
+                        }}>
                         1250
-                        <Text style={{ fontSize: 20, color: "#A6A6A6" }}>
+                        <Text
+                            style={{
+                                fontSize: 20,
+                                color: "#A6A6A6"
+                            }}>
                             Point
                         </Text>
                     </Text>
-                    <Text style={{ fontSize: 14, color: "#A6A6A6", marginTop: 20 }}>
+                    <Text
+                        style={{
+                            fontSize: 14,
+                            color: "#A6A6A6",
+                            marginTop: 20
+                        }}>
                         1200 poin lagi untuk naik ke level selanjutnya
                     </Text>
                 </View>
             </View>
 
-            <Text style={{ fontSize: 20, fontWeight: "700", color: "black", marginTop: 20 }}>
+            <Text style={{
+                fontSize: 20,
+                fontWeight: "700",
+                color: "black",
+                marginTop: 20
+            }}>
                 Tukar Poin dengan Voucher
             </Text>
             <MembershipRows />
             <MembershipRows />
 
-            <Modal
+            <ModalDialog
                 onShow={modalDetail}
                 onHide={() => setModalDetail(false)}
-                contentText="Modal Content"
+                contentText="Tentang Member Silver"
+                contentHeader={"Detail Member"}
             >
-            </Modal>
+            </ModalDialog>
+            <ModalDialog
+                onShow={modalTdPoint}
+                onHide={() => setModalTdPoint(false)}
+                contentText={"Tentang Member Silver"}
+                contentHeader={"Tokodapur Poin"}
+            >
+            </ModalDialog>
+
+
+            <ModalDialog
+                onShow={modalPoint}
+                onHide={() => setModalPoint(false)}
+                contentText={"Syarat dan Ketentuan"}
+                contentHeader={"Poin Loyalitas"}
+            >
+            </ModalDialog>
+            <ModalDialog
+                onShow={modalHistroyActivity}
+                onHide={() => setModalHistoryActivity(false)}
+                contentText={
+                    <View>
+                        <View
+                            style={{
+                                display: "flex",
+                                flexDirection: "row"
+                            }}>
+                            <View>
+                                <Text style={{
+                                    fontSize: 12,
+                                    fontWeight: "600",
+                                    color: "black"
+                                }}>
+                                    Transaksi: INV-TSI-0002-04-2022
+                                </Text>
+                            </View>
+                            <View
+                                style={{ marginLeft: 30 }}
+                            >
+                                <Text style={{ fontSize: 12 }}>Tokodapur Poin</Text>
+                            </View>
+                        </View>
+                        <View style={{
+                            display: "flex",
+                            flexDirection: "row",
+                            marginTop: 20
+                        }}>
+                            <View>
+                                <Text
+                                    style={{
+                                        fontSize: 12,
+                                        fontWeight: "600",
+                                        color: "black"
+                                    }}>Transaksi: INV-TSI-0002-04-2022</Text>
+                            </View>
+                            <View
+                                style={{ marginLeft: 30 }}>
+                                <Text
+                                    style={{ fontSize: 12 }}>Tokodapur Poin</Text>
+                            </View>
+                        </View>
+                    </View>
+                }
+                contentHeader={"Riwayat Aktivitas Poin"}
+            >
+            </ModalDialog>
         </View>
 
     )
@@ -162,7 +289,6 @@ const styles = StyleSheet.create({
         borderColor: "#F18910",
         display: "flex",
         flexDirection: "row",
-        // flexWrap: "wrap"
     },
     section2: {
         display: "flex",
