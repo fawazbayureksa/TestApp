@@ -31,8 +31,8 @@ export default function ModalDialog(
                             <Pressable
                                 onPress={onHide}
                             >
-                                <Text style={{ fontSize: 20, fontWeight: "700" }}>
-                                    X
+                                <Text style={{ fontSize: 20, fontWeight: "700", color: "black" }}>
+                                    x
                                 </Text>
                             </Pressable>
                         </View>
@@ -52,7 +52,7 @@ const styles = StyleSheet.create({
     modalView: {
         margin: 0,
         backgroundColor: "white",
-        borderRadius: 20,
+        borderRadius: 10,
         padding: 20,
         // alignItems: "center",
         shadowColor: "#000",
