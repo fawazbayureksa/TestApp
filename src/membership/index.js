@@ -1,9 +1,15 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Button, Text, TextInput, StyleSheet, Image, Pressable, SafeAreaView, StatusBar, ScrollView } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import CustomImage from '../commons/CustomImage';
 import MembershipRows from './membershipRows';
 import ModalDialog from '../commons/Modal';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import axios from 'axios';
+import Config from '../commons/Config';
+import { CurrencyFormat } from '../components/CurrencyFormat';
+import { DateTimeFormat } from '../components/DatetimeFormat';
+
 
 export default function Membership() {
     const [text, onChangeText] = useState();
@@ -11,18 +17,61 @@ export default function Membership() {
     const [modalTdPoint, setModalTdPoint] = useState(false);
     const [modalPoint, setModalPoint] = useState(false);
     const [modalHistroyActivity, setModalHistoryActivity] = useState(false);
-    const [data, setData] = useState();
+    const [dataVoucherEligible, setDataVoucherEligible] = useState([]);
+    const [dataVoucherIneligible, setDataVoucherIneligible] = useState([]);
+    const [data, setData] = useState({});
+    const baseUrl = `https://api-cms.degadai.id/api/`;
 
-    // const token = localStorage.getItem('token')
 
-    // const response = await fetch("REACT_APP_BASE_API_URL", {
-    //     method: 'GET',
-    //     headers: {
-    //         'Content-type': 'application/json',
-    //         'Authorization': `Bearer ${token}`,
-    //     },
-    //     body: JSON.stringify(yourNewData)
-    // })
+    useEffect(() => {
+        getData();
+        getDataVoucher();
+    }, []);
+
+
+    const getData = async () => {
+
+        let config = {
+            headers: {
+                Origin: "http://localhost:3002/"
+            }
+        }
+        await axios.get(baseUrl + `membership/getMasterData`,
+            {
+                headers: {
+                    "Origin": "http://localhost:3002/",
+                    "Authorization": `Bearer ${JSON.parse(await AsyncStorage.getItem("token"))}`,
+                }
+            }
+        )
+            .then(response => {
+                setData(response.data.data)
+            }).catch(error => {
+                console.log(error)
+
+            })
+    }
+
+    const getDataVoucher = async () => {
+
+        await axios.get(baseUrl + `membership/getVouchersToRedeem`,
+            {
+                headers: {
+                    "Origin": "http://localhost:3002/",
+                    "Authorization": `Bearer ${JSON.parse(await AsyncStorage.getItem("token"))}`,
+                }
+            }
+        )
+            .then(response => {
+
+                setDataVoucherEligible(response.data.data.eligibleVouchers)
+                setDataVoucherIneligible(response.data.data.ineligibleVouchers)
+            }).catch(error => {
+                console.log(error)
+
+            })
+    }
+
 
     return (
         <SafeAreaView>
@@ -50,7 +99,7 @@ export default function Membership() {
                                 }}
                             />
                             <Text style={{ fontSize: 18, fontWeight: "700", color: "#ffffff", }}>
-                                Silver Member
+                                {(data?.customerLevel?.name) || "-"}
                             </Text>
                             <Pressable onPress={() => setModalDetail(true)}>
                                 <Text style={styles.text}>
@@ -59,7 +108,8 @@ export default function Membership() {
                             </Pressable>
                             <View>
                                 <Pressable onPress={() => setModalHistoryActivity(true)}>
-                                    <Icon style={{ marginLeft: 60 }} size={24} color="white" name="clock-o" />
+                                    <Icon style={{ marginLeft: 60 }} size={24} color="white" name="clock-o" type="font-awesome-5" />
+                                    {/* <Icon name="rocket" size={30} color="#900" /> */}
                                 </Pressable>
                             </View>
                         </View>
@@ -76,7 +126,7 @@ export default function Membership() {
                                     fontWeight: "700"
                                 }}
                                 >
-                                    Tokodapur Point
+                                    {(data?.cashPointCustomName) || "-"}
                                 </Text>
                                 <Pressable
                                     onPress={() => setModalTdPoint(true)}
@@ -97,7 +147,7 @@ export default function Membership() {
                                         color: "#F18910",
                                         fontWeight: "700"
                                     }}>
-                                    50
+                                    {CurrencyFormat(data?.currentCashPoint)}
                                 </Text>
                                 <Text style={{
                                     marginLeft: 5,
@@ -113,7 +163,16 @@ export default function Membership() {
                                     color: "red",
                                     marginTop: 20
                                 }}>
-                                25 poin akan hangus pada 01 Juni 2022
+                                {
+                                    data?.cashPointExpireSchedule != null
+                                        ?
+                                        ` ${CurrencyFormat(data?.cashPointExpireSchedule.point * -1)}
+                                               Poin akan hangus pada 
+                                               ${DateTimeFormat(data.cashPointExpireSchedule.scheduled_time, 0)}
+                                            `
+                                        :
+                                        ""
+                                }
                             </Text>
                         </View>
                         <View style={styles.section3}>
@@ -146,14 +205,14 @@ export default function Membership() {
                                         color: "#F18910",
                                         fontWeight: "700"
                                     }}>
-                                    1250
+                                    {data?.currentLoyaltyPoint}
                                 </Text>
                                 <Text style={{
                                     marginLeft: 5,
                                     fontSize: 20,
                                     color: "#A6A6A6"
                                 }}>
-                                    Point
+                                    {`/${data?.customerNextLevel?.min_point}`}
                                 </Text>
                             </View>
                             <Text
@@ -162,7 +221,7 @@ export default function Membership() {
                                     color: "#A6A6A6",
                                     marginTop: 20
                                 }}>
-                                1200 poin lagi untuk naik ke level selanjutnya
+                                {data?.customerNextLevel?.min_point - data?.currentLoyaltyPoint} poin lagi untuk naik ke level selanjutnya
                             </Text>
                         </View>
                     </View>
@@ -175,9 +234,19 @@ export default function Membership() {
                     }}>
                         Tukar Poin dengan Voucher
                     </Text>
-                    <MembershipRows />
-                    <MembershipRows />
-
+                    {
+                        (dataVoucherEligible !== null || dataVoucherIneligible !== null) ?
+                            <>
+                                {dataVoucherEligible && dataVoucherEligible.map((item) => (
+                                    <MembershipRows item={item} submit={getData} />
+                                ))}
+                                {dataVoucherIneligible && dataVoucherIneligible.map((item) => (
+                                    <MembershipRows item={item} submit={getData} />
+                                ))}
+                            </>
+                            :
+                            ""
+                    }
                     <ModalDialog
                         onShow={modalDetail}
                         onHide={() => setModalDetail(false)}

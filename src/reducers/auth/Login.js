@@ -1,18 +1,41 @@
 import axios from 'axios';
 import React, { useState, useEffect } from 'react';
 import { View, Text, Button, TextInput, StyleSheet, KeyboardAvoidingView, TouchableOpacity, Pressable } from "react-native";
-import { useDispatch, useSelector } from 'react-redux';
-
-
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export default function Login({ navigation }) {
     const [email, setEmail] = useState()
     const [password, setPassword] = useState()
+    const [foundToken, setFoundToken] = useState()
 
-    const handleLogin = () => {
+    const baseUrl = `https://api-cms.degadai.id/api/`;
 
+
+    const handleLogin = async () => {
+        let data = {
+            email: email,
+            password: password,
+        }
+        let config = {
+            headers: {
+                Origin: "http://localhost:3002/",
+            }
+        }
+
+        axios.post(baseUrl + `auth/login`, data, config)
+            .then(async (res) => {
+
+                const token = JSON.stringify(res.data.data.access_token)
+
+                await AsyncStorage.setItem("token", token)
+
+            })
+            .catch(function (error) {
+
+                console.log(error);
+
+            })
     }
-
 
     return (
         <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: "#FFFFFF" }}>
@@ -33,22 +56,28 @@ export default function Login({ navigation }) {
                 />
             </View>
             <View style={{ flexDirection: "row", justifyContent: "space-between", width: "40%" }}>
-                <Button
-                    title="Masuk"
-                    onPress={handleLogin}
-                    color="#F18910"
-                />
-                <Button
-                    title="Kembali"
-                    onPress={() => navigation.navigate('Membership')}
-                    color="gray"
-                />
+                <TouchableOpacity>
+                    <Button
+                        title="Masuk"
+                        onPress={handleLogin}
+                        color="#F18910"
+                    />
+                </TouchableOpacity>
+                <TouchableOpacity>
+                    <Button
+                        title="Kembali"
+                        onPress={() => navigation.navigate('Membership')}
+                        color="gray"
+                    />
+                </TouchableOpacity>
             </View>
             <View style={{ display: "flex", flexDirection: "row", marginTop: 15 }}>
                 <Text style={{ color: "black", fontSize: 16 }}>
                     Belum Punya Akun ?
                 </Text>
-                <Pressable>
+                <Pressable
+                    onPress={() => navigation.navigate('Register')}
+                >
                     <Text style={{ marginLeft: 10, color: "#F18910", fontSize: 16 }}>
                         Daftar
                     </Text>

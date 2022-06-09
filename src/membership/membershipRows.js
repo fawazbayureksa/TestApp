@@ -2,8 +2,9 @@ import React, { useState } from 'react';
 import { View, Image, Text, StyleSheet, Pressable, Button } from 'react-native';
 import CustomImage from '../commons/CustomImage';
 import ModalDialog from '../commons/Modal';
+import { CurrencyFormat } from '../components/CurrencyFormat';
 
-const MembershipRows = () => {
+const MembershipRows = ({ item, type, submit }) => {
     const [modalDetail, setModalDetail] = useState(false);
     const [modalDetailVoucher, setModalDetailVoucher] = useState(false);
     const [modalTukarPoint, setModalTukarPoint] = useState(false);
@@ -13,9 +14,16 @@ const MembershipRows = () => {
         setModalTukarPoint(true)
     }
 
+    const getMinPurchase = () => {
+        if (!item.conditions) return null
+        let min_purchase = item.conditions.find(x => x.type == "purchase" && x.purchase_trigger === true)
+        if (min_purchase) return min_purchase.value
+
+        return 0
+    }
 
     return (
-        <View style={styles.section4}>
+        <View style={styles.section4} key={item.id}>
             <Image
                 style={styles.imageVoucher}
                 source={{
@@ -34,14 +42,14 @@ const MembershipRows = () => {
                         color: "black",
                         fontWeight: "600"
                     }}>
-                    Diskon 40% Hingga Rp 200.000
+                    {item.name}
                 </Text>
                 <Text
                     style={{
                         fontSize: 18,
                         color: "#A6A6A6"
                     }}>
-                    VCH40
+                    {item.code}
                 </Text>
                 <Text
                     style={{
@@ -49,7 +57,7 @@ const MembershipRows = () => {
                         fontSize: 18,
                         fontWeight: "700"
                     }}>
-                    600 Poin
+                    {CurrencyFormat(getMinPurchase())} Poin
                 </Text>
                 <Pressable
                     onPress={() => setModalDetail(true)}
@@ -62,7 +70,7 @@ const MembershipRows = () => {
                         Detail
                     </Text>
                 </Pressable>
-                <View style={{ width: "60%" }}>
+                <View style={{ width: "60%", marginTop: 10 }}>
                     <Text
                         numberOfLines={1}
                         style={{

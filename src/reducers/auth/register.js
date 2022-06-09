@@ -6,6 +6,9 @@ import { useDispatch, useSelector } from 'react-redux';
 export default function Login({ navigation }) {
     const [email, setEmail] = useState()
     const [password, setPassword] = useState()
+    const [date, setDate] = useState()
+
+
 
     const handleLogin = () => {
 
@@ -28,20 +31,7 @@ export default function Login({ navigation }) {
                     value={email}
                     placeholder="Masukkan Email"
                 />
-                <TextInput
-                    style={styles.input}
-                    onChangeText={(e) => (setEmail(e))}
-                    value={email}
-                    autoComplete="birthdate-full"
-                    placeholder="Masukkan tanggal lahir"
-                />
-                <TextInput
-                    style={styles.input}
-                    onChangeText={(e) => (setEmail(e))}
-                    value={email}
-                    autoComplete="tel-device"
-                    placeholder="No telepon"
-                />
+
                 <TextInput
                     style={styles.input}
                     onChangeText={(e) => (setEmail(e))}
@@ -64,16 +54,15 @@ export default function Login({ navigation }) {
                     secureTextEntry={true}
                 />
             </View>
-            <View style={{ flexDirection: "row", justifyContent: "space-between", width: "40%" }}>
+            <Text style={{ textAlign: "center", marginHorizontal: 50, marginBottom: 15 }}>
+                Dengan klik Daftar, Maka anda telah menyetujui
+                Syarat dan Ketentuan
+            </Text>
+            <View style={{ flexDirection: "row" }}>
                 <Button
                     title="Daftar"
                     onPress={handleLogin}
                     color="#F18910"
-                />
-                <Button
-                    title="Kembali"
-                    onPress={() => navigation.navigate('Membership')}
-                    color="gray"
                 />
             </View>
             <View style={{ display: "flex", flexDirection: "row", marginTop: 15 }}>
