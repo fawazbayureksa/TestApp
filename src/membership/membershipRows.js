@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { View, Image, Text, StyleSheet, Pressable, Button, Alert } from 'react-native';
-import CustomImage from '../commons/CustomImage';
 import ModalDialog from '../commons/Modal';
 import { CurrencyFormat } from '../components/CurrencyFormat';
 import axios from 'axios';
@@ -70,12 +69,13 @@ const MembershipRows = ({ item, type, submit, history }) => {
         return type === 0
     }
 
+    // console.log(item.image)
     return (
         <View style={styles.section4} key={item.id}>
             <Image
                 style={styles.imageVoucher}
                 source={{
-                    uri: 'https://images.unsplash.com/photo-1654190556461-3919acf03f0a?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=870&q=80',
+                    uri: `https://tsi-1.oss-ap-southeast-5.aliyuncs.com/public/marketplace/voucher/${item.image}`,
                 }}
             />
             <View
@@ -119,22 +119,23 @@ const MembershipRows = ({ item, type, submit, history }) => {
                     </Text>
                 </Pressable>
                 <View style={{ width: "60%", marginTop: 10 }}>
-                    <Text
-                        numberOfLines={1}
-                        style={{
-                            backgroundColor: editButton() === true ? "grey" : "#F18910",
-                            height: 40,
-                            padding: 10,
-                            color: "white",
-                            borderRadius: 5,
-                            fontSize: 16,
-                            fontWeight: "500",
-                            // marginTop: -40
+                    <Pressable onPress={() => setModalTukarPoint(true)} disabled={editButton() === true ? true : false}>
+                        <Text
+                            numberOfLines={1}
+                            style={{
+                                backgroundColor: editButton() === true ? "grey" : "#F18910",
+                                height: 40,
+                                padding: 10,
+                                color: "white",
+                                borderRadius: 5,
+                                fontSize: 16,
+                                fontWeight: "500",
 
-                        }}
-                        onPress={() => setModalTukarPoint(true)}>
-                        Tukar Point
-                    </Text>
+                            }}
+                        >
+                            Tukar Point
+                        </Text>
+                    </Pressable>
                 </View>
             </View>
 
@@ -222,6 +223,14 @@ const styles = StyleSheet.create({
         borderColor: "#F18910",
         display: "flex",
         flexDirection: "row",
+        shadowColor: "#000",
+        shadowOffset: {
+            width: 0,
+            height: 3,
+        },
+        shadowOpacity: 0.29,
+        shadowRadius: 4.65,
+        elevation: 7,
     },
     text: {
         color: "#FFFFFF",

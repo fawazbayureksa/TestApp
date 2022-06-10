@@ -13,7 +13,7 @@ import moment from 'moment';
 
 export default function Membership({ navigation }) {
 
-    if (AsyncStorage.getItem("token") == "") {
+    if (AsyncStorage.getItem("token") == undefined) {
         navigation.navigate("Login");
     }
 
@@ -117,6 +117,7 @@ export default function Membership({ navigation }) {
             <StatusBar barStyle='light-content' backgroundColor="#ff6f00"></StatusBar>
             <ScrollView style={{ backgroundColor: "#FFFFFF" }}>
                 <View style={styles.membership}>
+                    <Text style={{ fontSize: 14, color: "black", marginTop: 20 }}>Search</Text>
                     <TextInput
                         style={styles.input}
                         onChangeText={onChangeText}
@@ -126,7 +127,7 @@ export default function Membership({ navigation }) {
                     <Image
                         style={styles.logo}
                         source={{
-                            uri: `https://tsi-1.oss-ap-southeast-5.aliyuncs.com/public/cms/29604f9e-db35-11ec-a7de-00163c71e1f6.jpg`
+                            uri: `https://tsi-1.oss-ap-southeast-5.aliyuncs.com/public/membership/${data?.customerNextLevel?.banner}`
                         }}
                     />
 
@@ -397,7 +398,7 @@ export default function Membership({ navigation }) {
 const styles = StyleSheet.create({
     input: {
         paddingHorizontal: 20,
-        marginTop: 20,
+        marginTop: 0,
         marginBottom: 20,
         borderWidth: 1,
         borderColor: "#F18910",
@@ -438,6 +439,15 @@ const styles = StyleSheet.create({
         height: "auto",
         width: "100%",
         borderRadius: 10,
+        shadowColor: "#000",
+        shadowOffset: {
+            width: 0,
+            height: 3,
+        },
+        shadowOpacity: 0.29,
+        shadowRadius: 4.65,
+
+        elevation: 7,
     },
     section4: {
         padding: 20,
@@ -451,6 +461,7 @@ const styles = StyleSheet.create({
         borderColor: "#F18910",
         display: "flex",
         flexDirection: "row",
+
     },
     section2: {
         display: "flex",

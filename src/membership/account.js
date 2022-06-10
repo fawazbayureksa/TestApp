@@ -67,6 +67,7 @@ export default function Account({ navigation }) {
 
     return (
         <View style={styles.container}>
+            <Text style={{ fontSize: 16, color: "black" }}>Search</Text>
             <TextInput
                 style={styles.input}
                 onChangeText={onChangeText}
@@ -75,9 +76,7 @@ export default function Account({ navigation }) {
             />
             <Text style={{ fontSize: 24, color: "black", fontWeight: "600" }}>Hi , {name?.name}!</Text>
             <View style={styles.section3}>
-                <Text style={{ fontSize: 20, color: "black", fontWeight: "600" }}>
-                    {/* Nama : {JSON.parse(AsyncStorage.getItem("user").name)} */}
-                </Text>
+
                 <Pressable onPress={() => navigation.navigate("Membership")}>
                     <View style={{ display: "flex", flexDirection: "row", justifyContent: "space-between" }}>
                         <View style={{ display: "flex", flexDirection: "row" }}>
@@ -103,7 +102,7 @@ export default function Account({ navigation }) {
                             </View>
                         </View>
                         <View>
-                            <Text style={{ fontSize: 40 }}>
+                            <Text style={{ fontSize: 40, color: "black" }}>
                                 &gt;
                             </Text>
                         </View>
@@ -124,7 +123,7 @@ export default function Account({ navigation }) {
 const styles = StyleSheet.create({
     input: {
         paddingHorizontal: 20,
-        marginTop: 20,
+        marginTop: 0,
         marginBottom: 20,
         borderWidth: 1,
         borderColor: "#F18910",
@@ -165,6 +164,16 @@ const styles = StyleSheet.create({
         height: "auto",
         width: "100%",
         borderRadius: 10,
+        shadowColor: "#000",
+        shadowOffset: {
+            width: 0,
+            height: 3,
+        },
+        shadowOpacity: 0.29,
+        shadowRadius: 4.65,
+
+        elevation: 7,
+
     },
     section4: {
         padding: 20,
@@ -178,6 +187,8 @@ const styles = StyleSheet.create({
         borderColor: "#F18910",
         display: "flex",
         flexDirection: "row",
+
+
     },
     section2: {
         display: "flex",

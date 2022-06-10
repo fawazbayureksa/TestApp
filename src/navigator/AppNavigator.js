@@ -1,4 +1,4 @@
-import * as React from 'react';
+import React, { useEffect } from 'react';
 import { Text, View } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
@@ -7,10 +7,15 @@ import Login from '../reducers/auth/Login';
 import Membership from '../membership/index';
 import Register from "../reducers/auth/register";
 import Account from "../membership/account"
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import isEmpty from "../commons/IsEmpty"
 const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator();
 
-export default function AppNavigator() {
+export default function AppNavigator({ navigation }) {
+
+
+
     return (
         <NavigationContainer>
             <Stack.Navigator>

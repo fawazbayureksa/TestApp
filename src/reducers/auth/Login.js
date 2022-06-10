@@ -58,19 +58,19 @@ export default function Login({ navigation }) {
     }
 
 
-
-
     return (
         // <View style={styles.container}>
         <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: "#FFFFFF" }}>
             <View style={{ width: "80%" }}>
                 <Text style={styles.title}>Masuk Ke Akun Anda</Text>
+                <Text style={{ fontSize: 14, color: "black" }}>Email Address</Text>
                 <TextInput
                     style={styles.input}
                     onChangeText={(e) => (setEmail(e))}
                     value={email}
                     placeholder="Masukkan Email"
                 />
+                <Text style={{ fontSize: 14, color: "black" }}>Password</Text>
                 <TextInput
                     style={styles.input}
                     onChangeText={(e) => (setPassword(e))}

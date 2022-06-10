@@ -2,6 +2,7 @@ import React, { PureComponent, useEffect, useState } from "react";
 import axios from 'axios';
 import Config from "./Config"
 import { View, Image } from "react-native"
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 
 export const PublicStorageFolderPath = {
@@ -23,38 +24,43 @@ const CustomImage = (props) => {
         getImageUrl()
     }, [props.filename])
 
-    const getImageUrl = () => {
+    const getImageUrl = async () => {
         if (!props.folder || !props.filename) {
             set_filename('')
             return;
         }
 
         let params = {
-            folder: props.folder,
             filename: props.filename
         }
-        let url = `https://tsi-cms.oss-ap-southeast-5.aliyuncs.com/public/` + "images/getPublicUrl"
-        axios.get(url, Config({
-        }, params))
 
-            .then(response => {
-                set_filename(response.data)
-            }).catch(error => {
-                console.log(error)
-            })
+        // console.log(params)
+        // return
+        let url = "https://tsi-1.oss-ap-southeast-5.aliyuncs.com/public/membership/"
+        axios.get(url, {
+            headers: {
+                "Authorization": `Bearer ${JSON.parse(await AsyncStorage.getItem("token"))}`,
+            },
+            params
+        }).then(response => {
+            set_filename(response.data)
+            console.log(response)
+        }).catch(error => {
+            console.log(error)
+        })
     }
+
+    console.log(filename)
 
     return (
 
-        // <img alt={props.alt} src={filename} className={props.className} style={props.style} onLoad={props.onLoad} onError={event => event.target.src = "/images/placeholder.gif"} onClick={props.onClick} />
-        <View>
-            <Image
-                style={props.style}
-                source={{
-                    uri: `${filename}`
-                }}
-            />
-        </View>
+
+        <Image
+            style={props.style}
+            source={filename}
+        />
+
+
     )
 }
 

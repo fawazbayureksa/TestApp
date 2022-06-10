@@ -92,7 +92,7 @@ export default function Login({ navigation }) {
 
     const verifyEmail = async () => {
         let data = {
-            token: JSON.parse(await AsyncStorage.getItem("token")),
+            token: "token",
         }
         await axios.post(baseUrl + `auth/verifyEmail`, data, {
             headers: {
@@ -109,6 +109,7 @@ export default function Login({ navigation }) {
         <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: "#FFFFFF" }}>
             <View style={{ width: "80%" }}>
                 <Text style={styles.title}>Daftar Di Tokodapur</Text>
+                <Text style={{ fontSize: 14, color: "black" }}>Name</Text>
                 <TextInput
                     style={styles.input}
                     onChangeText={(e) => (setName(e))}
@@ -116,7 +117,7 @@ export default function Login({ navigation }) {
                     placeholder="Masukkan Nama"
                 />
                 <View style={{ width: "80%", display: "flex", flexDirection: "row", justifyContent: "space-between", marginVertical: 10 }}>
-                    <Text style={{ fontSize: 14 }}>Pilih Tanggal Lahir</Text>
+                    <Text style={{ fontSize: 14, color: "black" }}>Pilih Tanggal Lahir</Text>
                     <Button title="Pilih" onPress={() => setDatePickerVisibility(true)} color="#F18910" />
                     <DateTimePickerModal
                         isVisible={isDatePickerVisible}
@@ -126,13 +127,14 @@ export default function Login({ navigation }) {
                     />
 
                 </View>
+                <Text style={{ fontSize: 14, color: "black" }}>Email Address</Text>
                 <TextInput
                     style={styles.input}
                     onChangeText={(e) => (setEmail(e))}
                     value={email}
                     placeholder="Masukkan Email"
                 />
-
+                <Text style={{ fontSize: 14, color: "black" }}>Phone Number</Text>
                 <TextInput
                     style={styles.input}
                     onChangeText={(e) => (setPhone(e))}
@@ -140,6 +142,7 @@ export default function Login({ navigation }) {
                     autoComplete="tel-device"
                     placeholder="No telepon"
                 />
+                <Text style={{ fontSize: 14, color: "black" }}>Password</Text>
                 <TextInput
                     style={styles.input}
                     onChangeText={(e) => (onChangePass(e))}
