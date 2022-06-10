@@ -1,30 +1,131 @@
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
 import React, { useState, useEffect } from 'react';
-import { View, Text, Button, TextInput, StyleSheet, KeyboardAvoidingView, TouchableOpacity, Pressable } from "react-native";
+import { View, Text, Button, TextInput, StyleSheet, Alert, Pressable } from "react-native";
+import DateTimePickerModal from "react-native-modal-datetime-picker";
 import { useDispatch, useSelector } from 'react-redux';
 
 export default function Login({ navigation }) {
-    const [email, setEmail] = useState()
-    const [password, setPassword] = useState()
-    const [date, setDate] = useState()
+    const [isDatePickerVisible, setDatePickerVisibility] = useState(false);
+    const [name, setName] = useState();
+    const [email, setEmail] = useState();
+    const [password, setPassword] = useState();
+    const [phone, setPhone] = useState();
+    const [dateBirthday, setDateBirtday] = useState();
+    const baseUrl = `https://api-cms.degadai.id/api/`;
+    const [companyName, setCompanyName] = useState()
+
+    useEffect(() => {
+        getMasterDataRegister();
+        verifyEmail()
+    }, []);
 
 
-
-    const handleLogin = () => {
-
+    const onChangePass = (e) => {
+        setPassword(e)
     }
 
 
+
+    const getMasterDataRegister = async () => {
+        await axios.get(baseUrl + `auth/getMasterDataRegister`, {
+            headers: {
+                "Origin": "http://localhost:3002/",
+            }
+        }).then(res => {
+            let data = res.data.data;
+            setCompanyName(data.company_name)
+        }).catch((error) => {
+            console.log(error)
+        })
+    }
+
+    const handleDaftar = () => {
+        let data = {
+            name: name,
+            email: email,
+            date_of_birth: dateBirthday,
+            phone_number: phone,
+            password: password
+        }
+
+        axios.post(baseUrl + `auth/register`, data, {
+            headers: {
+                "Origin": "http://localhost:3002/",
+            }
+        }).then(async (res) => {
+            // if (res.data.message) 
+            console.log(res.data.data)
+            Alert.alert(
+                "",
+                "Register Successfully, Check Your Email For Verification!",
+                [
+                    { text: "OK" }
+                ]
+            )
+            navigation.navigate("Login");
+        })
+            .catch(function (error) {
+                console.log(error);
+                Alert.alert(
+                    "",
+                    "Lengkapi data",
+                    [
+
+                        { text: "OK" }
+                    ]
+                )
+
+            })
+
+        // console.log(data)
+    }
+
+    const hideDatePicker = () => {
+        setDatePickerVisibility(false);
+    };
+
+    const handleConfirm = (date) => {
+        setDateBirtday(date)
+        hideDatePicker();
+    };
+
+    const verifyEmail = async () => {
+        let data = {
+            token: JSON.parse(await AsyncStorage.getItem("token")),
+        }
+        await axios.post(baseUrl + `auth/verifyEmail`, data, {
+            headers: {
+                "Origin": "http://localhost:3002/",
+            }
+        }).then(res => {
+            console.log(res)
+
+        }).catch((error) => {
+            console.log(error)
+        })
+    }
     return (
         <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: "#FFFFFF" }}>
             <View style={{ width: "80%" }}>
                 <Text style={styles.title}>Daftar Di Tokodapur</Text>
                 <TextInput
                     style={styles.input}
-                    onChangeText={(e) => (setEmail(e))}
-                    value={email}
+                    onChangeText={(e) => (setName(e))}
+                    value={name}
                     placeholder="Masukkan Nama"
                 />
+                <View style={{ width: "80%", display: "flex", flexDirection: "row", justifyContent: "space-between", marginVertical: 10 }}>
+                    <Text style={{ fontSize: 14 }}>Pilih Tanggal Lahir</Text>
+                    <Button title="Pilih" onPress={() => setDatePickerVisibility(true)} color="#F18910" />
+                    <DateTimePickerModal
+                        isVisible={isDatePickerVisible}
+                        mode="date"
+                        onConfirm={handleConfirm}
+                        onCancel={hideDatePicker}
+                    />
+
+                </View>
                 <TextInput
                     style={styles.input}
                     onChangeText={(e) => (setEmail(e))}
@@ -34,25 +135,25 @@ export default function Login({ navigation }) {
 
                 <TextInput
                     style={styles.input}
-                    onChangeText={(e) => (setEmail(e))}
-                    value={email}
+                    onChangeText={(e) => (setPhone(e))}
+                    value={phone}
                     autoComplete="tel-device"
                     placeholder="No telepon"
                 />
                 <TextInput
                     style={styles.input}
-                    onChangeText={(e) => (setPassword(e))}
+                    onChangeText={(e) => (onChangePass(e))}
                     value={password}
                     placeholder="Masukkan Kata Sandi"
                     secureTextEntry={true}
                 />
-                <TextInput
+                {/* <TextInput
                     style={styles.input}
                     onChangeText={(e) => (setPassword(e))}
                     value={password}
                     placeholder="Konfirmasi Kata Sandi"
                     secureTextEntry={true}
-                />
+                /> */}
             </View>
             <Text style={{ textAlign: "center", marginHorizontal: 50, marginBottom: 15 }}>
                 Dengan klik Daftar, Maka anda telah menyetujui
@@ -61,7 +162,7 @@ export default function Login({ navigation }) {
             <View style={{ flexDirection: "row" }}>
                 <Button
                     title="Daftar"
-                    onPress={handleLogin}
+                    onPress={handleDaftar}
                     color="#F18910"
                 />
             </View>

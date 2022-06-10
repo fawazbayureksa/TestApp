@@ -5,7 +5,7 @@ import ModalDialog from '../commons/Modal';
 import { CurrencyFormat } from '../components/CurrencyFormat';
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-const MembershipRows = ({ item, type, submit }) => {
+const MembershipRows = ({ item, type, submit, history }) => {
     const [modalDetailVoucher, setModalDetailVoucher] = useState(false);
     const [modalTukarPoint, setModalTukarPoint] = useState(false);
     const [submitting, setSubmitting] = useState()
@@ -37,6 +37,8 @@ const MembershipRows = ({ item, type, submit }) => {
                     ]
                 )
                 submit()
+                history()
+
             }
         })
             .catch(function (error) {

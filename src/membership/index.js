@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Button, Text, TextInput, StyleSheet, Image, Pressable, SafeAreaView, StatusBar, ScrollView } from 'react-native';
+import { FlatList, View, Button, Text, TextInput, StyleSheet, Image, Pressable, SafeAreaView, StatusBar, ScrollView } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import CustomImage from '../commons/CustomImage';
 import MembershipRows from './membershipRows';
@@ -9,6 +9,7 @@ import axios from 'axios';
 import { CurrencyFormat } from '../components/CurrencyFormat';
 import { DateTimeFormat } from '../components/DatetimeFormat';
 import CustomImage2, { PublicStorageFolderPath } from '../commons/CustomImage2';
+import moment from 'moment';
 
 export default function Membership({ navigation }) {
 
@@ -24,7 +25,7 @@ export default function Membership({ navigation }) {
     const [dataVoucherEligible, setDataVoucherEligible] = useState([]);
     const [dataVoucherIneligible, setDataVoucherIneligible] = useState([]);
     const [data, setData] = useState();
-    const [perPage, setPerPage] = useState(5);
+    const [perPage, setPerPage] = useState(6);
     const [lastCashPointLogID, setlastCashPointLogID] = useState()
     const [lastLoyaltyPointLogID, setlastLoyaltyPointLogID] = useState()
     const [dataHistory, setDataHistory] = useState([]);
@@ -34,7 +35,8 @@ export default function Membership({ navigation }) {
     useEffect(() => {
         getData();
         getDataVoucher();
-        getPointHistory()
+        getPointHistory();
+
     }, []);
 
 
@@ -55,6 +57,7 @@ export default function Membership({ navigation }) {
         )
             .then(response => {
                 setData(response.data.data)
+                console.log(data?.customerLevel?.banner)
             }).catch(error => {
                 console.log(error)
 
@@ -120,8 +123,11 @@ export default function Membership({ navigation }) {
                         value={text}
                         placeholder="Cari produk/toko"
                     />
-                    <CustomImage
+                    <Image
                         style={styles.logo}
+                        source={{
+                            uri: `https://tsi-1.oss-ap-southeast-5.aliyuncs.com/public/cms/29604f9e-db35-11ec-a7de-00163c71e1f6.jpg`
+                        }}
                     />
 
                     <View style={styles.section1}>
@@ -275,7 +281,7 @@ export default function Membership({ navigation }) {
                                     Tukar Poin dengan Voucher
                                 </Text>
                                 {dataVoucherEligible && dataVoucherEligible.map((item) => (
-                                    <MembershipRows item={item} submit={getData} key={item.id} />
+                                    <MembershipRows item={item} submit={getData} key={item.id} history={getPointHistory} />
                                 ))}
                                 <Text style={{
                                     fontSize: 20,
@@ -316,7 +322,6 @@ export default function Membership({ navigation }) {
                     >
                     </ModalDialog>
 
-
                     <ModalDialog
                         onShow={modalPoint}
                         onHide={() => setModalPoint(false)}
@@ -333,46 +338,58 @@ export default function Membership({ navigation }) {
                         onHide={() => setModalHistoryActivity(false)}
                         contentText={
                             <View>
-                                {dataHistory && dataHistory.map((item, index) => (
-                                    <View
-                                        style={{
-                                            display: "flex",
-                                            flexDirection: "column"
-                                        }}
-                                        key={item.id}
-                                    >
-                                        <View>
-                                            <Text style={{
-                                                fontSize: 20,
-                                                fontWeight: "600",
-                                                color: "black"
-                                            }}>
-                                                Transaksi: {item.description}
-                                            </Text>
-                                            <Text>
-                                                {DateTimeFormat(item.created_at, 0)}
-                                            </Text>
+                                {dataHistory && dataHistory.map((item) => (
+                                    <View key={item?.id}>
+                                        <View
+                                            style={{
+                                                display: "flex",
+                                                flexDirection: "row",
+                                                justifyContent: "space-between"
+                                            }}
+
+                                        >
+                                            <View>
+                                                <Text style={{
+                                                    fontSize: 20,
+                                                    fontWeight: "600",
+                                                    color: "black"
+                                                }}>
+                                                    Transaksi: {item?.description}
+                                                </Text>
+                                                <Text style={{ color: "black" }}>
+                                                    {moment(item?.created_at).format("DD/MM/YYYY")}
+                                                </Text>
+                                            </View>
+                                            <View>
+                                                <Text style={{ fontSize: 14, color: "black" }}>
+                                                    {(item?.type == "cash") ? data?.cashPointCustomName : (item?.type == "loyalty") ? "Poin Loyalitas" : "-"}
+                                                </Text>
+                                                <Text
+                                                    style={{ color: item.point > 0 ? "green" : "red", fontSize: 18, alignSelf: "flex-end" }}
+                                                >
+                                                    {(item?.point > 0) ? `+${CurrencyFormat(item?.point)}` : CurrencyFormat(item?.point)}
+                                                </Text>
+                                            </View>
                                         </View>
-                                        <View>
-                                            <Text style={{ fontSize: 18, color: "black" }}>
-                                                {(item.type == "cash") ? data?.cashPointCustomName : (item.type == "loyalty") ? "Poin Loyalitas" : "-"}
-                                            </Text>
-                                            <Text
-                                                style={{ color: item.point > 0 ? "green" : "red", fontSize: 20 }}
-                                            >
-                                                {(item.point > 0) ? `+${CurrencyFormat(item.point)}` : CurrencyFormat(item.point)}
-                                            </Text>
-                                        </View>
+                                        <View
+                                            style={{
+                                                borderBottomColor: 'gray',
+                                                borderBottomWidth: 1,
+                                                marginVertical: 10
+                                            }}
+                                        />
                                     </View>
+
                                 ))}
                             </View>
+
                         }
                         contentHeader={"Riwayat Aktivitas Poin"}
                     >
                     </ModalDialog>
                 </View>
-            </ScrollView>
-        </SafeAreaView>
+            </ScrollView >
+        </SafeAreaView >
 
     )
 }

@@ -24,17 +24,13 @@ export default function Login({ navigation }) {
 
         axios.post(baseUrl + `auth/login`, data, config)
             .then(async (res) => {
-                const data = res.data.data.user
+                const data = JSON.stringify(res.data.data.user)
                 const token = JSON.stringify(res.data.data.access_token)
+                const firstPair = ["token", token]
+                const secondPair = ["user", data]
 
-                // const firstPair = ["token", token]
-                // const secondPair = ["user", data]
+                await AsyncStorage.multiSet([firstPair, secondPair])
 
-                await AsyncStorage.setItem("token", token);
-
-                // await AsyncStorage.multiSet([firstPair, secondPair])
-
-                // await AsyncStorage.setItem("user", data)
                 if (res.data.message == "login success") {
                     Alert.alert(
                         "",
@@ -45,6 +41,7 @@ export default function Login({ navigation }) {
                     )
                     navigation.navigate("Account");
                 }
+                console.log(res.data.message);
             })
             .catch(function (error) {
                 console.log(error);
@@ -90,13 +87,6 @@ export default function Login({ navigation }) {
                         color="#F18910"
                     />
                 </TouchableOpacity>
-                {/* <TouchableOpacity>
-                    <Button
-                        title="Kembali"
-                        onPress={() => navigation.navigate('Membership')}
-                        color="gray"
-                    />
-                </TouchableOpacity> */}
             </View>
             <View style={{ display: "flex", flexDirection: "row", marginTop: 15 }}>
                 <Text style={{ color: "black", fontSize: 16 }}>

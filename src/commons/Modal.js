@@ -20,6 +20,7 @@ export default function ModalDialog(
             coverScreen={true}
         >
             <View>
+
                 <View style={styles.modalView}>
                     <View style={{ display: "flex", flexDirection: "row", justifyContent: "space-between" }}>
                         <View>
@@ -37,6 +38,13 @@ export default function ModalDialog(
                             </Pressable>
                         </View>
                     </View>
+                    <View
+                        style={{
+                            borderBottomColor: 'gray',
+                            borderBottomWidth: 1,
+                            marginVertical: 10
+                        }}
+                    />
                     <View style={{ marginTop: 20 }}>
                         {contentText}
                     </View>
