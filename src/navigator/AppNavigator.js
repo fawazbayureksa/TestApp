@@ -5,7 +5,8 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import Login from '../reducers/auth/Login';
 import Membership from '../membership/index';
-import Register from "../reducers/auth/register"
+import Register from "../reducers/auth/register";
+import Account from "../membership/account"
 const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator();
 
@@ -13,9 +14,10 @@ export default function AppNavigator() {
     return (
         <NavigationContainer>
             <Stack.Navigator>
-                <Stack.Screen name="Register" component={Register} />
-                <Stack.Screen name="Membership" component={Membership} />
                 <Stack.Screen name="Login" component={Login} />
+                <Stack.Screen name="Register" component={Register} />
+                <Stack.Screen name="Account" component={Account} />
+                <Stack.Screen name="Membership" component={Membership} />
             </Stack.Navigator>
             {/* <Tab.Navigator>
                 <Stack.Screen name="Membership" component={Membership} />

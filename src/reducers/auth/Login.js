@@ -1,8 +1,8 @@
 import axios from 'axios';
 import React, { useState, useEffect } from 'react';
-import { View, Text, Button, TextInput, StyleSheet, KeyboardAvoidingView, TouchableOpacity, Pressable } from "react-native";
+import { Alert, View, Text, Button, TextInput, StyleSheet, KeyboardAvoidingView, TouchableOpacity, Pressable } from "react-native";
 import AsyncStorage from '@react-native-async-storage/async-storage';
-
+import { createTwoButtonAlert } from "../../commons/Alert"
 export default function Login({ navigation }) {
     const [email, setEmail] = useState()
     const [password, setPassword] = useState()
@@ -24,20 +24,47 @@ export default function Login({ navigation }) {
 
         axios.post(baseUrl + `auth/login`, data, config)
             .then(async (res) => {
-
+                const data = res.data.data.user
                 const token = JSON.stringify(res.data.data.access_token)
 
-                await AsyncStorage.setItem("token", token)
+                // const firstPair = ["token", token]
+                // const secondPair = ["user", data]
 
+                await AsyncStorage.setItem("token", token);
+
+                // await AsyncStorage.multiSet([firstPair, secondPair])
+
+                // await AsyncStorage.setItem("user", data)
+                if (res.data.message == "login success") {
+                    Alert.alert(
+                        "",
+                        "Login Berhasil",
+                        [
+                            { text: "OK", onPress: () => console.log("OK Pressed") }
+                        ]
+                    )
+                    navigation.navigate("Account");
+                }
             })
             .catch(function (error) {
-
                 console.log(error);
+                Alert.alert(
+                    "",
+                    "Masukkan Email & Password yang benar",
+                    [
+
+                        { text: "OK", onPress: () => console.log("OK Pressed") }
+                    ]
+                )
 
             })
     }
 
+
+
+
     return (
+        // <View style={styles.container}>
         <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: "#FFFFFF" }}>
             <View style={{ width: "80%" }}>
                 <Text style={styles.title}>Masuk Ke Akun Anda</Text>
@@ -55,7 +82,7 @@ export default function Login({ navigation }) {
                     secureTextEntry={true}
                 />
             </View>
-            <View style={{ flexDirection: "row", justifyContent: "space-between", width: "40%" }}>
+            <View style={{ flexDirection: "row", justifyContent: "center", width: "40%" }}>
                 <TouchableOpacity>
                     <Button
                         title="Masuk"
@@ -63,13 +90,13 @@ export default function Login({ navigation }) {
                         color="#F18910"
                     />
                 </TouchableOpacity>
-                <TouchableOpacity>
+                {/* <TouchableOpacity>
                     <Button
                         title="Kembali"
                         onPress={() => navigation.navigate('Membership')}
                         color="gray"
                     />
-                </TouchableOpacity>
+                </TouchableOpacity> */}
             </View>
             <View style={{ display: "flex", flexDirection: "row", marginTop: 15 }}>
                 <Text style={{ color: "black", fontSize: 16 }}>
@@ -84,12 +111,16 @@ export default function Login({ navigation }) {
                 </Pressable>
             </View>
         </View>
+        // </View>
     )
 }
 
 
 const styles = StyleSheet.create({
-
+    container: {
+        // marginLeft: 20,
+        width: "100%",
+    },
     input: {
         paddingHorizontal: 20,
         marginBottom: 20,

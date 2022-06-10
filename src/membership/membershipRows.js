@@ -1,17 +1,59 @@
 import React, { useState } from 'react';
-import { View, Image, Text, StyleSheet, Pressable, Button } from 'react-native';
+import { View, Image, Text, StyleSheet, Pressable, Button, Alert } from 'react-native';
 import CustomImage from '../commons/CustomImage';
 import ModalDialog from '../commons/Modal';
 import { CurrencyFormat } from '../components/CurrencyFormat';
-
+import axios from 'axios';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 const MembershipRows = ({ item, type, submit }) => {
-    const [modalDetail, setModalDetail] = useState(false);
     const [modalDetailVoucher, setModalDetailVoucher] = useState(false);
     const [modalTukarPoint, setModalTukarPoint] = useState(false);
+    const [submitting, setSubmitting] = useState()
+    const baseUrl = `https://api-cms.degadai.id/api/`;
+    const regex = /<[^>]*>/mgi
+
+    const handleSubmit = async () => {
+        setSubmitting(true)
+        let param = {
+            mp_voucher_id: item.id,
+        }
+
+        await axios.post(baseUrl + `membership/buyVoucherWithPoints?`, param,
+            {
+                headers: {
+                    "Origin": "http://localhost:3002/",
+                    "Authorization": `Bearer ${JSON.parse(await AsyncStorage.getItem("token"))}`,
+                }
+            }
+        ).then(res => {
+            console.log(res.data)
+            if (res.data.message == "Successful") {
+                setModalTukarPoint(false)
+                Alert.alert(
+                    "",
+                    "Berhasil tukar Point",
+                    [
+                        { text: "OK", onPress: () => console.log("OK Pressed") }
+                    ]
+                )
+                submit()
+            }
+        })
+            .catch(function (error) {
+                console.log(error);
+                Alert.alert(
+                    "",
+                    "Point Tidak Cukup",
+                    [
+                        { text: "OK", onPress: () => console.log("OK Pressed") }
+                    ]
+                )
+
+            })
 
 
-    const handleSubmit = () => {
-        setModalTukarPoint(true)
+
+
     }
 
     const getMinPurchase = () => {
@@ -20,6 +62,10 @@ const MembershipRows = ({ item, type, submit }) => {
         if (min_purchase) return min_purchase.value
 
         return 0
+    }
+
+    const editButton = () => {
+        return type === 0
     }
 
     return (
@@ -60,7 +106,7 @@ const MembershipRows = ({ item, type, submit }) => {
                     {CurrencyFormat(getMinPurchase())} Poin
                 </Text>
                 <Pressable
-                    onPress={() => setModalDetail(true)}
+                    onPress={() => setModalDetailVoucher(true)}
                 >
                     <Text
                         style={{
@@ -74,7 +120,7 @@ const MembershipRows = ({ item, type, submit }) => {
                     <Text
                         numberOfLines={1}
                         style={{
-                            backgroundColor: "#F18910",
+                            backgroundColor: editButton() === true ? "grey" : "#F18910",
                             height: 40,
                             padding: 10,
                             color: "white",
@@ -84,29 +130,33 @@ const MembershipRows = ({ item, type, submit }) => {
                             // marginTop: -40
 
                         }}
-                        onPress={handleSubmit}>
+                        onPress={() => setModalTukarPoint(true)}>
                         Tukar Point
                     </Text>
                 </View>
             </View>
 
             <ModalDialog
-                onShow={modalDetail}
-                onHide={() => setModalDetail(false)}
-                contentText={"Content"}
-                contentHeader={"Tentang Member Silver"}
+                onShow={modalDetailVoucher}
+                onHide={() => setModalDetailVoucher(false)}
+                contentHeader={"Detail"}
+                contentText={
+                    <Text style={{ fontSize: 16, color: "black" }}>
+                        {item?.informations[0].terms_and_conditions.replace(regex, "")}
+                    </Text>
+                }
             >
             </ModalDialog>
             <ModalDialog
                 onShow={modalTukarPoint}
                 onHide={() => setModalTukarPoint(false)}
                 contentText={
-                    <View>
+                    <View >
                         <Text style={{ fontSize: 20, fontWeight: "600", color: "black" }}>
-                            Diskon 40% Hingga Rp 200.000
+                            {item.name}
                         </Text>
                         <Text style={{ color: "#F18910", fontSize: 16 }}>
-                            600 Poin
+                            {CurrencyFormat(getMinPurchase())} Poin
                         </Text>
                         <View style={{
                             display: "flex",
@@ -125,6 +175,7 @@ const MembershipRows = ({ item, type, submit }) => {
                                 <Button
                                     title="Beli Voucher"
                                     color="#F18910"
+                                    onPress={handleSubmit}
                                 />
                             </View>
                         </View>
@@ -155,7 +206,7 @@ const styles = StyleSheet.create({
         height: 100,
         borderRadius: 5,
         resizeMode: "cover",
-        alignSelf: "center"
+        alignSelf: "center",
     },
     section4: {
         padding: 20,

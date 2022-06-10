@@ -38,9 +38,7 @@ export default function ModalDialog(
                         </View>
                     </View>
                     <View style={{ marginTop: 20 }}>
-                        <Text>
-                            {contentText}
-                        </Text>
+                        {contentText}
                     </View>
                 </View>
             </View>

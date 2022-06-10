@@ -6,12 +6,16 @@ import MembershipRows from './membershipRows';
 import ModalDialog from '../commons/Modal';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
-import Config from '../commons/Config';
 import { CurrencyFormat } from '../components/CurrencyFormat';
 import { DateTimeFormat } from '../components/DatetimeFormat';
+import CustomImage2, { PublicStorageFolderPath } from '../commons/CustomImage2';
 
+export default function Membership({ navigation }) {
 
-export default function Membership() {
+    if (AsyncStorage.getItem("token") == "") {
+        navigation.navigate("Login");
+    }
+
     const [text, onChangeText] = useState();
     const [modalDetail, setModalDetail] = useState(false);
     const [modalTdPoint, setModalTdPoint] = useState(false);
@@ -19,13 +23,18 @@ export default function Membership() {
     const [modalHistroyActivity, setModalHistoryActivity] = useState(false);
     const [dataVoucherEligible, setDataVoucherEligible] = useState([]);
     const [dataVoucherIneligible, setDataVoucherIneligible] = useState([]);
-    const [data, setData] = useState({});
+    const [data, setData] = useState();
+    const [perPage, setPerPage] = useState(5);
+    const [lastCashPointLogID, setlastCashPointLogID] = useState()
+    const [lastLoyaltyPointLogID, setlastLoyaltyPointLogID] = useState()
+    const [dataHistory, setDataHistory] = useState([]);
     const baseUrl = `https://api-cms.degadai.id/api/`;
 
 
     useEffect(() => {
         getData();
         getDataVoucher();
+        getPointHistory()
     }, []);
 
 
@@ -72,6 +81,33 @@ export default function Membership() {
             })
     }
 
+    const getPointHistory = async () => {
+        let param = {
+            per_page: perPage,
+            last_cash_point_log_id: lastCashPointLogID,
+            last_loyalty_point_log_id: lastLoyaltyPointLogID
+        }
+        await axios.get(baseUrl + `membership/getPointsHistory?per_page=${perPage}`,
+            {
+                headers: {
+                    "Origin": "http://localhost:3002/",
+                    "Authorization": `Bearer ${JSON.parse(await AsyncStorage.getItem("token"))}`,
+                }
+            }, param
+        )
+            .then(response => {
+                let data = response.data.data;
+                setDataHistory(data.data)
+                setlastCashPointLogID(data.lastCashPointLogID)
+                setlastLoyaltyPointLogID(data.lastLoyaltyPointLogID)
+            }).catch(error => {
+                console.log(error)
+
+            })
+    }
+
+
+    const regex = /<[^>]*>/mgi
 
     return (
         <SafeAreaView>
@@ -86,7 +122,6 @@ export default function Membership() {
                     />
                     <CustomImage
                         style={styles.logo}
-                        filename={'https://images.unsplash.com/photo-1654190556461-3919acf03f0a?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=870&q=80'}
                     />
 
                     <View style={styles.section1}>
@@ -108,7 +143,7 @@ export default function Membership() {
                             </Pressable>
                             <View>
                                 <Pressable onPress={() => setModalHistoryActivity(true)}>
-                                    <Icon style={{ marginLeft: 60 }} size={24} color="white" name="clock-o" type="font-awesome-5" />
+                                    <Icon style={{ marginLeft: 100 }} size={24} color="white" name="clock-o" type="font-awesome-5" />
                                     {/* <Icon name="rocket" size={30} color="#900" /> */}
                                 </Pressable>
                             </View>
@@ -219,29 +254,40 @@ export default function Membership() {
                                 style={{
                                     fontSize: 14,
                                     color: "#A6A6A6",
-                                    marginTop: 20
+                                    marginTop: 20,
+                                    fontWeight: "500"
                                 }}>
-                                {data?.customerNextLevel?.min_point - data?.currentLoyaltyPoint} poin lagi untuk naik ke level selanjutnya
+                                {data?.customerNextLevel?.min_point - data?.currentLoyaltyPoint} Poin lagi untuk naik ke level selanjutnya
                             </Text>
                         </View>
                     </View>
 
-                    <Text style={{
-                        fontSize: 20,
-                        fontWeight: "700",
-                        color: "black",
-                        marginTop: 20
-                    }}>
-                        Tukar Poin dengan Voucher
-                    </Text>
                     {
                         (dataVoucherEligible !== null || dataVoucherIneligible !== null) ?
                             <>
+                                <Text style={{
+                                    fontSize: 20,
+                                    fontWeight: "700",
+                                    color: "black",
+                                    marginTop: 20,
+                                    paddingRight: 20
+                                }}>
+                                    Tukar Poin dengan Voucher
+                                </Text>
                                 {dataVoucherEligible && dataVoucherEligible.map((item) => (
-                                    <MembershipRows item={item} submit={getData} />
+                                    <MembershipRows item={item} submit={getData} key={item.id} />
                                 ))}
+                                <Text style={{
+                                    fontSize: 20,
+                                    fontWeight: "700",
+                                    color: "black",
+                                    marginTop: 20,
+                                    paddingRight: 20
+                                }}>
+                                    Tingkatkan Poin untuk Dapatkan Voucher Lainnya
+                                </Text>
                                 {dataVoucherIneligible && dataVoucherIneligible.map((item) => (
-                                    <MembershipRows item={item} submit={getData} />
+                                    <MembershipRows item={item} submit={getData} type={0} key={item.id} />
                                 ))}
                             </>
                             :
@@ -250,15 +296,23 @@ export default function Membership() {
                     <ModalDialog
                         onShow={modalDetail}
                         onHide={() => setModalDetail(false)}
-                        contentText="Tentang Member Silver"
                         contentHeader={"Detail Member"}
+                        contentText={
+                            <Text style={styles.description}>
+                                {data?.customerLevel?.description.replace(regex, "")}
+                            </Text>
+                        }
                     >
                     </ModalDialog>
                     <ModalDialog
                         onShow={modalTdPoint}
                         onHide={() => setModalTdPoint(false)}
-                        contentText={"Tentang Member Silver"}
-                        contentHeader={"Tokodapur Poin"}
+                        contentHeader={(data?.cashPointCustomName) || "-"}
+                        contentText={
+                            <Text style={styles.description}>
+                                {data?.cashPointDescription.replace(regex, "")}
+                            </Text>
+                        }
                     >
                     </ModalDialog>
 
@@ -266,8 +320,12 @@ export default function Membership() {
                     <ModalDialog
                         onShow={modalPoint}
                         onHide={() => setModalPoint(false)}
-                        contentText={"Syarat dan Ketentuan"}
                         contentHeader={"Poin Loyalitas"}
+                        contentText={
+                            <Text style={styles.description}>
+                                {data?.loyaltyPointDescription.replace(regex, "")}
+                            </Text>
+                        }
                     >
                     </ModalDialog>
                     <ModalDialog
@@ -275,45 +333,38 @@ export default function Membership() {
                         onHide={() => setModalHistoryActivity(false)}
                         contentText={
                             <View>
-                                <View
-                                    style={{
-                                        display: "flex",
-                                        flexDirection: "row"
-                                    }}>
-                                    <View>
-                                        <Text style={{
-                                            fontSize: 12,
-                                            fontWeight: "600",
-                                            color: "black"
-                                        }}>
-                                            Transaksi: INV-TSI-0002-04-2022
-                                        </Text>
-                                    </View>
+                                {dataHistory && dataHistory.map((item, index) => (
                                     <View
-                                        style={{ marginLeft: 30 }}
+                                        style={{
+                                            display: "flex",
+                                            flexDirection: "column"
+                                        }}
+                                        key={item.id}
                                     >
-                                        <Text style={{ fontSize: 12 }}>Tokodapur Poin</Text>
-                                    </View>
-                                </View>
-                                <View style={{
-                                    display: "flex",
-                                    flexDirection: "row",
-                                    marginTop: 20
-                                }}>
-                                    <View>
-                                        <Text
-                                            style={{
-                                                fontSize: 12,
+                                        <View>
+                                            <Text style={{
+                                                fontSize: 20,
                                                 fontWeight: "600",
                                                 color: "black"
-                                            }}>Transaksi: INV-TSI-0002-04-2022</Text>
+                                            }}>
+                                                Transaksi: {item.description}
+                                            </Text>
+                                            <Text>
+                                                {DateTimeFormat(item.created_at, 0)}
+                                            </Text>
+                                        </View>
+                                        <View>
+                                            <Text style={{ fontSize: 18, color: "black" }}>
+                                                {(item.type == "cash") ? data?.cashPointCustomName : (item.type == "loyalty") ? "Poin Loyalitas" : "-"}
+                                            </Text>
+                                            <Text
+                                                style={{ color: item.point > 0 ? "green" : "red", fontSize: 20 }}
+                                            >
+                                                {(item.point > 0) ? `+${CurrencyFormat(item.point)}` : CurrencyFormat(item.point)}
+                                            </Text>
+                                        </View>
                                     </View>
-                                    <View
-                                        style={{ marginLeft: 30 }}>
-                                        <Text
-                                            style={{ fontSize: 12 }}>Tokodapur Poin</Text>
-                                    </View>
-                                </View>
+                                ))}
                             </View>
                         }
                         contentHeader={"Riwayat Aktivitas Poin"}
@@ -400,4 +451,10 @@ const styles = StyleSheet.create({
         fontSize: 16,
         textDecorationLine: "underline",
     },
+    description: {
+        color: "#333333",
+        fontSize: 16,
+        fontWeight: "400"
+    },
+
 })
