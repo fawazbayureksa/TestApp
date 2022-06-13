@@ -8,8 +8,9 @@ import Membership from '../membership/index';
 import Register from "../reducers/auth/register";
 import Email from "../reducers/auth/email";
 import Account from "../membership/account"
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import isEmpty from "../commons/IsEmpty"
+import productList from '../products/ProductList';
+
+
 const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator();
 
@@ -20,6 +21,7 @@ export default function AppNavigator({ navigation }) {
     return (
         <NavigationContainer>
             <Stack.Navigator>
+                <Stack.Screen name="ProductList" component={productList} />
                 <Stack.Screen name="Login" component={Login} />
                 <Stack.Screen name="Register" component={Register} />
                 <Stack.Screen name="Email" component={Email} />

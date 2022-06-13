@@ -8,7 +8,6 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
 import { CurrencyFormat } from '../components/CurrencyFormat';
 import { DateTimeFormat } from '../components/DatetimeFormat';
-import CustomImage2, { PublicStorageFolderPath } from '../commons/CustomImage2';
 import moment from 'moment';
 
 export default function Membership({ navigation }) {
@@ -31,6 +30,7 @@ export default function Membership({ navigation }) {
     const [dataHistory, setDataHistory] = useState([]);
     const baseUrl = `https://api-cms.degadai.id/api/`;
 
+    console.log(baseUrl)
 
     useEffect(() => {
         getData();
