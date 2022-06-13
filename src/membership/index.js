@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { FlatList, View, Button, Text, TextInput, StyleSheet, Image, Pressable, SafeAreaView, StatusBar, ScrollView } from 'react-native';
-import Icon from 'react-native-vector-icons/FontAwesome';
+import Icon from 'react-native-vector-icons/MaterialIcons';
 import CustomImage from '../commons/CustomImage';
 import MembershipRows from './membershipRows';
 import ModalDialog from '../commons/Modal';
@@ -148,10 +148,12 @@ export default function Membership({ navigation }) {
                                     Detail
                                 </Text>
                             </Pressable>
-                            <View>
+                            <View style={{ marginLeft: 100 }}>
                                 <Pressable onPress={() => setModalHistoryActivity(true)}>
-                                    <Icon style={{ marginLeft: 100 }} size={24} color="white" name="clock-o" type="font-awesome-5" />
-                                    {/* <Icon name="rocket" size={30} color="#900" /> */}
+                                    <Text>
+                                        <Icon size={24} color="white" name="person" />
+                                        {/* <Icon name="rocket" size={24} color="#900" /> */}
+                                    </Text>
                                 </Pressable>
                             </View>
                         </View>

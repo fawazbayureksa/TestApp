@@ -6,6 +6,7 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import Login from '../reducers/auth/Login';
 import Membership from '../membership/index';
 import Register from "../reducers/auth/register";
+import Email from "../reducers/auth/email";
 import Account from "../membership/account"
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import isEmpty from "../commons/IsEmpty"
@@ -21,6 +22,7 @@ export default function AppNavigator({ navigation }) {
             <Stack.Navigator>
                 <Stack.Screen name="Login" component={Login} />
                 <Stack.Screen name="Register" component={Register} />
+                <Stack.Screen name="Email" component={Email} />
                 <Stack.Screen name="Account" component={Account} />
                 <Stack.Screen name="Membership" component={Membership} />
             </Stack.Navigator>

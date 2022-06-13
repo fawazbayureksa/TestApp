@@ -14,6 +14,8 @@ export default function Login({ navigation }) {
     const [dateBirthday, setDateBirtday] = useState();
     const baseUrl = `https://api-cms.degadai.id/api/`;
     const [companyName, setCompanyName] = useState()
+    const [dataRegister, setDataRegister] = useState()
+
 
     useEffect(() => {
         getMasterDataRegister();
@@ -54,8 +56,12 @@ export default function Login({ navigation }) {
                 "Origin": "http://localhost:3002/",
             }
         }).then(async (res) => {
-            // if (res.data.message) 
+            // if (res.data.message)
             console.log(res.data.data)
+            // setDataRegister.push({
+            //     email: email,
+            //     marketplace: companyName
+            // })
             Alert.alert(
                 "",
                 "Register Successfully, Check Your Email For Verification!",
@@ -63,7 +69,7 @@ export default function Login({ navigation }) {
                     { text: "OK" }
                 ]
             )
-            navigation.navigate("Login");
+            navigation.navigate("Email");
         })
             .catch(function (error) {
                 console.log(error);
