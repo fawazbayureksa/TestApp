@@ -9,6 +9,7 @@ import axios from 'axios';
 import { CurrencyFormat } from '../../components/CurrencyFormat';
 import { DateTimeFormat } from '../../components/DatetimeFormat';
 import moment from 'moment';
+import { ProgressBar, MD3Colors } from 'react-native-paper';
 
 export default function Membership({ navigation }) {
 
@@ -258,6 +259,9 @@ export default function Membership({ navigation }) {
                                 }}>
                                     {`/${data?.customerNextLevel?.min_point}`}
                                 </Text>
+                            </View>
+                            <View>
+                                <ProgressBar progress={0.1} color="#F18910" />
                             </View>
                             <Text
                                 style={{

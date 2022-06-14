@@ -1,11 +1,8 @@
-import React, { useState } from 'react';
-import { View, Text, StyleSheet, TextInput, Image, ScrollView, Button } from 'react-native';
-import Pressable from 'react-native/Libraries/Components/Pressable/Pressable';
+import React, { useState, useRef } from 'react';
+import { View, Text, StyleSheet, TextInput, Image, ScrollView, Button, Pressable } from 'react-native';
 import { Searchbar, Appbar } from 'react-native-paper';
-// import Carousel from 'react-native-snap-carousel';
 import Select from 'react-native-picker-select';
 import ProductCard from './ProductCard';
-
 
 export default function ProductList({ navigation }) {
     const [searchQuery, setSearchQuery] = useState()
@@ -15,43 +12,66 @@ export default function ProductList({ navigation }) {
         { label: 'Seller', value: 'seller' },
         { label: 'Article', value: 'article' },
     ])
+
     const onChangeSearch = (e) => {
         console.log(e)
     }
 
-    return (
 
-        <ScrollView style={{ backgroundColor: "#FFFFFF" }}>
-            <View style={styles.container}>
-                {/* Search Form */}
-                <View style={styles.searchBar}>
-                    <View style={{ width: "40%" }}>
-                        <Select
-                            onValueChange={(value) => console.log(value)}
-                            items={category}
-                        // placeholder={category}
+    return (
+        <>
+            <ScrollView style={{ backgroundColor: "#FFFFFF" }}>
+                <View style={styles.container}>
+                    {/* Search Form */}
+                    <View style={styles.searchBar}>
+                        <View style={{ width: "40%" }}>
+                            <Select
+                                onValueChange={(value) => console.log(value)}
+                                items={category}
+                            // placeholder={category}
+                            />
+                        </View>
+                        <TextInput
+                            onChangeText={(e) => onChangeSearch(e)}
+                            value={searchQuery}
+                            placeholder="Cari .."
                         />
                     </View>
-                    <TextInput
-                        onChangeText={(e) => onChangeSearch(e)}
-                        value={searchQuery}
-                        placeholder="Cari .."
-                    />
-                </View>
-                {/* Card Produk */}
-                <View style={styles.section}>
-                    <ProductCard navi={navigation} />
-                </View>
-                <Text>
+                    {/* Card Produk */}
+                    <View style={{ width: "87%" }}>
+                        <Pressable >
+                            <Text style={{ textAlign: "right", fontSize: 18, color: "#000" }}>
+                                Filter
+                            </Text>
+                        </Pressable>
+                    </View>
+                    <View style={styles.section}>
+                        <ProductCard navi={navigation} />
+                    </View>
+                    <Text>
 
-                </Text>
-            </View >
-        </ScrollView >
-
+                    </Text>
+                </View >
+            </ScrollView >
+        </>
     )
 }
 
 const styles = StyleSheet.create({
+    container2: {
+        flex: 1,
+        alignItems: "center",
+        justifyContent: "center",
+        padding: 16
+    },
+    navigationContainer: {
+        backgroundColor: "#ecf0f1"
+    },
+    paragraph: {
+        padding: 16,
+        fontSize: 15,
+        textAlign: "center"
+    },
     section: {
         display: "flex",
         flexDirection: "row",
