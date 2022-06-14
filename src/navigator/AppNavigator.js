@@ -10,7 +10,8 @@ import Email from "../reducers/auth/email";
 import Account from "../pages/membership/account";
 import ProductList from "../pages/products/ProductList";
 import DetailProduct from '../pages/products/DetailProduct';
-
+import ProductCard from '../pages/products/ProductCard';
+// import Main from '../pages/main';
 
 const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator();
@@ -23,6 +24,7 @@ export default function AppNavigator({ navigation }) {
         <NavigationContainer>
             <Stack.Navigator>
                 <Stack.Screen name="ProductList" component={ProductList} />
+                <Stack.Screen name="Card" component={ProductCard} />
                 <Stack.Screen name="DetailProduct" component={DetailProduct} />
                 <Stack.Screen name="Login" component={Login} />
                 <Stack.Screen name="Register" component={Register} />

@@ -1,7 +1,27 @@
-import { Button, Image, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native'
-import React from 'react'
+import { Button, Image, Pressable, ScrollView, StyleSheet, Text, View, useWindowDimensions } from 'react-native'
+import React, { useState } from 'react'
+import { TabView, SceneMap } from 'react-native-tab-view';
+import InfromationProduct from './InfromationProduct';
+import UlasanProduct from './UlasanProduct';
 
-const DetailProduct = () => {
+
+const renderScene = SceneMap({
+    first: InfromationProduct,
+    second: UlasanProduct,
+});
+
+
+const DetailProduct = ({ navigation }) => {
+
+    const layout = useWindowDimensions();
+
+    const [index, setIndex] = useState(0);
+    const [routes] = useState([
+        { key: 'first', title: 'First' },
+        { key: 'second', title: 'Second' },
+    ]);
+
+
     return (
         <ScrollView style={{ backgroundColor: "#FFFFFF" }}>
             <View style={styles.container}>
@@ -189,7 +209,7 @@ const DetailProduct = () => {
                         </Text>
                     </Pressable>
                 </View>
-                <View>
+                <View style={styles.card}>
                     <View style={{ display: "flex", flexDirection: "row" }}>
                         <View>
                             <Image
@@ -203,13 +223,165 @@ const DetailProduct = () => {
                         <View style={{ marginLeft: 10 }}>
                             <Text
                                 style={{ fontSize: 20, fontWeight: "600", color: "black" }}>
-
+                                TSJ
                             </Text>
                             <Text
                                 style={{ fontSize: 16, fontWeight: "300", color: "black" }}
                             >
+                                Jakarta Barat
                             </Text>
                         </View>
+                    </View>
+                    <View style={{ display: "flex", flexDirection: "row", flexWrap: "nowrap", marginVertical: 10 }}>
+                        <Pressable
+                            style={{
+                                backgroundColor: "#FFFFFF",
+                                borderWidth: 2,
+                                width: "45%",
+                                padding: 10,
+                                alignItems: "center",
+                                borderRadius: 5,
+                                marginHorizontal: 10
+                            }}>
+                            <Text style={{ fontSize: 18, color: "black" }}>
+                                Hubungi
+                            </Text>
+                        </Pressable>
+                        <Pressable
+                            style={{
+                                backgroundColor: "#000000",
+                                borderWidth: 2,
+                                width: "45%",
+                                padding: 10,
+                                alignItems: "center",
+                                borderRadius: 5,
+                            }}>
+                            <Text style={{ fontSize: 18, color: "#FFFFFF" }}>
+                                Ikuti
+                            </Text>
+                        </Pressable>
+                    </View>
+                </View>
+                {/* <TabView
+                    navigationState={{ index, routes }}
+                    renderScene={renderScene}
+                    onIndexChange={setIndex}
+                    initialLayout={{ width: 50 }}
+                /> */}
+                <Text
+                    style={{
+                        fontSize: 16,
+                        color: "black",
+                        fontWeight: "600",
+                        marginVertical: 20,
+                        marginLeft: 10
+                    }}>
+                    Lebih Banyak Dari Seller Ini
+                </Text>
+                <View style={styles.section}>
+                    <View style={styles.cardProduct}>
+                        <Pressable onPress={() => navigation.navigate("DetailProduct")}>
+                            <Image
+                                style={styles.cardProdukImage}
+                                source={{
+                                    uri: "https://api-admin.tokodapur.com/storage/public/tsi-3/public/marketplace/products/5e80fc2a-b4bd-11ec-bbde-00163c303764.jpg"
+                                }}
+                            />
+                            <Text
+                                numberOfLines={1}
+                                style={{ color: "black", fontSize: 14, fontWeight: "600" }}
+                            >
+                                JIB Silicone Slotted Spoon / Silicon Utensil
+                            </Text>
+                            <Text style={{ color: "black" }}>
+                                Jakarta Barat
+                            </Text>
+                            <View
+                                style={{
+                                    dispaly: "flex",
+                                    flexDirection: "row",
+                                    alignItems: "center"
+                                }}>
+                                <Text
+                                    style={{
+                                        backgroundColor: "black",
+                                        color: "white",
+                                        width: "25%",
+                                        padding: 3,
+                                        borderRadius: 5,
+                                    }}>
+                                    50%
+                                </Text>
+                                <Text
+                                    numberOfLines={1}
+                                    style={{
+                                        width: "75%",
+                                        color: "black",
+                                        marginLeft: 5,
+                                        textDecorationLine: "line-through"
+                                    }}>
+                                    Rp.30.000.0000
+                                </Text>
+                            </View>
+                            <Text style={{ color: "black", fontSize: 16, fontWeight: "500" }}>
+                                Rp.20.000
+                            </Text>
+                            <Text style={{ fontSize: 16, color: "black", marginTop: 10 }}>
+                                * - | Terjual 0
+                            </Text>
+                        </Pressable>
+                    </View>
+                    <View style={styles.cardProduct}>
+                        <Pressable onPress={() => navigation.navigate("DetailProduct")}>
+                            <Image
+                                style={styles.cardProdukImage}
+                                source={{
+                                    uri: "https://api-admin.tokodapur.com/storage/public/tsi-3/public/marketplace/products/5e80fc2a-b4bd-11ec-bbde-00163c303764.jpg"
+                                }}
+                            />
+                            <Text
+                                numberOfLines={1}
+                                style={{ color: "black", fontSize: 14, fontWeight: "600" }}
+                            >
+                                JIB Silicone Slotted Spoon / Silicon Utensil
+                            </Text>
+                            <Text style={{ color: "black" }}>
+                                Jakarta Barat
+                            </Text>
+                            <View
+                                style={{
+                                    dispaly: "flex",
+                                    flexDirection: "row",
+                                    alignItems: "center"
+                                }}>
+                                <Text
+                                    style={{
+                                        backgroundColor: "black",
+                                        color: "white",
+                                        width: "25%",
+                                        padding: 3,
+                                        borderRadius: 5,
+                                    }}>
+                                    46%
+                                </Text>
+                                <Text
+                                    numberOfLines={1}
+                                    style={{
+                                        width: "75%",
+                                        color: "black",
+                                        marginLeft: 5,
+                                        textDecorationLine: "line-through"
+                                    }}>
+                                    Rp.30.000.0000
+                                </Text>
+                            </View>
+                            <Text style={{ color: "black", fontSize: 16, fontWeight: "500" }}>
+                                Rp.20.000
+                            </Text>
+                            <Text style={{ fontSize: 16, color: "black", marginTop: 10 }}>
+                                * - | Terjual 0
+                            </Text>
+                        </Pressable>
                     </View>
                 </View>
             </View>
@@ -261,6 +433,12 @@ const styles = StyleSheet.create({
         height: 350,
         resizeMode: "cover",
     },
+    cardProdukImage: {
+        marginVertical: 20,
+        width: "100%",
+        height: 120,
+        resizeMode: "cover",
+    },
     produkImageDetails: {
         marginVertical: 20,
         width: 100,
@@ -271,6 +449,21 @@ const styles = StyleSheet.create({
         marginRight: 10
     },
     card: {
+        padding: 10,
+        backgroundColor: "#FFFFFF",
+        height: "auto",
+        width: "90%",
+        borderRadius: 10,
+        shadowColor: "#000",
+        shadowOffset: {
+            width: 0,
+            height: 3,
+        },
+        shadowOpacity: 0.29,
+        shadowRadius: 4.65,
+        elevation: 7,
+    },
+    cardProduct: {
         padding: 10,
         marginVertical: 10,
         marginHorizontal: 10,
