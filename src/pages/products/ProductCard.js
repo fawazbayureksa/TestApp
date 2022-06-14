@@ -1,5 +1,6 @@
 import { StyleSheet, Text, View, Pressable, Image } from 'react-native'
 import React from 'react'
+import Icon from 'react-native-vector-icons/MaterialIcons';
 
 export default function ProductCard({ navi }) {
     return (
@@ -51,9 +52,12 @@ export default function ProductCard({ navi }) {
                     <Text style={{ color: "black", fontSize: 16, fontWeight: "500" }}>
                         Rp.20.000
                     </Text>
-                    <Text style={{ fontSize: 16, color: "black", marginTop: 10 }}>
-                        * - | Terjual 0
-                    </Text>
+                    <View style={[styles.section, { marginTop: 10 }]}>
+                        <Icon size={24} color="black" name="star-border" />
+                        <Text style={{ fontSize: 16, color: "black" }}>
+                            - | Terjual 0
+                        </Text>
+                    </View>
                 </Pressable>
             </View>
             <View style={styles.card}>
@@ -103,9 +107,12 @@ export default function ProductCard({ navi }) {
                     <Text style={{ color: "black", fontSize: 16, fontWeight: "500" }}>
                         Rp.20.000
                     </Text>
-                    <Text style={{ fontSize: 16, color: "black", marginTop: 10 }}>
-                        * - | Terjual 0
-                    </Text>
+                    <View style={[styles.section, { marginTop: 10 }]}>
+                        <Icon size={24} color="black" name="star-border" />
+                        <Text style={{ fontSize: 16, color: "black" }}>
+                            - | Terjual 0
+                        </Text>
+                    </View>
                 </Pressable>
             </View>
             <View style={styles.card}>
@@ -155,9 +162,12 @@ export default function ProductCard({ navi }) {
                     <Text style={{ color: "black", fontSize: 16, fontWeight: "500" }}>
                         Rp.20.000
                     </Text>
-                    <Text style={{ fontSize: 16, color: "black", marginTop: 10 }}>
-                        * - | Terjual 0
-                    </Text>
+                    <View style={[styles.section, { marginTop: 10 }]}>
+                        <Icon size={24} color="black" name="star-border" />
+                        <Text style={{ fontSize: 16, color: "black" }}>
+                            - | Terjual 0
+                        </Text>
+                    </View>
                 </Pressable>
             </View>
             <View style={styles.card}>
@@ -207,9 +217,12 @@ export default function ProductCard({ navi }) {
                     <Text style={{ color: "black", fontSize: 16, fontWeight: "500" }}>
                         Rp.20.000
                     </Text>
-                    <Text style={{ fontSize: 16, color: "black", marginTop: 10 }}>
-                        * - | Terjual 0
-                    </Text>
+                    <View style={[styles.section, { marginTop: 10 }]}>
+                        <Icon size={24} color="black" name="star-border" />
+                        <Text style={{ fontSize: 16, color: "black", alignItems: "center" }}>
+                            - | Terjual 0
+                        </Text>
+                    </View>
                 </Pressable>
             </View>
 

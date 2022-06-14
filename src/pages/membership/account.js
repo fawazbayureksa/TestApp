@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { View, Image, Text, StyleSheet, Pressable, Button, TextInput, Alert } from 'react-native';
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import axios from 'axios';
+import Icon from 'react-native-vector-icons/MaterialIcons';
 
 
 export default function Account({ navigation }) {
@@ -103,7 +104,7 @@ export default function Account({ navigation }) {
                         </View>
                         <View>
                             <Text style={{ fontSize: 40, color: "black" }}>
-                                &gt;
+                                <Icon size={24} color="white" name="arrow-forward-ios" />
                             </Text>
                         </View>
                     </View>

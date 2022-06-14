@@ -14,6 +14,8 @@ import ProductCard from '../pages/products/ProductCard';
 import { navigationRef } from './RootNavigation';
 import Filter from '../pages/products/Filter';
 import Cart from "../pages/products/Cart"
+import Icon from 'react-native-vector-icons/MaterialIcons';
+import { Badge } from 'react-native-paper';
 
 
 const Tab = createBottomTabNavigator();
@@ -57,25 +59,41 @@ export default function AppNavigator() {
                             headerTitle: props => <LogoTitle {...props} />,
                             headerRight: () => (
                                 <View style={{ flexDirection: "row" }}>
-                                    <View style={{}}>
+                                    <View>
+                                        <Pressable
+                                            onPress={() => alert('This is Notification!')}
+                                        >
+                                            <View style={{ marginRight: 10 }}>
+                                                <Badge style={{ marginBottom: -12, zIndex: 2 }}>0</Badge>
+                                                <Icon size={28} color="black" name="mail" />
+                                            </View>
+                                        </Pressable>
+                                    </View>
+                                    <View>
                                         <Pressable
                                             onPress={() => alert('This is a button!')}
                                         >
-                                            <Text style={{ fontSize: 18, marginRight: 10, color: "#000" }}>Notif</Text>
+                                            <View style={{ marginRight: 10 }}>
+                                                <Badge style={{ marginBottom: -12, zIndex: 2 }}>0</Badge>
+                                                <Icon size={28} color="black" name="notifications" />
+                                            </View>
                                         </Pressable>
                                     </View>
-                                    <View style={{}}>
+                                    <View>
                                         <Pressable
                                             onPress={() => navigationRef.navigate("Cart")}
                                         >
-                                            <Text style={{ fontSize: 18, marginRight: 10, color: "#000" }}>Cart</Text>
+                                            <View style={{ marginRight: 10 }}>
+                                                <Badge style={{ marginBottom: -12, zIndex: 2 }}>1</Badge>
+                                                <Icon size={28} color="black" name="shopping-cart" />
+                                            </View>
                                         </Pressable>
                                     </View>
-                                    <View style={{}}>
+                                    <View>
                                         <Pressable
                                             onPress={() => navigationRef.navigate("Login")}
                                         >
-                                            <Text style={{ fontSize: 18, marginRight: 10, color: "#000" }}>
+                                            <Text style={{ fontSize: 18, marginRight: 10, color: "#000", marginTop: 8 }}>
                                                 Login
                                             </Text>
                                         </Pressable>
