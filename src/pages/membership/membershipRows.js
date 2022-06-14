@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { View, Image, Text, StyleSheet, Pressable, Button, Alert } from 'react-native';
-import ModalDialog from '../commons/Modal';
-import { CurrencyFormat } from '../components/CurrencyFormat';
+import ModalDialog from '../../commons/Modal';
+import { CurrencyFormat } from '../../components/CurrencyFormat';
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 const MembershipRows = ({ item, type, submit, history }) => {

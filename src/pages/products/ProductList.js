@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, TextInput, Image, ScrollView } from 'react-native';
+import Pressable from 'react-native/Libraries/Components/Pressable/Pressable';
 // import Carousel from 'react-native-snap-carousel';
 
 
 
-export default function ProductList() {
+export default function ProductList({ navigation }) {
     const [text, setText] = useState()
 
     const onChangeText = () => {
@@ -93,57 +94,62 @@ export default function ProductList() {
                 {/* Card Produk */}
                 <View style={styles.section}>
                     <View style={styles.card}>
-                        <Image
-                            style={styles.produkImage}
-                            source={{
-                                uri: "https://api-admin.tokodapur.com/storage/public/tsi-3/public/marketplace/products/4deb293b-e6fc-11ec-a77b-00163c303764.jpg"
-                            }}
-                        />
-                        <Text
-                            numberOfLines={1}
-                            style={{ color: "black", fontSize: 14, fontWeight: "600" }}
-                        >
-                            Faber Decorative Island Up Down Hood Pareo
-                        </Text>
-                        <Text style={{ color: "black" }}>
-                            Jakarta Barat
-                        </Text>
-                        <View
-                            style={{
-                                dispaly: "flex",
-                                flexDirection: "row",
-                                alignItems: "center"
-                            }}>
-                            <Text
-                                style={{
-                                    backgroundColor: "black",
-                                    color: "white",
-                                    width: "25%",
-                                    padding: 1,
-                                    borderRadius: 5,
-                                }}>
-                                46%
-                            </Text>
+                        <Pressable onPress={() => navigation.navigate("DetailProduct")}>
+                            <Image
+                                style={styles.produkImage}
+                                source={{
+                                    uri: "https://api-admin.tokodapur.com/storage/public/tsi-3/public/marketplace/products/4deb293b-e6fc-11ec-a77b-00163c303764.jpg"
+                                }}
+                            />
                             <Text
                                 numberOfLines={1}
-                                style={{
-                                    width: "75%",
-                                    color: "black",
-                                    marginLeft: 5,
-                                    textDecorationLine: "line-through"
-                                }}>
-                                Rp.30.000.0000
+                                style={{ color: "black", fontSize: 14, fontWeight: "600" }}
+                            >
+                                Faber Decorative Island Up Down Hood Pareo
                             </Text>
-                        </View>
-                        <Text style={{ color: "black", fontSize: 16, fontWeight: "500" }}>
-                            Rp.20.000
-                        </Text>
+                            <Text style={{ color: "black" }}>
+                                Jakarta Barat
+                            </Text>
+                            <View
+                                style={{
+                                    dispaly: "flex",
+                                    flexDirection: "row",
+                                    alignItems: "center"
+                                }}>
+                                <Text
+                                    style={{
+                                        backgroundColor: "black",
+                                        color: "white",
+                                        width: "25%",
+                                        padding: 1,
+                                        borderRadius: 5,
+                                    }}>
+                                    46%
+                                </Text>
+                                <Text
+                                    numberOfLines={1}
+                                    style={{
+                                        width: "75%",
+                                        color: "black",
+                                        marginLeft: 5,
+                                        textDecorationLine: "line-through"
+                                    }}>
+                                    Rp.30.000.0000
+                                </Text>
+                            </View>
+                            <Text style={{ color: "black", fontSize: 16, fontWeight: "500" }}>
+                                Rp.20.000
+                            </Text>
+                            <Text style={{ fontSize: 16, color: "black", marginTop: 10 }}>
+                                * - | Terjual 0
+                            </Text>
+                        </Pressable>
                     </View>
                     <View style={styles.card}>
                         <Image
                             style={styles.produkImage}
                             source={{
-                                uri: "https://api-admin.tokodapur.com/storage/public/tsi-3/public/marketplace/products/4deb293b-e6fc-11ec-a77b-00163c303764.jpg"
+                                uri: "https://api-admin.tokodapur.com/storage/public/tsi-3/public/marketplace/products/aa6e79fb-dc03-11ec-a77b-00163c303764.jpg"
                             }}
                         />
                         <Text
@@ -184,6 +190,9 @@ export default function ProductList() {
                         </View>
                         <Text style={{ color: "black", fontSize: 16, fontWeight: "500" }}>
                             Rp.20.000
+                        </Text>
+                        <Text style={{ fontSize: 16, color: "black", marginTop: 10 }}>
+                            * - | Terjual 0
                         </Text>
                     </View>
                 </View>
