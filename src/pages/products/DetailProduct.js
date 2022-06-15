@@ -163,7 +163,7 @@ const DetailProduct = ({ navigation }) => {
                     <View style={{ flex: 1, flexDirection: 'row', justifyContent: "flex-start", alignItems: "flex-end" }}>
                         <Button
                             title="-"
-                            color="black"
+                            color="#F18910"
                         />
                         <Text style={{
                             marginHorizontal: 20, fontSize: 20, textDecorationLine: "underline"
@@ -173,7 +173,7 @@ const DetailProduct = ({ navigation }) => {
                         </Text>
                         <Button
                             title="+"
-                            color="black"
+                            color="#F18910"
                         />
                     </View>
                 </View>
@@ -184,6 +184,7 @@ const DetailProduct = ({ navigation }) => {
                     <Pressable
                         style={{
                             backgroundColor: "#FFFFFF",
+                            borderColor: "#F18910",
                             borderWidth: 2,
                             width: "90%",
                             padding: 10,
@@ -196,7 +197,8 @@ const DetailProduct = ({ navigation }) => {
                     </Pressable>
                     <Pressable
                         style={{
-                            backgroundColor: "#000000",
+                            backgroundColor: "#F18910",
+                            borderColor: "#F18910",
                             borderWidth: 2,
                             width: "90%",
                             padding: 10,
@@ -236,6 +238,7 @@ const DetailProduct = ({ navigation }) => {
                         <Pressable
                             style={{
                                 backgroundColor: "#FFFFFF",
+                                borderColor: "#F18910",
                                 borderWidth: 2,
                                 width: "45%",
                                 padding: 10,
@@ -249,7 +252,8 @@ const DetailProduct = ({ navigation }) => {
                         </Pressable>
                         <Pressable
                             style={{
-                                backgroundColor: "#000000",
+                                backgroundColor: "#F18910",
+                                borderColor: "#F18910",
                                 borderWidth: 2,
                                 width: "45%",
                                 padding: 10,
@@ -356,7 +360,6 @@ const DetailProduct = ({ navigation }) => {
                                 }}>
                                 <Text
                                     style={{
-                                        backgroundColor: "black",
                                         color: "white",
                                         width: "25%",
                                         padding: 3,

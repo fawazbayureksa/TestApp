@@ -153,7 +153,6 @@ export default function Membership({ navigation }) {
                                 <Pressable onPress={() => setModalHistoryActivity(true)}>
                                     <Text>
                                         <Icon size={24} color="white" name="access-time" />
-                                        {/* <Icon name="rocket" size={24} color="#900" /> */}
                                     </Text>
                                 </Pressable>
                             </View>

@@ -102,9 +102,9 @@ export default function Account({ navigation }) {
                                 </Text>
                             </View>
                         </View>
-                        <View>
+                        <View style={{ alignSelf: "center" }}>
                             <Text style={{ fontSize: 40, color: "black" }}>
-                                <Icon size={24} color="white" name="arrow-forward-ios" />
+                                <Icon size={24} color="#000" name="arrow-forward-ios" />
                             </Text>
                         </View>
                     </View>

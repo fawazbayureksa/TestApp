@@ -3,7 +3,9 @@ import React, { useState, useRef } from 'react';
 import CheckBox from '@react-native-community/checkbox';
 import Select from 'react-native-picker-select';
 import { Text } from 'react-native-paper';
-export default function Cart() {
+import Icon from 'react-native-vector-icons/MaterialIcons';
+
+export default function Cart({ navigation }) {
     const [searchQuery, setSearchQuery] = useState()
     const [isSelected, setSelection] = useState(false);
     const [category, setCategory] = useState([
@@ -11,6 +13,8 @@ export default function Cart() {
         { label: 'Seller', value: 'seller' },
         { label: 'Article', value: 'article' },
     ])
+
+    const [item, setItem] = useState(1)
 
     const onChangeSearch = (e) => {
         console.log(e)
@@ -61,7 +65,6 @@ export default function Cart() {
                             style={{
                                 borderBottomColor: 'gray',
                                 borderBottomWidth: 1,
-                                // marginVertical: 20,
                                 marginTop: -20
                             }}
                         />
@@ -85,21 +88,29 @@ export default function Cart() {
                                     Rp 535.500
                                 </Text>
                             </View>
+                            <View style={{ alignSelf: "center", marginLeft: 20 }}>
+                                <Text>
+                                    <Icon size={28} name="favorite-outline" color="#F18910" />
+                                    <Icon size={28} name="delete" color="#F18910" />
+                                </Text>
+                            </View>
                         </View>
                         <View style={{ flex: 1, flexDirection: 'row', justifyContent: "space-between", alignItems: "flex-end" }}>
                             <Button
                                 title="-"
-                                color="black"
+                                color="#F18910"
+                                onPress={() => setItem(item - 1)}
                             />
                             <Text style={{
                                 marginHorizontal: 20, fontSize: 20, textDecorationLine: "underline"
                             }}
                             >
-                                1
+                                {item}
                             </Text>
                             <Button
                                 title="+"
-                                color="black"
+                                color="#F18910"
+                                onPress={() => setItem(item + 1)}
                             />
                             <Text style={{ color: "red", marginLeft: 10, width: "30%" }}>
                                 Barang hampir habis!
@@ -135,8 +146,8 @@ export default function Cart() {
                                 Rp.535.500
                             </Text>
                         </View>
-                        <View style={{ backgroundColor: "black", height: 35, borderRadius: 5, marginTop: 10, justifyContent: "center", flex: 1, alignItems: "center" }}>
-                            <Pressable>
+                        <View>
+                            <Pressable style={{ backgroundColor: "#F18910", height: 35, borderRadius: 5, marginTop: 10, justifyContent: "center", flex: 1, alignItems: "center" }} onPress={() => navigation.navigate("Checkout")}>
                                 <Text style={{ fontSize: 20, color: "white" }}>
                                     Beli
                                 </Text>

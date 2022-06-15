@@ -14,8 +14,10 @@ import ProductCard from '../pages/products/ProductCard';
 import { navigationRef } from './RootNavigation';
 import Filter from '../pages/products/Filter';
 import Cart from "../pages/products/Cart"
+import Address from "../pages/products/Address"
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import { Badge } from 'react-native-paper';
+import Checkout from '../pages/products/Checkout';
 
 
 const Tab = createBottomTabNavigator();
@@ -61,20 +63,20 @@ export default function AppNavigator() {
                                 <View style={{ flexDirection: "row" }}>
                                     <View>
                                         <Pressable
-                                            onPress={() => alert('This is Notification!')}
+                                            onPress={() => alert('This is Chat!')}
                                         >
                                             <View style={{ marginRight: 10 }}>
-                                                <Badge style={{ marginBottom: -12, zIndex: 2 }}>0</Badge>
+                                                <Badge style={{ marginBottom: -12, zIndex: 2, marginLeft: 15 }}>0</Badge>
                                                 <Icon size={28} color="black" name="mail" />
                                             </View>
                                         </Pressable>
                                     </View>
                                     <View>
                                         <Pressable
-                                            onPress={() => alert('This is a button!')}
+                                            onPress={() => alert('This is Notification!')}
                                         >
                                             <View style={{ marginRight: 10 }}>
-                                                <Badge style={{ marginBottom: -12, zIndex: 2 }}>0</Badge>
+                                                <Badge style={{ marginBottom: -12, zIndex: 2, marginLeft: 15 }}>0</Badge>
                                                 <Icon size={28} color="black" name="notifications" />
                                             </View>
                                         </Pressable>
@@ -84,7 +86,7 @@ export default function AppNavigator() {
                                             onPress={() => navigationRef.navigate("Cart")}
                                         >
                                             <View style={{ marginRight: 10 }}>
-                                                <Badge style={{ marginBottom: -12, zIndex: 2 }}>1</Badge>
+                                                <Badge style={{ marginBottom: -12, zIndex: 2, marginLeft: 15 }}>1</Badge>
                                                 <Icon size={28} color="black" name="shopping-cart" />
                                             </View>
                                         </Pressable>
@@ -103,6 +105,12 @@ export default function AppNavigator() {
                         }}
                     />
                     <Stack.Screen name="Cart" component={Cart} />
+                    <Stack.Screen name="Address" component={Address}
+                        options={{
+                            headerTitle: "Pilih Alamat"
+                        }}
+                    />
+                    <Stack.Screen name="Checkout" component={Checkout} />
                     <Stack.Screen name="DetailProduct" component={DetailProduct} />
                     <Stack.Screen name="Login" component={Login} />
                     <Stack.Screen name="Register" component={Register} />
