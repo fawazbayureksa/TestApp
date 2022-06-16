@@ -43,11 +43,6 @@ export default function Membership({ navigation }) {
 
     const getData = async () => {
 
-        let config = {
-            headers: {
-                Origin: "http://localhost:3002/"
-            }
-        }
         await axios.get(baseUrl + `membership/getMasterData`,
             {
                 headers: {

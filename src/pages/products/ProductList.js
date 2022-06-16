@@ -1,4 +1,5 @@
-import React, { useState, useRef } from 'react';
+import axios from 'axios';
+import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, TextInput, Image, ScrollView, Button, Pressable } from 'react-native';
 import { Searchbar, Appbar } from 'react-native-paper';
 import Select from 'react-native-picker-select';
@@ -6,6 +7,10 @@ import ProductCard from './ProductCard';
 
 export default function ProductList({ navigation }) {
     const [searchQuery, setSearchQuery] = useState()
+    const [dataProducts, setDataProducts] = useState({})
+    const baseUrl = `https://api-cms.degadai.id/api/`;
+
+
     const select = "Pilih";
     const [category, setCategory] = useState([
         { label: 'Produk', value: 'produk' },
@@ -17,6 +22,43 @@ export default function ProductList({ navigation }) {
         console.log(e)
     }
 
+    useEffect(() => {
+        getDataProduct()
+    }, []);
+
+    const getDataProduct = async () => {
+        console.log("Data")
+
+
+        // return
+        let params = {
+            order_by: 'date',
+            order: 'desc',
+            length: 1,
+            page: 1,
+            // type: props.data.type,
+            // custom_product_url: props.data.custom_product_url
+        }
+        // if (props.data.mp_category_slug) {
+        //     params = { ...params, category: props.data.mp_category_slug }
+        // }
+
+        await axios.get(baseUrl + `ecommerce/products/get?order_by=${params.order_by}&order=${params.order}&length=${params.length}&page=${params.page}`,
+            {
+                headers: {
+                    "Origin": "http://localhost:3002/",
+                }
+            }
+        )
+            .then(response => {
+                setDataProducts(response.data.data.data)
+            }).catch(error => {
+                console.log(error)
+
+            })
+    }
+
+    // console.log(dataProducts.map((item) => (item.mp_product_informations[0].name)))
 
     return (
         <>
@@ -45,12 +87,11 @@ export default function ProductList({ navigation }) {
                             </Text>
                         </Pressable>
                     </View>
+                    {/* {dataProducts && dataProducts.map((item) => { */}
                     <View style={styles.section}>
-                        <ProductCard navi={navigation} />
+                        <ProductCard navi={navigation} item={dataProducts} />
                     </View>
-                    <Text>
-
-                    </Text>
+                    {/* })} */}
                 </View >
             </ScrollView >
         </>

@@ -1,231 +1,117 @@
 import { StyleSheet, Text, View, Pressable, Image } from 'react-native'
 import React from 'react'
 import Icon from 'react-native-vector-icons/MaterialIcons';
-
+import axios from 'axios';
+import PriceRatio from "../../components/PriceRatio"
+import { CurrencyFormat } from '../../components/CurrencyFormat';
 export default function ProductCard({ navi }) {
+    const [data, setData] = React.useState();
+    const baseUrl = `https://api-cms.degadai.id/api/`;
+
+    React.useEffect(() => {
+        getDataProduct()
+    }, []);
+
+    const getDataProduct = async () => {
+        console.log("Data")
+
+
+        // return
+        let params = {
+            order_by: 'date',
+            order: 'desc',
+            length: 10,
+            page: 1,
+            // type: props.data.type,
+            // custom_product_url: props.data.custom_product_url
+        }
+        // if (props.data.mp_category_slug) {
+        //     params = { ...params, category: props.data.mp_category_slug }
+        // }
+
+        await axios.get(baseUrl + `ecommerce/products/get?order_by=${params.order_by}&order=${params.order}&length=${params.length}&page=${params.page}`,
+            {
+                headers: {
+                    "Origin": "http://localhost:3002/",
+                }
+            }
+        )
+            .then(response => {
+                setData(response.data.data.data)
+            }).catch(error => {
+                console.log(error)
+
+            })
+    }
+
     return (
         <>
-            <View style={styles.card}>
-                <Pressable onPress={() => navi.navigate("DetailProduct")}>
-                    <Image
-                        style={styles.produkImage}
-                        source={{
-                            uri: "https://api-admin.tokodapur.com/storage/public/tsi-3/public/marketplace/products/4deb293b-e6fc-11ec-a77b-00163c303764.jpg"
-                        }}
-                    />
-                    <Text
-                        numberOfLines={1}
-                        style={{ color: "black", fontSize: 14, fontWeight: "600" }}
-                    >
-                        Faber Decorative Island Up Down Hood Pareo
-                    </Text>
-                    <Text style={{ color: "black" }}>
-                        Jakarta Barat
-                    </Text>
-                    <View
-                        style={{
-                            dispaly: "flex",
-                            flexDirection: "row",
-                            alignItems: "center"
-                        }}>
-                        <Text
-                            style={{
-                                backgroundColor: "black",
-                                color: "white",
-                                width: "25%",
-                                padding: 3,
-                                borderRadius: 5,
-                            }}>
-                            46%
-                        </Text>
-                        <Text
-                            numberOfLines={1}
-                            style={{
-                                width: "75%",
-                                color: "black",
-                                marginLeft: 5,
-                                textDecorationLine: "line-through"
-                            }}>
-                            Rp.30.000.0000
-                        </Text>
+            {data && data.map((item) => {
+                // console.log()
+                return (
+                    <View style={styles.card} key={item.id}>
+                        <Pressable onPress={() => navi.navigate("DetailProduct")}>
+                            <Image
+                                style={styles.produkImage}
+                                source={{
+                                    uri: `https://tsi-1.oss-ap-southeast-5.aliyuncs.com/public/marketplace/products/${item.mp_product_images[0].filename}`
+                                }}
+                            />
+                            <Text
+                                numberOfLines={1}
+                                style={{ color: "black", fontSize: 14, fontWeight: "600" }}
+                            >
+                                {item.mp_product_informations[0].name}
+                            </Text>
+                            <View style={styles.section}>
+                                <Icon name='check-circle' size={24} color="#F18910" />
+                                <Text style={{ color: "black" }}>
+                                    {item.mp_seller.city}
+                                </Text>
+                            </View>
+                            <View
+                                style={{
+                                    dispaly: "flex",
+                                    flexDirection: "row",
+                                    alignItems: "center"
+                                }}>
+                                <Text
+                                    style={{
+                                        backgroundColor: "#F18910",
+                                        color: "white",
+                                        width: "25%",
+                                        padding: 3,
+                                        borderRadius: 5,
+                                    }}>
+                                    {/* 46% */}
+                                    {PriceRatio(item.mp_product_skus.find(value1 => value1.is_main).normal_price, item.mp_product_skus.find(value1 => value1.is_main).price)}
+                                </Text>
+                                <Text
+                                    numberOfLines={1}
+                                    style={{
+                                        width: "75%",
+                                        color: "black",
+                                        marginLeft: 5,
+                                        textDecorationLine: "line-through"
+                                    }}>
+                                    {/* Rp.30.000.000 */}
+                                    Rp.{CurrencyFormat(item.mp_product_skus.find(value1 => value1.is_main).normal_price)}
+                                </Text>
+                            </View>
+                            <Text style={{ color: "black", fontSize: 16, fontWeight: "500" }}>
+                                Rp.{CurrencyFormat(item.mp_product_skus.find(value1 => value1.is_main).price)}
+                            </Text>
+                            <View style={[styles.section, { marginTop: 10, alignItems: "center" }]}>
+                                <Icon size={24} color="#F18910" name="star-border" />
+                                <Text style={{ fontSize: 16, color: "black" }}>
+                                    {item.rating ? item.rating : "-"}
+                                    - | Terjual {item.sold_product}
+                                </Text>
+                            </View>
+                        </Pressable>
                     </View>
-                    <Text style={{ color: "black", fontSize: 16, fontWeight: "500" }}>
-                        Rp.20.000
-                    </Text>
-                    <View style={[styles.section, { marginTop: 10 }]}>
-                        <Icon size={24} color="black" name="star-border" />
-                        <Text style={{ fontSize: 16, color: "black" }}>
-                            - | Terjual 0
-                        </Text>
-                    </View>
-                </Pressable>
-            </View>
-            <View style={styles.card}>
-                <Pressable onPress={() => navi.navigate("DetailProduct")}>
-                    <Image
-                        style={styles.produkImage}
-                        source={{
-                            uri: "https://api-admin.tokodapur.com/storage/public/tsi-3/public/marketplace/products/c21af3c1-b4bc-11ec-bbde-00163c303764.jpg"
-                        }}
-                    />
-                    <Text
-                        numberOfLines={1}
-                        style={{ color: "black", fontSize: 14, fontWeight: "600" }}
-                    >
-                        Faber Decorative Island Up Down Hood Pareo
-                    </Text>
-                    <Text style={{ color: "black" }}>
-                        Jakarta Barat
-                    </Text>
-                    <View
-                        style={{
-                            dispaly: "flex",
-                            flexDirection: "row",
-                            alignItems: "center"
-                        }}>
-                        <Text
-                            style={{
-                                backgroundColor: "black",
-                                color: "white",
-                                width: "25%",
-                                padding: 3,
-                                borderRadius: 5,
-                            }}>
-                            46%
-                        </Text>
-                        <Text
-                            numberOfLines={1}
-                            style={{
-                                width: "75%",
-                                color: "black",
-                                marginLeft: 5,
-                                textDecorationLine: "line-through"
-                            }}>
-                            Rp.30.000.0000
-                        </Text>
-                    </View>
-                    <Text style={{ color: "black", fontSize: 16, fontWeight: "500" }}>
-                        Rp.20.000
-                    </Text>
-                    <View style={[styles.section, { marginTop: 10 }]}>
-                        <Icon size={24} color="black" name="star-border" />
-                        <Text style={{ fontSize: 16, color: "black" }}>
-                            - | Terjual 0
-                        </Text>
-                    </View>
-                </Pressable>
-            </View>
-            <View style={styles.card}>
-                <Pressable onPress={() => navi.navigate("DetailProduct")}>
-                    <Image
-                        style={styles.produkImage}
-                        source={{
-                            uri: "https://api-admin.tokodapur.com/storage/public/tsi-3/public/marketplace/products/aa6e79fb-dc03-11ec-a77b-00163c303764.jpg"
-                        }}
-                    />
-                    <Text
-                        numberOfLines={1}
-                        style={{ color: "black", fontSize: 14, fontWeight: "600" }}
-                    >
-                        Faber Decorative Island Up Down Hood Pareo
-                    </Text>
-                    <Text style={{ color: "black" }}>
-                        Jakarta Barat
-                    </Text>
-                    <View
-                        style={{
-                            dispaly: "flex",
-                            flexDirection: "row",
-                            alignItems: "center"
-                        }}>
-                        <Text
-                            style={{
-                                backgroundColor: "black",
-                                color: "white",
-                                width: "25%",
-                                padding: 3,
-                                borderRadius: 5,
-                            }}>
-                            46%
-                        </Text>
-                        <Text
-                            numberOfLines={1}
-                            style={{
-                                width: "75%",
-                                color: "black",
-                                marginLeft: 5,
-                                textDecorationLine: "line-through"
-                            }}>
-                            Rp.30.000.0000
-                        </Text>
-                    </View>
-                    <Text style={{ color: "black", fontSize: 16, fontWeight: "500" }}>
-                        Rp.20.000
-                    </Text>
-                    <View style={[styles.section, { marginTop: 10 }]}>
-                        <Icon size={24} color="black" name="star-border" />
-                        <Text style={{ fontSize: 16, color: "black" }}>
-                            - | Terjual 0
-                        </Text>
-                    </View>
-                </Pressable>
-            </View>
-            <View style={styles.card}>
-                <Pressable onPress={() => navi.navigate("DetailProduct")}>
-                    <Image
-                        style={styles.produkImage}
-                        source={{
-                            uri: "https://api-admin.tokodapur.com/storage/public/tsi-3/public/marketplace/products/c2331457-b4bc-11ec-bbde-00163c303764.jpg"
-                        }}
-                    />
-                    <Text
-                        numberOfLines={1}
-                        style={{ color: "black", fontSize: 14, fontWeight: "600" }}
-                    >
-                        Faber Decorative Island Up Down Hood Pareo
-                    </Text>
-                    <Text style={{ color: "black" }}>
-                        Jakarta Barat
-                    </Text>
-                    <View
-                        style={{
-                            dispaly: "flex",
-                            flexDirection: "row",
-                            alignItems: "center"
-                        }}>
-                        <Text
-                            style={{
-                                backgroundColor: "black",
-                                color: "white",
-                                width: "25%",
-                                padding: 3,
-                                borderRadius: 5,
-                            }}>
-                            46%
-                        </Text>
-                        <Text
-                            numberOfLines={1}
-                            style={{
-                                width: "75%",
-                                color: "black",
-                                marginLeft: 5,
-                                textDecorationLine: "line-through"
-                            }}>
-                            Rp.30.000.0000
-                        </Text>
-                    </View>
-                    <Text style={{ color: "black", fontSize: 16, fontWeight: "500" }}>
-                        Rp.20.000
-                    </Text>
-                    <View style={[styles.section, { marginTop: 10 }]}>
-                        <Icon size={24} color="black" name="star-border" />
-                        <Text style={{ fontSize: 16, color: "black", alignItems: "center" }}>
-                            - | Terjual 0
-                        </Text>
-                    </View>
-                </Pressable>
-            </View>
-
+                )
+            })}
         </>
     )
 }

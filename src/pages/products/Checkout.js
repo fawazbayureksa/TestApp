@@ -155,7 +155,7 @@ export default function Checkout({ navigation }) {
                         </Text>
                     </View>
                     <View>
-                        <Pressable style={{ backgroundColor: "#F18910", height: 35, borderRadius: 5, marginTop: 10, justifyContent: "center", flex: 1, alignItems: "center" }} onPress={() => navigation.navigate("Checkout")}>
+                        <Pressable onPress={() => navigation.navigate("CheckoutPay")} style={{ backgroundColor: "#F18910", height: 35, borderRadius: 5, marginTop: 10, justifyContent: "center", flex: 1, alignItems: "center" }} >
                             <Text style={{ fontSize: 20, color: "white" }}>
                                 Lanjutkan Membeli
                             </Text>

@@ -18,6 +18,7 @@ import Address from "../pages/products/Address"
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import { Badge } from 'react-native-paper';
 import Checkout from '../pages/products/Checkout';
+import CheckoutPay from '../pages/products/CheckoutPay';
 
 
 const Tab = createBottomTabNavigator();
@@ -111,6 +112,11 @@ export default function AppNavigator() {
                         }}
                     />
                     <Stack.Screen name="Checkout" component={Checkout} />
+                    <Stack.Screen name="CheckoutPay" component={CheckoutPay}
+                        ptions={{
+                            headerTitle: "Metode Pembayaran"
+                        }}
+                    />
                     <Stack.Screen name="DetailProduct" component={DetailProduct} />
                     <Stack.Screen name="Login" component={Login} />
                     <Stack.Screen name="Register" component={Register} />
