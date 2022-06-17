@@ -1,5 +1,6 @@
-import { StyleSheet, Text, View, Pressable, Image } from 'react-native'
+import { StyleSheet, View, Pressable, Image } from 'react-native'
 import React from 'react'
+import { Text } from 'react-native-paper'
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import axios from 'axios';
 import PriceRatio from "../../components/PriceRatio"
@@ -164,6 +165,9 @@ const styles = StyleSheet.create({
         width: "100%",
         height: 135,
         resizeMode: "cover",
+        borderRadius: 5,
+        backgroundColor: "gray"
+
     },
     card: {
         padding: 10,

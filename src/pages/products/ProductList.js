@@ -1,9 +1,10 @@
 import axios from 'axios';
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, TextInput, Image, ScrollView, Button, Pressable } from 'react-native';
+import { View, StyleSheet, TextInput, Image, ScrollView, Button, Pressable } from 'react-native';
 import { Searchbar, Appbar } from 'react-native-paper';
 import Select from 'react-native-picker-select';
 import ProductCard from './ProductCard';
+import { Text } from 'react-native-paper'
 
 export default function ProductList({ navigation }) {
     const [searchQuery, setSearchQuery] = useState()

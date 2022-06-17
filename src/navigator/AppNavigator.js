@@ -67,8 +67,8 @@ export default function AppNavigator() {
                                             onPress={() => alert('This is Chat!')}
                                         >
                                             <View style={{ marginRight: 10 }}>
-                                                <Badge style={{ marginBottom: -12, zIndex: 2, marginLeft: 15 }}>0</Badge>
-                                                <Icon size={28} color="black" name="mail" />
+                                                <Badge style={{ marginBottom: -12, zIndex: 2, marginLeft: 15, backgroundColor: "red" }}>0</Badge>
+                                                <Icon size={28} color="#F18910" name="mail" />
                                             </View>
                                         </Pressable>
                                     </View>
@@ -77,8 +77,8 @@ export default function AppNavigator() {
                                             onPress={() => alert('This is Notification!')}
                                         >
                                             <View style={{ marginRight: 10 }}>
-                                                <Badge style={{ marginBottom: -12, zIndex: 2, marginLeft: 15 }}>0</Badge>
-                                                <Icon size={28} color="black" name="notifications" />
+                                                <Badge style={{ marginBottom: -12, zIndex: 2, marginLeft: 15, backgroundColor: "red" }}>0</Badge>
+                                                <Icon size={28} color="#F18910" name="notifications" />
                                             </View>
                                         </Pressable>
                                     </View>
@@ -87,8 +87,8 @@ export default function AppNavigator() {
                                             onPress={() => navigationRef.navigate("Cart")}
                                         >
                                             <View style={{ marginRight: 10 }}>
-                                                <Badge style={{ marginBottom: -12, zIndex: 2, marginLeft: 15 }}>1</Badge>
-                                                <Icon size={28} color="black" name="shopping-cart" />
+                                                <Badge style={{ marginBottom: -12, zIndex: 2, marginLeft: 15, backgroundColor: "red" }}>1</Badge>
+                                                <Icon size={28} color="#F18910" name="shopping-cart" />
                                             </View>
                                         </Pressable>
                                     </View>

@@ -1,4 +1,5 @@
-import { Button, Image, Pressable, ScrollView, StyleSheet, Text, View, useWindowDimensions } from 'react-native'
+import { Button, Image, Pressable, ScrollView, StyleSheet, View, useWindowDimensions } from 'react-native'
+import { Text } from 'react-native-paper'
 import React, { useState, useEffect } from 'react'
 import { TabView, SceneMap } from 'react-native-tab-view';
 import InfromationProduct from './InfromationProduct';
@@ -7,6 +8,8 @@ import axios from "axios";
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import PriceRatio from '../../components/PriceRatio';
 import { CurrencyFormat } from '../../components/CurrencyFormat';
+import IsEmpty from '../../commons/IsEmpty';
+
 
 const renderScene = SceneMap({
     first: InfromationProduct,
@@ -18,7 +21,7 @@ const DetailProduct = ({ route, navigation }) => {
 
     const baseUrl = `https://api-cms.degadai.id/api/`;
     const layout = useWindowDimensions();
-    const [dataDetail, setDataDetail] = useState([])
+    const [dataDetail, setDataDetail] = useState(null)
     const [index, setIndex] = useState(0);
     const [routes] = useState([
         { key: 'first', title: 'First' },
@@ -42,30 +45,38 @@ const DetailProduct = ({ route, navigation }) => {
         )
             .then(response => {
                 setDataDetail(response.data.data.detail)
-                // console.log(response.data.data.detail)
             }).catch(error => {
                 console.log(error)
 
             })
     }
 
-    // console.log(route.params.seller_slug)
-    // console.log(route.params.product_slug)
+    const handleCart = () => {
+        console.log("masukkan ke cart")
+    }
 
     return (
         <ScrollView style={{ backgroundColor: "#FFFFFF" }}>
-            {dataDetail.length > 0 &&
+            {dataDetail === null ?
+
+                <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+                    <Text>
+                        Wait ...
+                    </Text>
+                </View>
+                :
+
                 <View style={styles.container}>
                     <View>
                         <Image
                             style={styles.produkImage}
                             source={{
-                                uri: `https://tsi-1.oss-ap-southeast-5.aliyuncs.com/public/marketplace/products/${dataDetail.mp_product_images[0].filename}`
+                                uri: `https://tsi-1.oss-ap-southeast-5.aliyuncs.com/public/marketplace/products/${dataDetail?.mp_product_images[0].filename}`
                             }}
                         />
                     </View>
                     <View style={{ flex: 1, flexDirection: "row", justifyContent: "flex-start", alignItems: "center" }}>
-                        {dataDetail.mp_product_images.map((image, index) => (
+                        {dataDetail?.mp_product_images.map((image, index) => (
                             <View key={index}>
                                 <Image
                                     style={styles.produkImageDetails}
@@ -75,20 +86,6 @@ const DetailProduct = ({ route, navigation }) => {
                                 />
                             </View>
                         ))}
-                        {/* 
-                                <Image
-                                    style={styles.produkImageDetails}
-                                    source={{
-                                        uri: "https://api-admin.tokodapur.com/storage/public/tsi-3/public/marketplace/products/568253ce-e6fc-11ec-a77b-00163c303764.jpg"
-                                    }}
-                                />
-                                <Image
-                                    style={styles.produkImageDetails}
-                                    source={{
-                                        uri: "https://api-admin.tokodapur.com/storage/public/tsi-3/public/marketplace/products/5ed66981-e6fc-11ec-a77b-00163c303764.jpg"
-                                    }}
-                                /> 
-                                */}
                     </View>
                     <View >
                         <Text style={{ fontSize: 18, color: "black", marginBottom: 5 }}>
@@ -118,7 +115,6 @@ const DetailProduct = ({ route, navigation }) => {
                                 style={{
                                     backgroundColor: "#F18910",
                                     color: "white",
-                                    // width: "10%",
                                     padding: 5,
                                     borderRadius: 5,
                                     fontSize: 16,
@@ -186,9 +182,33 @@ const DetailProduct = ({ route, navigation }) => {
                         >
                             Pilih Varian
                         </Text>
-                        <Text style={{ color: "gray", fontSize: 16 }}>
-                            Tidak Ada Varian
-                        </Text>
+
+                        <View style={{ marginVertical: 10, flex: 1, flexWrap: "wrap" }}>
+                            <Text style={{ fontSize: 16, fontWeight: "600", }}>{dataDetail?.mp_product_variants[0]?.name}</Text>
+                            <Pressable
+                                style={{
+                                    justifyContent: "center",
+                                    alignItems: "center",
+                                    borderColor: "#F18910",
+                                    borderWidth: 1,
+                                    marginTop: 10,
+                                    // width: 100,
+                                    // height: 30,
+                                    padding: 10,
+                                    borderRadius: 10
+                                }}>
+                                <Text
+                                    style={{
+                                        fontSize: 16,
+                                        fontWeight: "700"
+                                    }}>
+                                    Merah
+                                </Text>
+                            </Pressable>
+                            {/* <Text style={{ color: "gray", fontSize: 16 }}>
+                                Tidak Ada Varian
+                            </Text> */}
+                        </View>
                     </View>
                     <View
                         style={{
@@ -229,7 +249,7 @@ const DetailProduct = ({ route, navigation }) => {
                     <View style={{ marginVertical: 10 }}>
                         <Text style={{ fontSize: 18, color: "black" }}>Total Harga : Rp.{CurrencyFormat(dataDetail?.mp_product_skus.find(value1 => value1.is_main).price * item)}</Text>
                     </View>
-                    <View style={{ marginBottom: 20 }}>
+                    <View style={{ marginBottom: 20 }} >
                         <Pressable
                             style={{
                                 backgroundColor: "#FFFFFF",
@@ -245,6 +265,7 @@ const DetailProduct = ({ route, navigation }) => {
                             </Text>
                         </Pressable>
                         <Pressable
+                            onPress={handleCart}
                             style={{
                                 backgroundColor: "#F18910",
                                 borderColor: "#F18910",
@@ -254,7 +275,8 @@ const DetailProduct = ({ route, navigation }) => {
                                 alignItems: "center",
                                 borderRadius: 10,
                                 marginTop: 10
-                            }}>
+                            }}
+                        >
                             <Text style={{ fontSize: 18, color: "white" }}>
                                 Masukkan Ke Keranjang
                             </Text>
@@ -266,7 +288,7 @@ const DetailProduct = ({ route, navigation }) => {
                                 <Image
                                     style={styles.profil}
                                     source={{
-                                        uri: 'https://images.unsplash.com/photo-1633332755192-727a05c4013d?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=580&q=80',
+                                        uri: `https://tsi-1.oss-ap-southeast-5.aliyuncs.com/public/marketplace/seller/${dataDetail?.mp_seller.cover_picture}`,
                                     }}
                                 />
 
@@ -274,12 +296,12 @@ const DetailProduct = ({ route, navigation }) => {
                             <View style={{ marginLeft: 10 }}>
                                 <Text
                                     style={{ fontSize: 20, fontWeight: "600", color: "black" }}>
-                                    TSJ
+                                    {dataDetail?.mp_seller.name}
                                 </Text>
                                 <Text
                                     style={{ fontSize: 16, fontWeight: "300", color: "black" }}
                                 >
-                                    Jakarta Barat
+                                    {dataDetail?.mp_seller.city}
                                 </Text>
                             </View>
                         </View>
@@ -357,7 +379,7 @@ const DetailProduct = ({ route, navigation }) => {
                                     }}>
                                     <Text
                                         style={{
-                                            backgroundColor: "black",
+                                            backgroundColor: "#F18910",
                                             color: "white",
                                             width: "25%",
                                             padding: 3,
@@ -413,6 +435,7 @@ const DetailProduct = ({ route, navigation }) => {
                                             width: "25%",
                                             padding: 3,
                                             borderRadius: 5,
+                                            backgroundColor: "#F18910"
                                         }}>
                                         46%
                                     </Text>
@@ -438,6 +461,7 @@ const DetailProduct = ({ route, navigation }) => {
                     </View>
                 </View>
             }
+
         </ScrollView >
     )
 }
@@ -485,6 +509,8 @@ const styles = StyleSheet.create({
         width: "90%",
         height: 350,
         resizeMode: "cover",
+        backgroundColor: "gray",
+        borderRadius: 10
     },
     cardProdukImage: {
         marginVertical: 20,
@@ -499,7 +525,10 @@ const styles = StyleSheet.create({
         resizeMode: "contain",
         borderWidth: 1,
         borderColor: "gray",
-        marginRight: 10
+        marginRight: 10,
+        backgroundColor: "gray",
+        borderRadius: 10
+
     },
     card: {
         padding: 10,
@@ -556,7 +585,8 @@ const styles = StyleSheet.create({
     profil: {
         width: 80,
         height: 80,
-        borderRadius: 50
+        borderRadius: 50,
+        backgroundColor: "#A6A6A6"
     },
     text: {
         color: "#FFFFFF",

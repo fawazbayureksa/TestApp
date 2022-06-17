@@ -1,4 +1,5 @@
-import { StyleSheet, Text, View } from 'react-native'
+import { StyleSheet, View } from 'react-native';
+import { Text } from 'react-native-paper'
 import React from 'react'
 import Pressable from 'react-native/Libraries/Components/Pressable/Pressable'
 
