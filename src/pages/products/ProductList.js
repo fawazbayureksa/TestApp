@@ -10,7 +10,6 @@ export default function ProductList({ navigation }) {
     const [dataProducts, setDataProducts] = useState({})
     const baseUrl = `https://api-cms.degadai.id/api/`;
 
-
     const select = "Pilih";
     const [category, setCategory] = useState([
         { label: 'Produk', value: 'produk' },

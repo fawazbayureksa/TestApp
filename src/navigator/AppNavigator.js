@@ -113,7 +113,7 @@ export default function AppNavigator() {
                     />
                     <Stack.Screen name="Checkout" component={Checkout} />
                     <Stack.Screen name="CheckoutPay" component={CheckoutPay}
-                        ptions={{
+                        options={{
                             headerTitle: "Metode Pembayaran"
                         }}
                     />

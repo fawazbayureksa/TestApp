@@ -13,10 +13,8 @@ export default function ProductCard({ navi }) {
     }, []);
 
     const getDataProduct = async () => {
-        console.log("Data")
+        // console.log("Data")
 
-
-        // return
         let params = {
             order_by: 'date',
             order: 'desc',
@@ -50,7 +48,10 @@ export default function ProductCard({ navi }) {
                 // console.log()
                 return (
                     <View style={styles.card} key={item.id}>
-                        <Pressable onPress={() => navi.navigate("DetailProduct")}>
+                        <Pressable onPress={() => navi.navigate("DetailProduct", {
+                            seller_slug: item.mp_seller.slug,
+                            product_slug: item.slug
+                        })}>
                             <Image
                                 style={styles.produkImage}
                                 source={{
@@ -79,7 +80,6 @@ export default function ProductCard({ navi }) {
                                     style={{
                                         backgroundColor: "#F18910",
                                         color: "white",
-                                        width: "25%",
                                         padding: 3,
                                         borderRadius: 5,
                                     }}>
