@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Image, Text, StyleSheet, Pressable, Button, Alert } from 'react-native';
+import { View, Image, Text, StyleSheet, Pressable, Button, Alert, TouchableOpacity } from 'react-native';
 import ModalDialog from '../../commons/Modal';
 import { CurrencyFormat } from '../../components/CurrencyFormat';
 import axios from 'axios';
@@ -69,7 +69,6 @@ const MembershipRows = ({ item, type, submit, history }) => {
         return type === 0
     }
 
-    // console.log(item.image)
     return (
         <View style={styles.section4} key={item.id}>
             <Image
@@ -119,15 +118,19 @@ const MembershipRows = ({ item, type, submit, history }) => {
                     </Text>
                 </Pressable>
                 <View style={{ width: "60%", marginTop: 10 }}>
-                    <Pressable onPress={() => setModalTukarPoint(true)} disabled={editButton() === true ? true : false}>
+                    <TouchableOpacity
+                        style={{
+                            backgroundColor: editButton() === true ? "grey" : "#F18910",
+                            height: 40,
+                            alignItems: "center",
+                            justifyContent: "center",
+                            borderRadius: 10,
+                        }}
+                        onPress={() => setModalTukarPoint(true)} disabled={editButton() === true ? true : false}>
                         <Text
                             numberOfLines={1}
                             style={{
-                                backgroundColor: editButton() === true ? "grey" : "#F18910",
-                                height: 40,
-                                padding: 10,
                                 color: "white",
-                                borderRadius: 5,
                                 fontSize: 16,
                                 fontWeight: "500",
 
@@ -135,7 +138,7 @@ const MembershipRows = ({ item, type, submit, history }) => {
                         >
                             Tukar Point
                         </Text>
-                    </Pressable>
+                    </TouchableOpacity>
                 </View>
             </View>
 
@@ -165,22 +168,33 @@ const MembershipRows = ({ item, type, submit, history }) => {
                             display: "flex",
                             flexDirection: "row",
                             justifyContent: "space-evenly",
-                            marginTop: 30
+                            marginTop: 30,
+                            height: 50,
                         }}>
-                            <View style={{ borderRadius: 20 }}>
-                                <Button
-                                    onPress={() => setModalTukarPoint(false)}
-                                    title="Nanti Saja"
-                                    color="#A6A6A6"
-                                />
-                            </View>
-                            <View style={{ borderRadius: 20 }}>
-                                <Button
-                                    title="Beli Voucher"
-                                    color="#F18910"
-                                    onPress={handleSubmit}
-                                />
-                            </View>
+                            <TouchableOpacity
+                                style={{
+                                    width: "45%",
+                                    backgroundColor: "#A6A6A6",
+                                    borderRadius: 50,
+                                    alignItems: "center",
+                                    justifyContent: "center"
+                                }}
+                                onPress={() => setModalTukarPoint(false)}
+                            >
+                                <Text style={{ fontSize: 16, color: "#FFF" }}>Nanti Saja</Text>
+                            </TouchableOpacity>
+                            <TouchableOpacity
+                                style={{
+                                    width: "45%",
+                                    backgroundColor: "#F18910",
+                                    borderRadius: 50,
+                                    alignItems: "center",
+                                    justifyContent: "center"
+                                }}
+                                onPress={handleSubmit}
+                            >
+                                <Text style={{ fontSize: 16, color: "#FFF" }}>Beli Voucher</Text>
+                            </TouchableOpacity>
                         </View>
                     </View>
                 }

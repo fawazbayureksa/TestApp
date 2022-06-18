@@ -1,4 +1,4 @@
-import { Button, Image, Pressable, ScrollView, StyleSheet, View, useWindowDimensions } from 'react-native'
+import { Button, Image, Pressable, ScrollView, StyleSheet, View, useWindowDimensions, TouchableOpacity } from 'react-native'
 import { Text } from 'react-native-paper'
 import React, { useState, useEffect } from 'react'
 import { TabView, SceneMap } from 'react-native-tab-view';
@@ -22,6 +22,7 @@ const DetailProduct = ({ route, navigation }) => {
     const baseUrl = `https://api-cms.degadai.id/api/`;
     const layout = useWindowDimensions();
     const [dataDetail, setDataDetail] = useState(null)
+    const [dataRelated, setDataRelated] = useState(null)
     const [index, setIndex] = useState(0);
     const [routes] = useState([
         { key: 'first', title: 'First' },
@@ -43,8 +44,9 @@ const DetailProduct = ({ route, navigation }) => {
                 }
             }
         )
-            .then(response => {
+            .then((response) => {
                 setDataDetail(response.data.data.detail)
+                setDataRelated(response.data.data.related)
             }).catch(error => {
                 console.log(error)
 
@@ -54,6 +56,7 @@ const DetailProduct = ({ route, navigation }) => {
     const handleCart = () => {
         console.log("masukkan ke cart")
     }
+    // console.log("data related : ", dataRelated)
 
     return (
         <ScrollView style={{ backgroundColor: "#FFFFFF" }}>
@@ -185,18 +188,18 @@ const DetailProduct = ({ route, navigation }) => {
 
                         <View style={{ marginVertical: 10, flex: 1, flexWrap: "wrap" }}>
                             <Text style={{ fontSize: 16, fontWeight: "600", }}>{dataDetail?.mp_product_variants[0]?.name}</Text>
-                            <Pressable
+                            <TouchableOpacity
                                 style={{
                                     justifyContent: "center",
                                     alignItems: "center",
                                     borderColor: "#F18910",
                                     borderWidth: 1,
                                     marginTop: 10,
-                                    // width: 100,
-                                    // height: 30,
                                     padding: 10,
                                     borderRadius: 10
-                                }}>
+                                }}
+
+                            >
                                 <Text
                                     style={{
                                         fontSize: 16,
@@ -204,7 +207,7 @@ const DetailProduct = ({ route, navigation }) => {
                                     }}>
                                     Merah
                                 </Text>
-                            </Pressable>
+                            </TouchableOpacity>
                             {/* <Text style={{ color: "gray", fontSize: 16 }}>
                                 Tidak Ada Varian
                             </Text> */}
@@ -228,29 +231,53 @@ const DetailProduct = ({ route, navigation }) => {
                             Jumlah Produk
                         </Text>
                         <View style={{ flex: 1, flexDirection: 'row', justifyContent: "flex-start", alignItems: "flex-end" }}>
-                            <Button
-                                title="-"
-                                color="#F18910"
+                            <TouchableOpacity
+                                style={{
+                                    backgroundColor: "#F18910",
+                                    width: 30,
+                                    height: 30,
+                                    justifyContent: "center",
+                                    alignItems: "center",
+                                    borderRadius: 50
+                                }}
                                 onPress={() => setItem(item - 1)}
-                            />
+                            >
+                                <Text style={{ color: "#FFF", fontSize: 20, fontWeight: "700" }}>-</Text>
+                            </TouchableOpacity>
                             <Text style={{
                                 marginHorizontal: 20, fontSize: 20, textDecorationLine: "underline"
                             }}
                             >
                                 {item}
                             </Text>
-                            <Button
-                                title="+"
-                                color="#F18910"
+                            <TouchableOpacity
+                                style={{
+                                    backgroundColor: "#F18910",
+                                    width: 30,
+                                    height: 30,
+                                    justifyContent: "center",
+                                    alignItems: "center",
+                                    borderRadius: 50
+                                }}
                                 onPress={() => setItem(item + 1)}
-                            />
+                            >
+                                <Text
+                                    style={{
+                                        color: "#FFF",
+                                        fontSize: 20,
+                                        fontWeight: "700"
+                                    }}
+                                >
+                                    +
+                                </Text>
+                            </TouchableOpacity>
                         </View>
                     </View>
                     <View style={{ marginVertical: 10 }}>
                         <Text style={{ fontSize: 18, color: "black" }}>Total Harga : Rp.{CurrencyFormat(dataDetail?.mp_product_skus.find(value1 => value1.is_main).price * item)}</Text>
                     </View>
                     <View style={{ marginBottom: 20 }} >
-                        <Pressable
+                        <TouchableOpacity
                             style={{
                                 backgroundColor: "#FFFFFF",
                                 borderColor: "#F18910",
@@ -258,13 +285,15 @@ const DetailProduct = ({ route, navigation }) => {
                                 width: "90%",
                                 padding: 10,
                                 alignItems: "center",
-                                borderRadius: 10
-                            }}>
+                                borderRadius: 50
+                            }}
+                            onPress={() => console.log("wishlist")}
+                        >
                             <Text style={{ fontSize: 18, color: "black" }}>
                                 Tambahkan Ke Wishlist
                             </Text>
-                        </Pressable>
-                        <Pressable
+                        </TouchableOpacity>
+                        <TouchableOpacity
                             onPress={handleCart}
                             style={{
                                 backgroundColor: "#F18910",
@@ -273,14 +302,14 @@ const DetailProduct = ({ route, navigation }) => {
                                 width: "90%",
                                 padding: 10,
                                 alignItems: "center",
-                                borderRadius: 10,
+                                borderRadius: 50,
                                 marginTop: 10
                             }}
                         >
                             <Text style={{ fontSize: 18, color: "white" }}>
                                 Masukkan Ke Keranjang
                             </Text>
-                        </Pressable>
+                        </TouchableOpacity>
                     </View>
                     <View style={styles.card}>
                         <View style={{ display: "flex", flexDirection: "row" }}>
@@ -306,7 +335,7 @@ const DetailProduct = ({ route, navigation }) => {
                             </View>
                         </View>
                         <View style={{ display: "flex", flexDirection: "row", flexWrap: "nowrap", marginVertical: 10 }}>
-                            <Pressable
+                            <TouchableOpacity
                                 style={{
                                     backgroundColor: "#FFFFFF",
                                     borderColor: "#F18910",
@@ -314,14 +343,16 @@ const DetailProduct = ({ route, navigation }) => {
                                     width: "45%",
                                     padding: 10,
                                     alignItems: "center",
-                                    borderRadius: 5,
+                                    borderRadius: 50,
                                     marginHorizontal: 10
-                                }}>
+                                }}
+                                onPress={() => console.log("Hubungi Seller")}
+                            >
                                 <Text style={{ fontSize: 18, color: "black" }}>
                                     Hubungi
                                 </Text>
-                            </Pressable>
-                            <Pressable
+                            </TouchableOpacity>
+                            <TouchableOpacity
                                 style={{
                                     backgroundColor: "#F18910",
                                     borderColor: "#F18910",
@@ -329,20 +360,16 @@ const DetailProduct = ({ route, navigation }) => {
                                     width: "45%",
                                     padding: 10,
                                     alignItems: "center",
-                                    borderRadius: 5,
-                                }}>
+                                    borderRadius: 50,
+                                }}
+                                onPress={() => console.log("Ikuti Seller")}
+                            >
                                 <Text style={{ fontSize: 18, color: "#FFFFFF" }}>
                                     Ikuti
                                 </Text>
-                            </Pressable>
+                            </TouchableOpacity>
                         </View>
                     </View>
-                    {/* <TabView
-                    navigationState={{ index, routes }}
-                    renderScene={renderScene}
-                    onIndexChange={setIndex}
-                    initialLayout={{ width: 50 }}
-                /> */}
                     <Text
                         style={{
                             fontSize: 16,
@@ -354,110 +381,68 @@ const DetailProduct = ({ route, navigation }) => {
                         Lebih Banyak Dari Seller Ini
                     </Text>
                     <View style={styles.section}>
-                        <View style={styles.cardProduct}>
-                            <Pressable onPress={() => navigation.navigate("DetailProduct")}>
-                                <Image
-                                    style={styles.cardProdukImage}
-                                    source={{
-                                        uri: "https://api-admin.tokodapur.com/storage/public/tsi-3/public/marketplace/products/5e80fc2a-b4bd-11ec-bbde-00163c303764.jpg"
-                                    }}
-                                />
-                                <Text
-                                    numberOfLines={1}
-                                    style={{ color: "black", fontSize: 14, fontWeight: "600" }}
-                                >
-                                    JIB Silicone Slotted Spoon / Silicon Utensil
-                                </Text>
-                                <Text style={{ color: "black" }}>
-                                    Jakarta Barat
-                                </Text>
-                                <View
-                                    style={{
-                                        dispaly: "flex",
-                                        flexDirection: "row",
-                                        alignItems: "center"
-                                    }}>
-                                    <Text
-                                        style={{
-                                            backgroundColor: "#F18910",
-                                            color: "white",
-                                            width: "25%",
-                                            padding: 3,
-                                            borderRadius: 5,
-                                        }}>
-                                        50%
-                                    </Text>
+                        {dataRelated && dataRelated.map((item) => (
+                            <View style={styles.cardProduct} key={item.id}>
+                                <Pressable onPress={() => navigation.navigate("DetailProduct", {
+                                    seller_slug: item.mp_seller.slug,
+                                    product_slug: item.slug
+                                })}>
+                                    <Image
+                                        style={styles.cardProdukImage}
+                                        source={{
+                                            uri: `https://tsi-1.oss-ap-southeast-5.aliyuncs.com/public/marketplace/products/${item?.mp_product_images[0].filename}`
+                                        }}
+                                    />
                                     <Text
                                         numberOfLines={1}
-                                        style={{
-                                            width: "75%",
-                                            color: "black",
-                                            marginLeft: 5,
-                                            textDecorationLine: "line-through"
-                                        }}>
-                                        Rp.30.000.0000
+                                        style={{ color: "black", fontSize: 14, fontWeight: "600" }}
+                                    >
+                                        {item?.mp_product_informations[0].name}
                                     </Text>
-                                </View>
-                                <Text style={{ color: "black", fontSize: 16, fontWeight: "500" }}>
-                                    Rp.20.000
-                                </Text>
-                                <Text style={{ fontSize: 16, color: "black", marginTop: 10 }}>
-                                    * - | Terjual 0
-                                </Text>
-                            </Pressable>
-                        </View>
-                        <View style={styles.cardProduct}>
-                            <Pressable onPress={() => navigation.navigate("DetailProduct")}>
-                                <Image
-                                    style={styles.cardProdukImage}
-                                    source={{
-                                        uri: "https://api-admin.tokodapur.com/storage/public/tsi-3/public/marketplace/products/5e80fc2a-b4bd-11ec-bbde-00163c303764.jpg"
-                                    }}
-                                />
-                                <Text
-                                    numberOfLines={1}
-                                    style={{ color: "black", fontSize: 14, fontWeight: "600" }}
-                                >
-                                    JIB Silicone Slotted Spoon / Silicon Utensil
-                                </Text>
-                                <Text style={{ color: "black" }}>
-                                    Jakarta Barat
-                                </Text>
-                                <View
-                                    style={{
-                                        dispaly: "flex",
-                                        flexDirection: "row",
-                                        alignItems: "center"
-                                    }}>
-                                    <Text
-                                        style={{
-                                            color: "white",
-                                            width: "25%",
-                                            padding: 3,
-                                            borderRadius: 5,
-                                            backgroundColor: "#F18910"
-                                        }}>
-                                        46%
+                                    <Text style={{ color: "black" }}>
+                                        {item?.mp_seller.city}
                                     </Text>
-                                    <Text
-                                        numberOfLines={1}
+                                    <View
                                         style={{
-                                            width: "75%",
-                                            color: "black",
-                                            marginLeft: 5,
-                                            textDecorationLine: "line-through"
+                                            dispaly: "flex",
+                                            flexDirection: "row",
+                                            alignItems: "center"
                                         }}>
-                                        Rp.30.000.0000
+                                        <Text
+                                            style={{
+                                                backgroundColor: "#F18910",
+                                                color: "white",
+                                                width: "25%",
+                                                padding: 3,
+                                                borderRadius: 5,
+                                            }}>
+                                            {PriceRatio(item?.mp_product_skus.find(value1 => value1.is_main).normal_price, item?.mp_product_skus.find(value1 => value1.is_main).price)}
+
+                                        </Text>
+                                        <Text
+                                            numberOfLines={1}
+                                            style={{
+                                                width: "75%",
+                                                color: "black",
+                                                marginLeft: 5,
+                                                textDecorationLine: "line-through"
+                                            }}>
+                                            Rp.{CurrencyFormat(item?.mp_product_skus.find(value1 => value1.is_main).normal_price)}
+                                        </Text>
+                                    </View>
+                                    <Text style={{ color: "black", fontSize: 16, fontWeight: "500" }}>
+                                        Rp.{CurrencyFormat(item?.mp_product_skus.find(value1 => value1.is_main).price)}
                                     </Text>
-                                </View>
-                                <Text style={{ color: "black", fontSize: 16, fontWeight: "500" }}>
-                                    Rp.20.000
-                                </Text>
-                                <Text style={{ fontSize: 16, color: "black", marginTop: 10 }}>
-                                    * - | Terjual 0
-                                </Text>
-                            </Pressable>
-                        </View>
+                                    <View style={[styles.section, { marginTop: 10, alignItems: "center" }]}>
+                                        <Icon size={24} color="#F18910" name="star-border" />
+                                        <Text style={{ fontSize: 16, color: "black" }}>
+                                            {item.rating ? item.rating : "-"}
+                                            | Terjual {item.sold_product}
+                                        </Text>
+                                    </View>
+                                </Pressable>
+                            </View>
+                        ))}
                     </View>
                 </View>
             }
@@ -516,7 +501,10 @@ const styles = StyleSheet.create({
         marginVertical: 20,
         width: "100%",
         height: 120,
-        resizeMode: "cover",
+        resizeMode: "contain",
+        backgroundColor: "#A6A6A6",
+        borderRadius: 5
+
     },
     produkImageDetails: {
         marginVertical: 20,

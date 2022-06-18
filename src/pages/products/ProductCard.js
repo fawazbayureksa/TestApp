@@ -1,4 +1,4 @@
-import { StyleSheet, View, Pressable, Image } from 'react-native'
+import { StyleSheet, View, Pressable, Image, TouchableOpacity } from 'react-native'
 import React from 'react'
 import { Text } from 'react-native-paper'
 import Icon from 'react-native-vector-icons/MaterialIcons';
@@ -49,7 +49,7 @@ export default function ProductCard({ navi }) {
                 // console.log()
                 return (
                     <View style={styles.card} key={item.id}>
-                        <Pressable onPress={() => navi.navigate("DetailProduct", {
+                        <TouchableOpacity onPress={() => navi.navigate("DetailProduct", {
                             seller_slug: item.mp_seller.slug,
                             product_slug: item.slug
                         })}>
@@ -95,7 +95,6 @@ export default function ProductCard({ navi }) {
                                         marginLeft: 5,
                                         textDecorationLine: "line-through"
                                     }}>
-                                    {/* Rp.30.000.000 */}
                                     Rp.{CurrencyFormat(item.mp_product_skus.find(value1 => value1.is_main).normal_price)}
                                 </Text>
                             </View>
@@ -106,10 +105,10 @@ export default function ProductCard({ navi }) {
                                 <Icon size={24} color="#F18910" name="star-border" />
                                 <Text style={{ fontSize: 16, color: "black" }}>
                                     {item.rating ? item.rating : "-"}
-                                    - | Terjual {item.sold_product}
+                                    | Terjual {item.sold_product}
                                 </Text>
                             </View>
-                        </Pressable>
+                        </TouchableOpacity>
                     </View>
                 )
             })}

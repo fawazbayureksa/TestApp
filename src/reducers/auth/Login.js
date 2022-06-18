@@ -39,7 +39,7 @@ export default function Login({ navigation }) {
                             { text: "OK", onPress: () => console.log("OK Pressed") }
                         ]
                     )
-                    navigation.navigate("Account");
+                    navigation.navigate("ProductList");
                 }
                 console.log(res.data.message);
             })

@@ -5,15 +5,12 @@ import { Searchbar, Appbar } from 'react-native-paper';
 import Select from 'react-native-picker-select';
 import ProductCard from './ProductCard';
 import { Text } from 'react-native-paper'
-import AsyncStorage from "@react-native-async-storage/async-storage";
-
-
 
 export default function ProductList({ navigation }) {
     const [searchQuery, setSearchQuery] = useState()
     const [dataProducts, setDataProducts] = useState({})
     const baseUrl = `https://api-cms.degadai.id/api/`;
-    const [name, setName] = useState()
+
     const select = "Pilih";
     const [category, setCategory] = useState([
         { label: 'Produk', value: 'produk' },
@@ -27,7 +24,6 @@ export default function ProductList({ navigation }) {
 
     useEffect(() => {
         getDataProduct()
-        getName();
     }, []);
 
     const getDataProduct = async () => {
@@ -40,13 +36,7 @@ export default function ProductList({ navigation }) {
             order: 'desc',
             length: 1,
             page: 1,
-            // type: props.data.type,
-            // custom_product_url: props.data.custom_product_url
         }
-        // if (props.data.mp_category_slug) {
-        //     params = { ...params, category: props.data.mp_category_slug }
-        // }
-
         await axios.get(baseUrl + `ecommerce/products/get?order_by=${params.order_by}&order=${params.order}&length=${params.length}&page=${params.page}`,
             {
                 headers: {
@@ -62,14 +52,7 @@ export default function ProductList({ navigation }) {
             })
     }
 
-    const getName = async () => {
-        const jsonValue = await AsyncStorage.getItem('user')
-        const value = jsonValue != null ? JSON.parse(jsonValue) : null
-        setName({
-            name: value.name,
-        })
-    }
-
+    // console.log(dataProducts.map((item) => (item.mp_product_informations[0].name)))
 
     return (
         <>

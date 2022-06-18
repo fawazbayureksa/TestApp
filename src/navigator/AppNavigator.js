@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Text, View, Button, Image, Pressable, DrawerLayoutAndroid, StyleSheet } from 'react-native';
+import { Text, View, Button, Image, Pressable, DrawerLayoutAndroid, StyleSheet, TouchableOpacity } from 'react-native';
 import { NavigationContainer, useNavigation } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
@@ -19,6 +19,7 @@ import Icon from 'react-native-vector-icons/MaterialIcons';
 import { Badge } from 'react-native-paper';
 import Checkout from '../pages/products/Checkout';
 import CheckoutPay from '../pages/products/CheckoutPay';
+// import { TouchableOpacity } from 'react-native-gesture-handler';
 
 
 const Tab = createBottomTabNavigator();
@@ -54,52 +55,54 @@ export default function AppNavigator() {
             renderNavigationView={Filter}
         >
             <NavigationContainer ref={navigationRef}>
-                <Stack.Navigator>
+                <Stack.Navigator >
+                    <Stack.Screen name="Login" component={Login} />
                     <Stack.Screen
                         name="ProductList"
                         component={ProductList}
                         options={{
+                            headerBackVisible: false,
                             headerTitle: props => <LogoTitle {...props} />,
                             headerRight: () => (
                                 <View style={{ flexDirection: "row" }}>
                                     <View>
-                                        <Pressable
+                                        <TouchableOpacity
                                             onPress={() => alert('This is Chat!')}
                                         >
                                             <View style={{ marginRight: 10 }}>
                                                 <Badge style={{ marginBottom: -12, zIndex: 2, marginLeft: 15, backgroundColor: "red" }}>0</Badge>
                                                 <Icon size={28} color="#F18910" name="mail" />
                                             </View>
-                                        </Pressable>
+                                        </TouchableOpacity>
                                     </View>
                                     <View>
-                                        <Pressable
+                                        <TouchableOpacity
                                             onPress={() => alert('This is Notification!')}
                                         >
                                             <View style={{ marginRight: 10 }}>
                                                 <Badge style={{ marginBottom: -12, zIndex: 2, marginLeft: 15, backgroundColor: "red" }}>0</Badge>
                                                 <Icon size={28} color="#F18910" name="notifications" />
                                             </View>
-                                        </Pressable>
+                                        </TouchableOpacity>
                                     </View>
                                     <View>
-                                        <Pressable
+                                        <TouchableOpacity
                                             onPress={() => navigationRef.navigate("Cart")}
                                         >
                                             <View style={{ marginRight: 10 }}>
                                                 <Badge style={{ marginBottom: -12, zIndex: 2, marginLeft: 15, backgroundColor: "red" }}>1</Badge>
                                                 <Icon size={28} color="#F18910" name="shopping-cart" />
                                             </View>
-                                        </Pressable>
+                                        </TouchableOpacity>
                                     </View>
                                     <View>
-                                        <Pressable
-                                            onPress={() => navigationRef.navigate("Login")}
+                                        <TouchableOpacity
+                                            onPress={() => navigationRef.navigate("Account")}
                                         >
                                             <Text style={{ fontSize: 18, marginRight: 10, color: "#000", marginTop: 8 }}>
-                                                Login
+                                                <Icon size={32} color="#A6A6A6" name="person" />
                                             </Text>
-                                        </Pressable>
+                                        </TouchableOpacity>
                                     </View>
                                 </View>
                             ),
@@ -118,7 +121,6 @@ export default function AppNavigator() {
                         }}
                     />
                     <Stack.Screen name="DetailProduct" component={DetailProduct} />
-                    <Stack.Screen name="Login" component={Login} />
                     <Stack.Screen name="Register" component={Register} />
                     <Stack.Screen name="Email" component={Email} />
                     <Stack.Screen name="Account" component={Account} />

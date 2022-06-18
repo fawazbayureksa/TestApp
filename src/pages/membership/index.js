@@ -31,7 +31,6 @@ export default function Membership({ navigation }) {
     const [dataHistory, setDataHistory] = useState([]);
     const baseUrl = `https://api-cms.degadai.id/api/`;
 
-    console.log(baseUrl)
 
     useEffect(() => {
         getData();
@@ -53,7 +52,6 @@ export default function Membership({ navigation }) {
         )
             .then(response => {
                 setData(response.data.data)
-                console.log(data?.customerLevel?.banner)
             }).catch(error => {
                 console.log(error)
 

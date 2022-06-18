@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { View, Image, Text, StyleSheet, Pressable, Button, TextInput, Alert } from 'react-native';
+import { View, Image, Text, StyleSheet, Pressable, Button, TextInput, Alert, TouchableOpacity } from 'react-native';
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import axios from 'axios';
 import Icon from 'react-native-vector-icons/MaterialIcons';
+import { TouchableHighlight } from 'react-native-gesture-handler';
 
 
 export default function Account({ navigation }) {
@@ -78,7 +79,7 @@ export default function Account({ navigation }) {
             <Text style={{ fontSize: 24, color: "black", fontWeight: "600" }}>Hi , {name?.name}!</Text>
             <View style={styles.section3}>
 
-                <Pressable onPress={() => navigation.navigate("Membership")}>
+                <TouchableOpacity onPress={() => navigation.navigate("Membership")}>
                     <View style={{ display: "flex", flexDirection: "row", justifyContent: "space-between" }}>
                         <View style={{ display: "flex", flexDirection: "row" }}>
                             <View>
@@ -108,7 +109,7 @@ export default function Account({ navigation }) {
                             </Text>
                         </View>
                     </View>
-                </Pressable>
+                </TouchableOpacity>
             </View >
             <View style={{ marginTop: "90%" }}>
                 <Button
