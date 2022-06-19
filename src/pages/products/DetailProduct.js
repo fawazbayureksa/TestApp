@@ -1,4 +1,4 @@
-import { Button, Image, Pressable, ScrollView, StyleSheet, View, useWindowDimensions, TouchableOpacity } from 'react-native'
+import { Button, Image, Pressable, ScrollView, StyleSheet, View, useWindowDimensions, TouchableOpacity, Alert } from 'react-native'
 import { Text } from 'react-native-paper'
 import React, { useState, useEffect } from 'react'
 import { TabView, SceneMap } from 'react-native-tab-view';
@@ -9,7 +9,7 @@ import Icon from 'react-native-vector-icons/MaterialIcons';
 import PriceRatio from '../../components/PriceRatio';
 import { CurrencyFormat } from '../../components/CurrencyFormat';
 import IsEmpty from '../../commons/IsEmpty';
-
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const renderScene = SceneMap({
     first: InfromationProduct,
@@ -29,9 +29,9 @@ const DetailProduct = ({ route, navigation }) => {
         { key: 'second', title: 'Second' },
     ]);
     const [item, setItem] = useState(1)
-
     const [total, setTotal] = useState()
-
+    const [variantId, setVariantId] = useState()
+    const [idVar, setIdVar] = useState()
     useEffect(() => {
         getDataProductDetail()
     }, [])
@@ -47,16 +47,94 @@ const DetailProduct = ({ route, navigation }) => {
             .then((response) => {
                 setDataDetail(response.data.data.detail)
                 setDataRelated(response.data.data.related)
+                setVariantId(response.data.data.detail.mp_product_skus.find(value => value.is_main === true))
             }).catch(error => {
                 console.log(error)
 
             })
     }
 
-    const handleCart = () => {
-        console.log("masukkan ke cart")
+    const handleCart = async () => {
+
+        let jsonValue = JSON.parse(await AsyncStorage.getItem("token"))
+
+        if (!jsonValue) {
+            navigation.navigate("Login")
+            Alert.alert(
+                "",
+                "Silahkan login terlebih dahulu",
+                [
+                    { text: "OK" }
+                ]
+            )
+        }
+        let params = {
+            sku_id: variantId.id,
+            qty: item
+        }
+        if (parseInt(item) <= parseInt(variantId.stock)) {
+            await axios.post(baseUrl + `cart/add`, params,
+                {
+                    headers: {
+                        "Origin": "http://localhost:3002/",
+                        "Authorization": `Bearer ${jsonValue}`,
+                    }
+                }
+            ).then(response => {
+                Alert.alert(
+                    "",
+                    "Berhasil menambahkan ke keranjang",
+                    [
+                        { text: "OK" }
+                    ]
+                )
+            }).catch(error => {
+                console.log(error)
+            })
+        } else {
+            console.log("Stok tidak cukup")
+        }
+
     }
-    // console.log("data related : ", dataRelated)
+
+
+    const follow = async () => {
+        let jsonValue = JSON.parse(await AsyncStorage.getItem("token"))
+
+        if (!jsonValue) {
+            navigation.navigate("Login")
+            Alert.alert(
+                "",
+                "Silahkan login terlebih dahulu",
+                [
+                    { text: "OK" }
+                ]
+            )
+            return
+        }
+        await axios.post(baseUrl + `ecommerce/seller/follow`, {
+            mp_seller_id: dataDetail.mp_seller_id,
+            is_follow: dataDetail.mp_seller.follow.is_follow === false ? true : false
+        }, {
+            headers: {
+                "Origin": "http://localhost:3002/",
+                "Authorization": `Bearer ${jsonValue}`,
+            }
+        }).then(response => {
+            Alert.alert(
+                "",
+                "Berhasil di ikuti",
+                [
+                    { text: "OK" }
+                ]
+            )
+            console.log(response.data.data)
+            getDataProductDetail()
+        }).catch(error => {
+            console.log(error)
+        })
+    }
+
 
     return (
         <ScrollView style={{ backgroundColor: "#FFFFFF" }}>
@@ -188,29 +266,36 @@ const DetailProduct = ({ route, navigation }) => {
 
                         <View style={{ marginVertical: 10, flex: 1, flexWrap: "wrap" }}>
                             <Text style={{ fontSize: 16, fontWeight: "600", }}>{dataDetail?.mp_product_variants[0]?.name}</Text>
-                            <TouchableOpacity
-                                style={{
-                                    justifyContent: "center",
-                                    alignItems: "center",
-                                    borderColor: "#F18910",
-                                    borderWidth: 1,
-                                    marginTop: 10,
-                                    padding: 10,
-                                    borderRadius: 10
-                                }}
-
-                            >
-                                <Text
-                                    style={{
-                                        fontSize: 16,
-                                        fontWeight: "700"
-                                    }}>
-                                    Merah
+                            {dataDetail?.mp_product_variants.length === 0
+                                ?
+                                <Text style={{ color: "gray", fontSize: 16 }}>
+                                    Tidak Ada Varian
                                 </Text>
-                            </TouchableOpacity>
-                            {/* <Text style={{ color: "gray", fontSize: 16 }}>
-                                Tidak Ada Varian
-                            </Text> */}
+                                :
+                                dataDetail?.mp_product_variants[0].mp_product_sku_variant_options.map((item) => (
+                                    <TouchableOpacity
+                                        style={{
+                                            justifyContent: "center",
+                                            alignItems: "center",
+                                            borderColor: "#F18910",
+                                            borderWidth: 1,
+                                            marginTop: 10,
+                                            padding: 10,
+                                            borderRadius: 10,
+                                            height: 50
+                                        }}
+                                        onPress={() => setIdVar(item.id)}
+
+                                    >
+                                        <Text
+                                            style={{
+                                                fontSize: 16,
+                                                fontWeight: "700"
+                                            }}>
+                                            {item.name}
+                                        </Text>
+                                    </TouchableOpacity>
+                                ))}
                         </View>
                     </View>
                     <View
@@ -362,10 +447,10 @@ const DetailProduct = ({ route, navigation }) => {
                                     alignItems: "center",
                                     borderRadius: 50,
                                 }}
-                                onPress={() => console.log("Ikuti Seller")}
+                                onPress={follow}
                             >
                                 <Text style={{ fontSize: 18, color: "#FFFFFF" }}>
-                                    Ikuti
+                                    {dataDetail.mp_seller.follow.is_follow === false ? "Ikuti" : "Diikuti"}
                                 </Text>
                             </TouchableOpacity>
                         </View>

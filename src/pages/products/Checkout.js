@@ -26,6 +26,11 @@ export default function Checkout({ navigation }) {
     const onChangeSearch = (e) => {
         console.log(e)
     }
+
+
+
+
+
     return (
         <ScrollView style={{ backgroundColor: "#FFFFFF" }}>
             <View style={styles.container}>
