@@ -10,12 +10,10 @@ import { CurrencyFormat } from '../../components/CurrencyFormat';
 import { DateTimeFormat } from '../../components/DatetimeFormat';
 import moment from 'moment';
 import { ProgressBar, MD3Colors } from 'react-native-paper';
-
+import { API_URL, HOST } from "@env"
 export default function Membership({ navigation }) {
 
-    if (AsyncStorage.getItem("token") == undefined) {
-        navigation.navigate("Login");
-    }
+
 
     const [text, onChangeText] = useState();
     const [modalDetail, setModalDetail] = useState(false);
@@ -29,10 +27,12 @@ export default function Membership({ navigation }) {
     const [lastCashPointLogID, setlastCashPointLogID] = useState()
     const [lastLoyaltyPointLogID, setlastLoyaltyPointLogID] = useState()
     const [dataHistory, setDataHistory] = useState([]);
-    const baseUrl = `https://api-cms.degadai.id/api/`;
 
 
     useEffect(() => {
+        if (AsyncStorage.getItem("token") == undefined) {
+            navigation.navigate("Login");
+        }
         getData();
         getDataVoucher();
         getPointHistory();
@@ -42,10 +42,10 @@ export default function Membership({ navigation }) {
 
     const getData = async () => {
 
-        await axios.get(baseUrl + `membership/getMasterData`,
+        await axios.get(API_URL + `membership/getMasterData`,
             {
                 headers: {
-                    "Origin": "http://localhost:3002/",
+                    "Origin": HOST,
                     "Authorization": `Bearer ${JSON.parse(await AsyncStorage.getItem("token"))}`,
                 }
             }
@@ -60,7 +60,7 @@ export default function Membership({ navigation }) {
 
     const getDataVoucher = async () => {
 
-        await axios.get(baseUrl + `membership/getVouchersToRedeem`,
+        await axios.get(API_URL + `membership/getVouchersToRedeem`,
             {
                 headers: {
                     "Origin": "http://localhost:3002/",
@@ -84,7 +84,7 @@ export default function Membership({ navigation }) {
             last_cash_point_log_id: lastCashPointLogID,
             last_loyalty_point_log_id: lastLoyaltyPointLogID
         }
-        await axios.get(baseUrl + `membership/getPointsHistory?per_page=${perPage}`,
+        await axios.get(API_URL + `membership/getPointsHistory?per_page=${perPage}`,
             {
                 headers: {
                     "Origin": "http://localhost:3002/",

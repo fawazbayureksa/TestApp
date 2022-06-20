@@ -3,12 +3,13 @@ import React, { useState, useEffect } from 'react';
 import { Alert, View, Text, Button, TextInput, StyleSheet, KeyboardAvoidingView, TouchableOpacity, Pressable } from "react-native";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { createTwoButtonAlert } from "../../commons/Alert"
+import { API_URL, HOST } from "@env"
+
 export default function Login({ navigation }) {
     const [email, setEmail] = useState()
     const [password, setPassword] = useState()
     const [foundToken, setFoundToken] = useState()
 
-    const baseUrl = `https://api-cms.degadai.id/api/`;
 
 
     const handleLogin = async () => {
@@ -18,11 +19,11 @@ export default function Login({ navigation }) {
         }
         let config = {
             headers: {
-                Origin: "http://localhost:3002/",
+                Origin: HOST,
             }
         }
 
-        axios.post(baseUrl + `auth/login`, data, config)
+        axios.post(API_URL + `auth/login`, data, config)
             .then(async (res) => {
                 const data = JSON.stringify(res.data.data.user)
                 const token = JSON.stringify(res.data.data.access_token)

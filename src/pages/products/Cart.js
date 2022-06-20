@@ -8,6 +8,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import axios from 'axios';
 import IsEmpty from '../../commons/IsEmpty';
 import { CurrencyFormat } from '../../components/CurrencyFormat';
+import { API_URL, HOST } from "@env"
 
 export default function Cart({ navigation }) {
     const [searchQuery, setSearchQuery] = useState()
@@ -17,7 +18,6 @@ export default function Cart({ navigation }) {
         { label: 'Seller', value: 'seller' },
         { label: 'Article', value: 'article' },
     ])
-    const baseUrl = `https://api-cms.degadai.id/api/`;
     const [qty, setQty] = useState(1)
     const [dataProduct, setDataProduct] = useState([])
     const [seller, setSeller] = useState()
@@ -31,13 +31,15 @@ export default function Cart({ navigation }) {
     }, []);
 
 
+
+
     const getCart = async () => {
         let jsonValue = JSON.parse(await AsyncStorage.getItem("token"))
 
-        await axios.get(baseUrl + `cart/get`,
+        await axios.get(API_URL + `cart/get`,
             {
                 headers: {
-                    "Origin": "http://localhost:3002/",
+                    "Origin": HOST,
                     "Authorization": `Bearer ${jsonValue}`,
                 }
             }
@@ -58,51 +60,59 @@ export default function Cart({ navigation }) {
     }
 
     const deleteCart = async () => {
-
+        console.log(idCart)
         let jsonValue = JSON.parse(await AsyncStorage.getItem("token"))
 
-
-        return await axios.post(`https://api-cms.degadai.id/api/cart/delete-by-ids?cart_ids=${idCart}`,
-            {
-                headers: {
-                    "Origin": "http://localhost:3002/",
-                    "Authorization": `Bearer ${jsonValue}`,
-                }
-            }).then(response => {
-                console.log(response)
-                setIdCart()
-                getCart()
-                Alert.alert(
-                    "",
-                    "Berhasil Hapus Product",
-                    [
-                        { text: "OK" }
-                    ]
-                )
-            }).catch(error => {
-                console.log(error.message)
-            })
+        let data = {
+            cart_ids: idCart
+        }
+        let config = {
+            headers: {
+                Origin: HOST,
+                Authorization: `Bearer ${jsonValue}`,
+            }
+        }
+        await axios.post(API_URL + `cart/delete-by-ids`, data, config
+        ).then(response => {
+            console.log(response.data)
+            setIdCart()
+            Alert.alert(
+                "",
+                "Berhasil Hapus Product",
+                [
+                    { text: "OK" }
+                ]
+            )
+            getCart()
+        }).catch(error => {
+            console.log(error.response.data.message)
+        })
 
     }
 
 
+
     const handleCheckbox = (id) => {
         setSelection(true)
-        setIdCart(id)
+        setIdCart(...idCart, [id])
     }
 
     const submitCart = async () => {
 
         let jsonValue = JSON.parse(await AsyncStorage.getItem("token"));
 
-        return await axios.post(baseUrl + `cart/submit?cart_ids=${idCart}&lang=id`,
-            {
-                headers: {
-                    "Origin": "http://localhost:3002/",
-                    "Authorization": `Bearer ${jsonValue}`,
-                }
+        let data = {
+            cart_ids: idCart,
+            lang: "id"
+        }
+        let config = {
+            headers: {
+                Origin: HOST,
+                Authorization: `Bearer ${jsonValue}`,
             }
-        ).then(response => {
+        }
+
+        await axios.post(API_URL + `cart/submit`, data, config).then(response => {
             console.log(response.data.data)
             navigation.navigate("Checkout")
         }).catch(error => {
@@ -111,7 +121,6 @@ export default function Cart({ navigation }) {
     }
 
 
-    console.log(idCart)
     return (
         <ScrollView style={{ backgroundColor: "#FFFFFF" }}>
             <View style={styles.container}>
@@ -153,7 +162,7 @@ export default function Cart({ navigation }) {
                     </View>
 
                     : dataProduct.map((item) => (
-                        <View style={[styles.section]}>
+                        <View style={[styles.section]} key={item.id}>
                             <View style={[styles.card, { width: "87%" }]}>
                                 <View style={styles.checkboxContainer}>
                                     <CheckBox

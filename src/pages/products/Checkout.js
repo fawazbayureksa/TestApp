@@ -28,9 +28,6 @@ export default function Checkout({ navigation }) {
     }
 
 
-
-
-
     return (
         <ScrollView style={{ backgroundColor: "#FFFFFF" }}>
             <View style={styles.container}>

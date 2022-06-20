@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Text, View, Button, Image, Pressable, DrawerLayoutAndroid, StyleSheet, TouchableOpacity } from 'react-native';
+import { Text, View, Button, Image, Pressable, DrawerLayoutAndroid, StyleSheet, TouchableOpacity, Alert } from 'react-native';
 import { NavigationContainer, useNavigation } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
@@ -11,7 +11,7 @@ import Account from "../pages/membership/account";
 import ProductList from "../pages/products/ProductList";
 import DetailProduct from '../pages/products/DetailProduct';
 import ProductCard from '../pages/products/ProductCard';
-import { navigationRef } from './RootNavigation';
+import { navigate, navigationRef } from './RootNavigation';
 import Filter from '../pages/products/Filter';
 import Cart from "../pages/products/Cart"
 import Address from "../pages/products/Address"
@@ -19,13 +19,11 @@ import Icon from 'react-native-vector-icons/MaterialIcons';
 import { Badge } from 'react-native-paper';
 import Checkout from '../pages/products/Checkout';
 import CheckoutPay from '../pages/products/CheckoutPay';
-// import { TouchableOpacity } from 'react-native-gesture-handler';
-
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import axios from 'axios';
 
 const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator();
-
-
 
 
 function LogoTitle() {
@@ -46,6 +44,26 @@ export default function AppNavigator() {
     const drawer = useRef(null);
     const [drawerPosition, setDrawerPosition] = useState("right");
 
+
+
+    // useEffect(async () => {
+    //     let jsonValue = JSON.parse(await AsyncStorage.getItem("token"))
+
+    //     if (!jsonValue) {
+    //         navigationRef.navigate("Login")
+    //         Alert.alert(
+    //             "",
+    //             "Silahkan login terlebih dahulu",
+    //             [
+    //                 { text: "OK" }
+    //             ]
+    //         )
+    //         return
+    //     }
+    // }, []);
+
+
+
     return (
 
         <DrawerLayoutAndroid
@@ -56,7 +74,7 @@ export default function AppNavigator() {
         >
             <NavigationContainer ref={navigationRef}>
                 <Stack.Navigator >
-                    <Stack.Screen name="Login" component={Login} />
+
                     <Stack.Screen
                         name="ProductList"
                         component={ProductList}
@@ -103,11 +121,13 @@ export default function AppNavigator() {
                                                 <Icon size={32} color="#A6A6A6" name="person" />
                                             </Text>
                                         </TouchableOpacity>
+
                                     </View>
                                 </View>
                             ),
                         }}
                     />
+                    <Stack.Screen name="Login" component={Login} />
                     <Stack.Screen name="Cart" component={Cart} />
                     <Stack.Screen name="Address" component={Address}
                         options={{

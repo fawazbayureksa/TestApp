@@ -4,12 +4,12 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import axios from 'axios';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import { TouchableHighlight } from 'react-native-gesture-handler';
+import { API_URL, HOST } from "@env"
 
 
 export default function Account({ navigation }) {
     const [data, setData] = useState()
     const [name, setName] = useState()
-    const baseUrl = `https://api-cms.degadai.id/api/`;
     const [search, setSearch] = useState()
     useEffect(() => {
         getData();
@@ -19,10 +19,10 @@ export default function Account({ navigation }) {
 
     const getData = async () => {
 
-        await axios.get(baseUrl + `membership/getLevelAndPoint`,
+        await axios.get(API_URL + `membership/getLevelAndPoint`,
             {
                 headers: {
-                    "Origin": "http://localhost:3002/",
+                    "Origin": HOST,
                     "Authorization": `Bearer ${JSON.parse(await AsyncStorage.getItem("token"))}`,
                 }
             }
@@ -36,8 +36,9 @@ export default function Account({ navigation }) {
 
 
     const handleLogout = async () => {
+        const keys = ['token', 'user']
         try {
-            await AsyncStorage.removeItem('token');
+            await AsyncStorage.multiRemove(keys);
         }
         catch (e) {
             console.log(e)
@@ -111,12 +112,20 @@ export default function Account({ navigation }) {
                     </View>
                 </TouchableOpacity>
             </View >
-            <View style={{ marginTop: "90%" }}>
-                <Button
-                    title="Logout"
-                    color="red"
+            <View style={{}}>
+                <TouchableOpacity
+                    style={{
+                        backgroundColor: "red",
+                        height: 40,
+                        borderRadius: 50,
+                        marginTop: "90%",
+                    }}
                     onPress={handleLogout}
-                />
+                >
+                    <Text style={{ color: "#FFF", fontWeight: "600", textAlign: "center", fontSize: 24 }}>
+                        Logout
+                    </Text>
+                </TouchableOpacity>
             </View>
         </View >
     )

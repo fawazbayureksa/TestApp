@@ -4,11 +4,12 @@ import ModalDialog from '../../commons/Modal';
 import { CurrencyFormat } from '../../components/CurrencyFormat';
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { API_URL, HOST } from "@env"
+
 const MembershipRows = ({ item, type, submit, history }) => {
     const [modalDetailVoucher, setModalDetailVoucher] = useState(false);
     const [modalTukarPoint, setModalTukarPoint] = useState(false);
     const [submitting, setSubmitting] = useState()
-    const baseUrl = `https://api-cms.degadai.id/api/`;
     const regex = /<[^>]*>/mgi
 
     const handleSubmit = async () => {
@@ -17,10 +18,10 @@ const MembershipRows = ({ item, type, submit, history }) => {
             mp_voucher_id: item.id,
         }
 
-        await axios.post(baseUrl + `membership/buyVoucherWithPoints?`, param,
+        await axios.post(API_URL + `membership/buyVoucherWithPoints?`, param,
             {
                 headers: {
-                    "Origin": "http://localhost:3002/",
+                    "Origin": HOST,
                     "Authorization": `Bearer ${JSON.parse(await AsyncStorage.getItem("token"))}`,
                 }
             }

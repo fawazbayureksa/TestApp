@@ -6,13 +6,13 @@ import Select from 'react-native-picker-select';
 import ProductCard from './ProductCard';
 import { Text } from 'react-native-paper'
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { API_URL, HOST } from "@env"
 
 
 
 export default function ProductList({ navigation }) {
     const [searchQuery, setSearchQuery] = useState()
     const [dataProducts, setDataProducts] = useState({})
-    const baseUrl = `https://api-cms.degadai.id/api/`;
     const [name, setName] = useState()
     const select = "Pilih";
     const [category, setCategory] = useState([
@@ -47,10 +47,10 @@ export default function ProductList({ navigation }) {
         //     params = { ...params, category: props.data.mp_category_slug }
         // }
 
-        await axios.get(baseUrl + `ecommerce/products/get?order_by=${params.order_by}&order=${params.order}&length=${params.length}&page=${params.page}`,
+        await axios.get(API_URL + `ecommerce/products/get?order_by=${params.order_by}&order=${params.order}&length=${params.length}&page=${params.page}`,
             {
                 headers: {
-                    "Origin": "http://localhost:3002/",
+                    "Origin": HOST,
                 }
             }
         )

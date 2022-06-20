@@ -10,6 +10,7 @@ import PriceRatio from '../../components/PriceRatio';
 import { CurrencyFormat } from '../../components/CurrencyFormat';
 import IsEmpty from '../../commons/IsEmpty';
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { API_URL, HOST } from "@env"
 
 const renderScene = SceneMap({
     first: InfromationProduct,
@@ -19,7 +20,6 @@ const renderScene = SceneMap({
 
 const DetailProduct = ({ route, navigation }) => {
 
-    const baseUrl = `https://api-cms.degadai.id/api/`;
     const layout = useWindowDimensions();
     const [dataDetail, setDataDetail] = useState(null)
     const [dataRelated, setDataRelated] = useState(null)
@@ -32,15 +32,17 @@ const DetailProduct = ({ route, navigation }) => {
     const [total, setTotal] = useState()
     const [variantId, setVariantId] = useState()
     const [idVar, setIdVar] = useState()
+
+
     useEffect(() => {
         getDataProductDetail()
     }, [])
 
     const getDataProductDetail = async () => {
-        await axios.get(baseUrl + `ecommerce/product/find?seller_slug=${route.params.seller_slug}&product_slug=${route.params.product_slug}`,
+        await axios.get(API_URL + `ecommerce/product/find?seller_slug=${route.params.seller_slug}&product_slug=${route.params.product_slug}`,
             {
                 headers: {
-                    "Origin": "http://localhost:3002/",
+                    "Origin": HOST,
                 }
             }
         )
@@ -73,7 +75,7 @@ const DetailProduct = ({ route, navigation }) => {
             qty: item
         }
         if (parseInt(item) <= parseInt(variantId.stock)) {
-            await axios.post(baseUrl + `cart/add`, params,
+            await axios.post(API_URL + `cart/add`, params,
                 {
                     headers: {
                         "Origin": "http://localhost:3002/",
@@ -89,7 +91,19 @@ const DetailProduct = ({ route, navigation }) => {
                     ]
                 )
             }).catch(error => {
-                console.log(error)
+                if (error.response.data.message === "Exceed max order of one transaction") {
+                    Alert.alert(
+                        "",
+                        `Melebihi pesanan maksimal, satu transaksi`,
+                        [
+                            { text: "OK" }
+                        ]
+                    )
+                    console.log(error.response.data.message)
+                }
+                else {
+                    console.log(error.response.data.message)
+                }
             })
         } else {
             console.log("Stok tidak cukup")
@@ -112,7 +126,7 @@ const DetailProduct = ({ route, navigation }) => {
             )
             return
         }
-        await axios.post(baseUrl + `ecommerce/seller/follow`, {
+        await axios.post(API_URL + `ecommerce/seller/follow`, {
             mp_seller_id: dataDetail.mp_seller_id,
             is_follow: dataDetail.mp_seller.follow.is_follow === false ? true : false
         }, {

@@ -5,9 +5,11 @@ import Icon from 'react-native-vector-icons/MaterialIcons';
 import axios from 'axios';
 import PriceRatio from "../../components/PriceRatio"
 import { CurrencyFormat } from '../../components/CurrencyFormat';
+import { API_URL, HOST } from "@env"
+
+
 export default function ProductCard({ navi }) {
     const [data, setData] = React.useState();
-    const baseUrl = `https://api-cms.degadai.id/api/`;
 
     React.useEffect(() => {
         getDataProduct()
@@ -28,10 +30,10 @@ export default function ProductCard({ navi }) {
         //     params = { ...params, category: props.data.mp_category_slug }
         // }
 
-        await axios.get(baseUrl + `ecommerce/products/get?order_by=${params.order_by}&order=${params.order}&length=${params.length}&page=${params.page}`,
+        await axios.get(API_URL + `ecommerce/products/get?order_by=${params.order_by}&order=${params.order}&length=${params.length}&page=${params.page}`,
             {
                 headers: {
-                    "Origin": "http://localhost:3002/",
+                    "Origin": HOST,
                 }
             }
         )
@@ -46,7 +48,7 @@ export default function ProductCard({ navi }) {
     return (
         <>
             {data && data.map((item) => {
-                // console.log()
+
                 return (
                     <View style={styles.card} key={item.id}>
                         <TouchableOpacity onPress={() => navi.navigate("DetailProduct", {
