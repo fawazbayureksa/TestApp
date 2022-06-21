@@ -18,16 +18,17 @@ export default function Cart({ navigation }) {
         { label: 'Seller', value: 'seller' },
         { label: 'Article', value: 'article' },
     ])
+    const [totalPrice, setTotalPrice] = useState();
     const [qty, setQty] = useState(1)
-    const [dataProduct, setDataProduct] = useState([])
-    const [seller, setSeller] = useState()
     const [idCart, setIdCart] = useState([])
+    const [data, setData] = useState([])
     const onChangeSearch = (e) => {
         console.log(e)
     }
 
     useEffect(() => {
         getCart();
+        calculateTotalPrice()
     }, []);
 
 
@@ -46,10 +47,12 @@ export default function Cart({ navigation }) {
         )
             .then((response) => {
                 if (!IsEmpty(response.data.data)) {
-                    response.data.data.map((item) => {
-                        setSeller(item.seller.name)
-                        setDataProduct(item.carts)
-                    })
+                    // response.data.data.map((item) => {
+                    //     setSeller(item.seller.name)
+                    //     setDataProduct(item.carts)
+                    //     // setData(item)
+                    // })
+                    setData(response.data.data)
                 } else {
                     console.log("Cart Kosong")
                 }
@@ -75,6 +78,7 @@ export default function Cart({ navigation }) {
         await axios.post(API_URL + `cart/delete-by-ids`, data, config
         ).then(response => {
             console.log(response.data)
+            getCart()
             setIdCart()
             Alert.alert(
                 "",
@@ -83,7 +87,6 @@ export default function Cart({ navigation }) {
                     { text: "OK" }
                 ]
             )
-            getCart()
         }).catch(error => {
             console.log(error.response.data.message)
         })
@@ -91,11 +94,38 @@ export default function Cart({ navigation }) {
     }
 
 
-
-    const handleCheckbox = (id) => {
-        setSelection(true)
-        setIdCart(...idCart, [id])
+    const checkSingleCheckbox = (value1) => {
+        return idCart.find(value2 => value2 === value1.id)
     }
+
+
+    const handleCheckbox = (value1) => {
+        if (idCart.find(value2 => value2 === value1.id)) {
+            idCart.splice(idCart.findIndex(value2 => value2 === value1.id), 1);
+            setSelection(isSelected === true ? false : true)
+            setTotalPrice(0)
+        } else {
+            const listId = [...idCart]
+            listId.push(value1.id)
+            setIdCart(listId)
+            setSelection(isSelected === true ? false : true)
+            calculateTotalPrice()
+        }
+    }
+
+    const calculateTotalPrice = () => {
+        let total_price = 0
+
+        for (const datum of data) {
+            for (const cart of datum.carts) {
+                console.log(cart.mp_product_sku.price)
+                total_price += cart.mp_product_sku.price * qty
+            }
+        }
+
+        setTotalPrice(total_price)
+    }
+
 
     const submitCart = async () => {
 
@@ -120,6 +150,7 @@ export default function Cart({ navigation }) {
         });
     }
 
+    console.log(idCart)
 
     return (
         <ScrollView style={{ backgroundColor: "#FFFFFF" }}>
@@ -153,29 +184,28 @@ export default function Cart({ navigation }) {
                         <Text style={styles.label}>Pilih Semua</Text>
                     </View> */}
                 </View>
-                {dataProduct.length === 0 ?
+                {data.length === 0 ?
 
                     <View style={{ justifyContent: "center", alignItems: "center", height: 500 }}>
                         <Text style={{ fontSize: 20, color: "#F18910", fontWeight: "700" }}>
                             Keranjang Kosong
                         </Text>
                     </View>
-
-                    : dataProduct.map((item) => (
-                        <View style={[styles.section]} key={item.id}>
+                    : data.map((item, index) => (
+                        <View style={[styles.section]} key={index}>
                             <View style={[styles.card, { width: "87%" }]}>
                                 <View style={styles.checkboxContainer}>
-                                    <CheckBox
+                                    {/* <CheckBox
                                         value={isSelected}
-                                        onValueChange={() => handleCheckbox(item.id)}
+                                        onValueChange={() => setSelection(isSelected === true ? false : true)}
                                         style={styles.checkbox}
-                                    />
+                                    /> */}
                                     <Text
                                         style={[
                                             styles.label,
                                             { fontSize: 16, fontWeight: "500" }]}
                                     >
-                                        {seller}
+                                        {item.seller.name}
                                     </Text>
                                 </View>
                                 <View
@@ -185,92 +215,96 @@ export default function Cart({ navigation }) {
                                         marginTop: -20
                                     }}
                                 />
-
-                                <View>
-                                    <View style={styles.checkboxContainer}>
-                                        <CheckBox
-                                            value={isSelected}
-                                            onValueChange={() => handleCheckbox(item.id)}
-                                            style={styles.checkbox}
-                                        />
-                                        <Image
-                                            style={styles.produkImage}
-                                            source={{
-                                                uri: `https://tsi-1.oss-ap-southeast-5.aliyuncs.com/public/marketplace/products/${item.mp_product.mp_product_images[0].filename}`
-                                            }}
-                                        />
-                                        <View style={{ width: "30%", alignSelf: "center", marginLeft: 20 }}>
-                                            <Text style={{ fontSize: 20 }}>
-                                                {item.mp_product.slug_name}
-                                            </Text>
-                                            <Text style={{ fontSize: 14, fontWeight: "700" }}>
-                                                Rp{CurrencyFormat(item.mp_product_sku.price)}
-                                            </Text>
-                                        </View>
-                                        <View style={{ alignSelf: "center", marginLeft: 20 }}>
-                                            <View style={[styles.sectionRow, { justifyContent: "center", alignItems: "center" }]}>
-                                                <Icon size={32} name="favorite-outline" color="#F18910" />
-                                                <TouchableOpacity
-                                                    onPress={deleteCart}
-                                                >
-                                                    <View>
-                                                        <Icon size={32} color="#F18910" name="delete" />
+                                {item.carts.map((cart) => {
+                                    // console.log(cart)
+                                    return (
+                                        <View key={cart.id}>
+                                            <View style={styles.checkboxContainer}>
+                                                <CheckBox
+                                                    value={isSelected}
+                                                    onValueChange={() => handleCheckbox(cart)}
+                                                    style={styles.checkbox}
+                                                />
+                                                <Image
+                                                    style={styles.produkImage}
+                                                    source={{
+                                                        uri: `https://tsi-1.oss-ap-southeast-5.aliyuncs.com/public/marketplace/products/${cart.mp_product.mp_product_images[0].filename}`
+                                                    }}
+                                                />
+                                                <View style={{ width: "30%", alignSelf: "center", marginLeft: 20 }}>
+                                                    <Text style={{ fontSize: 20 }}>
+                                                        {cart.mp_product.slug_name}
+                                                    </Text>
+                                                    <Text style={{ fontSize: 14, fontWeight: "700" }}>
+                                                        Rp{CurrencyFormat(cart.mp_product_sku.price)}
+                                                    </Text>
+                                                </View>
+                                                <View style={{ alignSelf: "center", marginLeft: 20 }}>
+                                                    <View style={[styles.sectionRow, { justifyContent: "center", alignItems: "center" }]}>
+                                                        <Icon size={32} name="favorite-outline" color="#F18910" />
+                                                        <TouchableOpacity
+                                                            onPress={deleteCart}
+                                                        >
+                                                            <View>
+                                                                <Icon size={32} color="#F18910" name="delete" />
+                                                            </View>
+                                                        </TouchableOpacity>
                                                     </View>
+                                                </View>
+                                            </View>
+
+                                            <View style={{ flex: 1, flexDirection: 'row', justifyContent: "space-between", alignItems: "flex-end" }}>
+                                                <TouchableOpacity
+                                                    style={{
+                                                        backgroundColor: "#F18910",
+                                                        width: 30,
+                                                        height: 30,
+                                                        justifyContent: "center",
+                                                        alignItems: "center",
+                                                        borderRadius: 50
+                                                    }}
+                                                    disabled={qty === 1}
+                                                    onPress={() => setQty(qty - 1)}
+                                                >
+                                                    <Text style={{ color: "#FFF", fontSize: 20, fontWeight: "700" }}>-</Text>
                                                 </TouchableOpacity>
+                                                <Text style={{
+                                                    marginHorizontal: 20, fontSize: 20, textDecorationLine: "underline"
+                                                }}
+                                                >
+                                                    {qty}
+                                                </Text>
+                                                <TouchableOpacity
+                                                    style={{
+                                                        backgroundColor: "#F18910",
+                                                        width: 30,
+                                                        height: 30,
+                                                        justifyContent: "center",
+                                                        alignItems: "center",
+                                                        borderRadius: 50
+                                                    }}
+                                                    onPress={() => setQty(qty + 1)}
+                                                >
+                                                    <Text
+                                                        style={{
+                                                            color: "#FFF",
+                                                            fontSize: 20,
+                                                            fontWeight: "700"
+                                                        }}
+                                                    >
+                                                        +
+                                                    </Text>
+                                                </TouchableOpacity>
+                                                <Text style={{ color: "red", marginLeft: 10, width: "30%" }}>
+                                                    Barang hampir habis!
+                                                </Text>
+                                                <Text style={{ fontSize: 16, fontWeight: "700", marginLeft: 10 }}>
+                                                    Rp{CurrencyFormat(qty * cart.mp_product_sku.price)}
+                                                </Text>
                                             </View>
                                         </View>
-                                    </View>
-
-                                    <View style={{ flex: 1, flexDirection: 'row', justifyContent: "space-between", alignItems: "flex-end" }}>
-                                        <TouchableOpacity
-                                            style={{
-                                                backgroundColor: "#F18910",
-                                                width: 30,
-                                                height: 30,
-                                                justifyContent: "center",
-                                                alignItems: "center",
-                                                borderRadius: 50
-                                            }}
-                                            disabled={qty === 1}
-                                            onPress={() => setQty(qty - 1)}
-                                        >
-                                            <Text style={{ color: "#FFF", fontSize: 20, fontWeight: "700" }}>-</Text>
-                                        </TouchableOpacity>
-                                        <Text style={{
-                                            marginHorizontal: 20, fontSize: 20, textDecorationLine: "underline"
-                                        }}
-                                        >
-                                            {qty}
-                                        </Text>
-                                        <TouchableOpacity
-                                            style={{
-                                                backgroundColor: "#F18910",
-                                                width: 30,
-                                                height: 30,
-                                                justifyContent: "center",
-                                                alignItems: "center",
-                                                borderRadius: 50
-                                            }}
-                                            onPress={() => setQty(qty + 1)}
-                                        >
-                                            <Text
-                                                style={{
-                                                    color: "#FFF",
-                                                    fontSize: 20,
-                                                    fontWeight: "700"
-                                                }}
-                                            >
-                                                +
-                                            </Text>
-                                        </TouchableOpacity>
-                                        <Text style={{ color: "red", marginLeft: 10, width: "30%" }}>
-                                            Barang hampir habis!
-                                        </Text>
-                                        <Text style={{ fontSize: 16, fontWeight: "700", marginLeft: 10 }}>
-                                            Rp{CurrencyFormat(qty * item.mp_product_sku.price)}
-                                        </Text>
-                                    </View>
-                                </View>
+                                    )
+                                })}
 
                             </View>
                             <View style={[styles.card, { width: "87%" }]}>
@@ -280,7 +314,8 @@ export default function Cart({ navigation }) {
                                         Total Harga
                                     </Text>
                                     <Text>
-                                        Rp{CurrencyFormat(qty * item.mp_product_sku.price)}
+                                        Rp.{CurrencyFormat(totalPrice)}
+
                                     </Text>
                                 </View>
                                 <View style={styles.sectionRow}>
@@ -296,7 +331,7 @@ export default function Cart({ navigation }) {
                                         Total Pembayaran
                                     </Text>
                                     <Text style={{ fontWeight: "700" }}>
-                                        Rp{CurrencyFormat(qty * item.mp_product_sku.price)}
+                                        Rp.{CurrencyFormat(totalPrice)}
                                     </Text>
                                 </View>
                                 <View>

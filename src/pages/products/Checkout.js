@@ -1,30 +1,156 @@
-import { View, StyleSheet, TextInput, Image, ScrollView, Button, Pressable } from 'react-native';
-import React, { useState, useRef } from 'react';
+import { View, StyleSheet, TextInput, Image, ScrollView, Button, Pressable, TouchableOpacity, Alert } from 'react-native';
+import React, { useState, useRef, useEffect } from 'react';
 import CheckBox from '@react-native-community/checkbox';
 import Select from 'react-native-picker-select';
 import { Text } from 'react-native-paper';
 import ModalDialog from '../../commons/Modal';
-
+import axios from 'axios';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { API_URL, HOST } from "@env"
+import IsEmpty from '../../commons/IsEmpty';
+import { CurrencyFormat } from '../../components/CurrencyFormat';
 
 export default function Checkout({ navigation }) {
     const [searchQuery, setSearchQuery] = useState()
     const [isSelected, setSelection] = useState(false);
+    const [kurirList, setKurirList] = useState([])
     const [kurir, setKurir] = useState([
-        { label: 'Anter Aja', value: '1' },
-        { label: 'Gosend', value: '2' },
-        { label: 'ID Express', value: '3' },
-        { label: 'JNE', value: '4' },
-        { label: 'J&T Express', value: '5' },
-        { label: 'Pos Indonesia', value: '6' },
+        { label: 'No Item', value: '1' },
     ])
     const [durasi, setDurasi] = useState([
         { label: 'No Item', value: '1' },
     ])
     const [modalVoucher, setModalVoucher] = useState(false)
     const [modalAddress, setModalAddress] = useState(false)
+    const [data, setData] = useState([])
+    const [address, setCostumerAddress] = useState()
+    const [addressSelected, setCostumerAddressSelected] = useState()
+    const [totalPrice, setTotalPrice] = useState();
+    const [modalEditAdrress, setModalEditAddress] = useState(false)
 
     const onChangeSearch = (e) => {
         console.log(e)
+    }
+
+    useEffect(() => {
+        getMasterData();
+        calculateTotalPrice();
+        getCustomerAddresses();
+    }, []);
+
+
+    const getMasterData = async () => {
+        // console.log("cek");
+
+        let jsonValue = JSON.parse(await AsyncStorage.getItem("token"))
+
+        await axios.get(API_URL + `checkout/getMasterData`,
+            {
+                headers: {
+                    "Origin": HOST,
+                    "Authorization": `Bearer ${jsonValue}`,
+                }
+            }
+        )
+            .then((response) => {
+                if (!IsEmpty(response.data.data)) {
+                    response.data.data.data.map((item) => {
+                        setData(item.carts)
+                        setKurirList(
+                            item.couriers.map((kurir) =>
+                            ({
+                                value: kurir.key,
+                                label: kurir.name
+                            })
+                            )
+                        );
+
+                    })
+                } else {
+                    console.log("Cart Kosong")
+                }
+            }).catch(error => {
+                console.log(error)
+
+            })
+    }
+
+    const setDefaultAddress = async (id) => {
+        let jsonValue = JSON.parse(await AsyncStorage.getItem("token"))
+        // console.log(id)
+
+        // return
+
+        let url = API_URL + `profile/address/setDefault`
+        let data = {
+            mp_customer_address_id: id
+        }
+        await axios.post(url, data,
+            {
+                headers: {
+                    "Origin": HOST,
+                    "Authorization": `Bearer ${jsonValue}`,
+                }
+            }
+        ).then(res => {
+            Alert.alert(
+                "",
+                "Berhasil Ganti Alamat",
+                [
+                    { text: "OK" }
+                ]
+            )
+            console.log(res)
+            setModalEditAddress(false)
+            setModalAddress(false)
+            getCustomerAddresses()
+        }).catch((error) => {
+            console.log(error)
+        })
+    }
+
+
+    const getCustomerAddresses = async () => {
+
+        let jsonValue = JSON.parse(await AsyncStorage.getItem("token"))
+
+        await axios.get(API_URL + `profile/address/get`,
+            {
+                headers: {
+                    "Origin": HOST,
+                    "Authorization": `Bearer ${jsonValue}`,
+                }
+            }
+        ).then(response => {
+            let address_selected = null;
+            response.data.data.forEach(value => {
+                if (value.is_main === true) address_selected = value;
+            });
+            // console.log(address_selected);
+            setCostumerAddressSelected(address_selected)
+            setCostumerAddress(response.data.data);
+        }).catch(error => {
+            console.log(error);
+        })
+    }
+
+
+    const calculateTotalPrice = () => {
+        let total_price = 0
+
+        for (const datum of data) {
+            // console.log(datum.mp_product_sku.price)
+            total_price += datum.mp_product_sku.price * datum.quantity
+        }
+        setTotalPrice(total_price)
+
+    }
+
+    console.log(totalPrice)
+
+
+    const handleChangeKurir = (value) => {
+        console.log(value)
     }
 
 
@@ -38,16 +164,21 @@ export default function Checkout({ navigation }) {
                 <View style={[styles.card, { width: "87%" }]}>
                     <Text style={{ fontSize: 16 }}>Alamat Pengiriman</Text>
                     <View style={{ borderWidth: 1, color: "#A6A6A6", marginVertical: 10 }} />
+
                     <View style={[styles.section, { justifyContent: "space-between" }]}>
                         <View>
                             <Text style={[styles.h6, { fontWeight: "600" }]}>
-                                Nabila (Kantor) | 0823663282
+                                {addressSelected?.receiver_name}  ({addressSelected?.address_name}) | {addressSelected?.receiver_phone}
                             </Text>
                             <Text style={styles.h6}>
-                                APL Tower
+                                {addressSelected?.address}
                             </Text>
                             <Text style={styles.h6}>
-                                Grogol Petamburan, Jakarta Barat, 11440
+                                {`${addressSelected?.subdistrict} , ${addressSelected?.city} ,${addressSelected?.province}`}
+                                {/* Grogol Petamburan, Jakarta Barat, 11440 */}
+                            </Text>
+                            <Text style={styles.h6}>
+                                {addressSelected?.postal_code}
                             </Text>
                         </View>
                         <View>
@@ -58,12 +189,16 @@ export default function Checkout({ navigation }) {
                             </Pressable>
                         </View>
                     </View>
+
                     <View style={{ borderWidth: 1, borderColor: "#F18910", padding: 10, borderRadius: 10, marginTop: 10 }}>
-                        <Pressable onPress={() => navigation.navigate("Address")}>
+                        <TouchableOpacity
+                            // onPress={() => navigation.navigate("Address")}
+                            onPress={() => setModalAddress(true)}
+                        >
                             <Text style={{ textAlign: "center", fontSize: 18 }}>
                                 Pilih alamat lain
                             </Text>
-                        </Pressable>
+                        </TouchableOpacity>
                     </View>
                 </View>
                 {/* Pesanan Anda */}
@@ -71,26 +206,30 @@ export default function Checkout({ navigation }) {
                     <Text style={{ fontSize: 16 }}>Pesanan anda</Text>
                     <View style={{ borderWidth: 1, color: "#A6A6A6", marginVertical: 10 }} />
                     <View style={[styles.section, { justifyContent: "space-between" }]}>
-
-                        <View style={[styles.section, { justifyContent: "space-between" }]}>
-                            <Image
-                                style={styles.categoryImage}
-                                source={{
-                                    uri: "https://tsi-3.oss-ap-southeast-5.aliyuncs.com/public/marketplace/products/c4fcb239-b497-11ec-b9ff-00163c71e1f6.jpg"
-                                }}
-                            />
-                            <Text style={{ alignSelf: "center", width: 150 }} >
-                                upor Wajan HO7011-3 Spear Series
-                            </Text>
-                            <View style={{ alignSelf: "center" }}>
-                                <Text style={{ fontWeight: "500" }}>
-                                    2 Pcs
-                                </Text>
-                                <Text style={{ fontWeight: "700" }}>
-                                    Rp.600.000
-                                </Text>
-                            </View>
-                        </View>
+                        {data && data.map((item) => {
+                            // console.log("item", item.)
+                            return (
+                                <View style={[styles.section, { justifyContent: "space-between" }]} key={item.id}>
+                                    <Image
+                                        style={styles.categoryImage}
+                                        source={{
+                                            uri: `https://tsi-1.oss-ap-southeast-5.aliyuncs.com/public/marketplace/products/${item.mp_product.mp_product_images[0].filename}`
+                                        }}
+                                    />
+                                    <Text style={{ alignSelf: "center", width: 150, textAlign: "center" }} >
+                                        {item.mp_product.slug_name}
+                                    </Text>
+                                    <View style={{ alignSelf: "center" }}>
+                                        <Text style={{ fontWeight: "500" }}>
+                                            {item.quantity} Pcs
+                                        </Text>
+                                        <Text style={{ fontWeight: "700" }}>
+                                            Rp.{CurrencyFormat(item.quantity * item.mp_product_sku.price)}
+                                        </Text>
+                                    </View>
+                                </View>
+                            )
+                        })}
                     </View>
                 </View>
                 {/* Metode Pengiriman  */}
@@ -100,8 +239,8 @@ export default function Checkout({ navigation }) {
                     <View style={[styles.section, { justifyContent: "space-between", flexDirection: "column" }]}>
                         <View style={pickerSelectStyles.inputAndroid}>
                             <Select
-                                onValueChange={(value) => console.log(value)}
-                                items={kurir}
+                                onValueChange={(value) => handleChangeKurir(value)}
+                                items={kurirList}
                                 placeholder={{ label: "Pilih Kurir", value: null }}
                                 useNativeAndroidPickerStyle={false}
                             />
@@ -129,7 +268,7 @@ export default function Checkout({ navigation }) {
                             Total Harga
                         </Text>
                         <Text style={[styles.h6, { fontWeight: "700" }]}>
-                            Rp.535.500
+                            Rp{CurrencyFormat(totalPrice)}
                         </Text>
                     </View>
                     <View style={styles.sectionRow}>
@@ -153,7 +292,7 @@ export default function Checkout({ navigation }) {
                             Total Pembayaran
                         </Text>
                         <Text style={[styles.h6, { fontWeight: "700" }]}>
-                            Rp.535.500
+                            Rp.{CurrencyFormat(totalPrice)}
                         </Text>
                     </View>
                     <View>
@@ -165,6 +304,16 @@ export default function Checkout({ navigation }) {
                     </View>
                 </View>
             </View >
+            <ModalDialog
+                onShow={modalEditAdrress}
+                onHide={() => setModalEditAddress(false)}
+                contentHeader={"Ganti Alamat"}
+                contentText={
+                    <Text style={{ fontSize: 16, color: "black" }}>
+                        test
+                    </Text>
+                }
+            />
             <ModalDialog
                 onShow={modalVoucher}
                 onHide={() => setModalVoucher(false)}
@@ -180,9 +329,53 @@ export default function Checkout({ navigation }) {
                 onHide={() => setModalAddress(false)}
                 contentHeader={"Pilih Alamat Pengiriman"}
                 contentText={
-                    <Text style={{ fontSize: 16, color: "black" }}>
-
-                    </Text>
+                    <ScrollView style={{}}>
+                        {address && address.map((item) => {
+                            return (
+                                <View style={[styles.section]} key={item.id}>
+                                    <View style={[styles.card, { width: "100%" }]}>
+                                        <View style={{ flexDirection: "row", alignItems: "center" }}>
+                                            <Text style={[styles.h6, { color: "#000", fontWeight: "700" }]}>
+                                                {item.receiver_name} ({item?.address_name}) | {item.receiver_phone}
+                                            </Text>
+                                            {item.is_main === true &&
+                                                <View style={{ backgroundColor: "#F18910", borderRadius: 5, padding: 5, marginLeft: 10 }}>
+                                                    <Text style={{
+                                                        color: "white",
+                                                    }}>
+                                                        default
+                                                    </Text>
+                                                </View>
+                                            }
+                                        </View>
+                                        <Text style={[styles.h6, { color: "#000" }]}>
+                                            {item.address}
+                                        </Text>
+                                        <Text style={[styles.h6, { color: "#000" }]}>
+                                            {`${item.subdistrict} , ${item.city} ,${item.province}`}
+                                        </Text>
+                                        <Text style={[styles.h6, { color: "#000" }]}>
+                                            {item.postal_code}
+                                        </Text>
+                                        <View style={{ flexDirection: "row", justifyContent: "space-between", marginVertical: 10 }}>
+                                            <TouchableOpacity onPress={() => { setModalEditAddress(true), setModalAddress(false) }}>
+                                                <Text style={{ color: "#F18910", fontSize: 16, fontWeight: "600" }}>
+                                                    UBAH
+                                                </Text>
+                                            </TouchableOpacity>
+                                            {item.is_main === false &&
+                                                <TouchableOpacity onPress={() => setDefaultAddress(item.id)}>
+                                                    <Text style={{ color: "#F18910", fontSize: 16, fontWeight: "600" }}>
+                                                        Pilih Sebagai Alamat Default
+                                                    </Text>
+                                                </TouchableOpacity>
+                                            }
+                                        </View>
+                                    </View>
+                                </View>
+                            )
+                        })}
+                    </ScrollView>
                 }
             />
         </ScrollView >
@@ -284,6 +477,8 @@ const styles = StyleSheet.create({
         width: 100,
         height: 100,
         resizeMode: "contain",
+        backgroundColor: "#A6A6A6",
+        borderRadius: 5
     },
     produkImage: {
         marginVertical: 20,
