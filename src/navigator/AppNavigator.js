@@ -21,7 +21,7 @@ import Checkout from '../pages/products/Checkout';
 import CheckoutPay from '../pages/products/CheckoutPay';
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import axios from 'axios';
-
+// import '../i18n/index'
 const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator();
 

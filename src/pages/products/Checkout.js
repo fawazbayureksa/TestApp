@@ -14,9 +14,6 @@ export default function Checkout({ navigation }) {
     const [searchQuery, setSearchQuery] = useState()
     const [isSelected, setSelection] = useState(false);
     const [kurirList, setKurirList] = useState([])
-    const [kurir, setKurir] = useState([
-        { label: 'No Item', value: '1' },
-    ])
     const [durasi, setDurasi] = useState([
         { label: 'No Item', value: '1' },
     ])
@@ -28,20 +25,35 @@ export default function Checkout({ navigation }) {
     const [totalPrice, setTotalPrice] = useState();
     const [modalEditAdrress, setModalEditAddress] = useState(false)
 
+    const [receiver_name, set_receiver_name] = useState('');
+    const [receiver_phone, set_receiver_phone] = useState('');
+    const [city, set_city] = useState('')
+    const [subdistrict, set_subdistrict] = useState('')
+    const [province, set_province] = useState('');
+    const [postal_code, set_postal_code] = useState('');
+    const [address_name, set_address_name] = useState('');
+    const [address_, set_address] = useState('');
+    const [provinces, set_provinces] = useState([]);
+    const [cities, set_cities] = useState([]);
+    const [subdistricts, set_subdistricts] = useState([]);
+    const [idAddress, setIdAddress] = useState()
+    const [is_main, set_ismain] = useState(false)
+    const [selectedKurir, setSelectedKurir] = useState()
+
     const onChangeSearch = (e) => {
         console.log(e)
     }
 
     useEffect(() => {
-        getMasterData();
         calculateTotalPrice();
+        getMasterData();
         getCustomerAddresses();
+        getProvisi();
+        // handleChangeKurir();
     }, []);
 
 
     const getMasterData = async () => {
-        // console.log("cek");
-
         let jsonValue = JSON.parse(await AsyncStorage.getItem("token"))
 
         await axios.get(API_URL + `checkout/getMasterData`,
@@ -53,22 +65,19 @@ export default function Checkout({ navigation }) {
             }
         )
             .then((response) => {
-                if (!IsEmpty(response.data.data)) {
-                    response.data.data.data.map((item) => {
-                        setData(item.carts)
-                        setKurirList(
-                            item.couriers.map((kurir) =>
-                            ({
-                                value: kurir.key,
-                                label: kurir.name
-                            })
-                            )
-                        );
 
-                    })
-                } else {
-                    console.log("Cart Kosong")
-                }
+                response.data.data.data.map((item) => {
+                    setData(item.carts)
+                    setKurirList(
+                        item.couriers.map((kurir) =>
+                        ({
+                            value: kurir.key,
+                            label: kurir.name
+                        })
+                        )
+                    );
+                })
+
             }).catch(error => {
                 console.log(error)
 
@@ -77,9 +86,6 @@ export default function Checkout({ navigation }) {
 
     const setDefaultAddress = async (id) => {
         let jsonValue = JSON.parse(await AsyncStorage.getItem("token"))
-        // console.log(id)
-
-        // return
 
         let url = API_URL + `profile/address/setDefault`
         let data = {
@@ -95,12 +101,12 @@ export default function Checkout({ navigation }) {
         ).then(res => {
             Alert.alert(
                 "",
-                "Berhasil Ganti Alamat",
+                `${res.data.message}`,
                 [
                     { text: "OK" }
                 ]
             )
-            console.log(res)
+            // console.log(res.data.message)
             setModalEditAddress(false)
             setModalAddress(false)
             getCustomerAddresses()
@@ -126,7 +132,6 @@ export default function Checkout({ navigation }) {
             response.data.data.forEach(value => {
                 if (value.is_main === true) address_selected = value;
             });
-            // console.log(address_selected);
             setCostumerAddressSelected(address_selected)
             setCostumerAddress(response.data.data);
         }).catch(error => {
@@ -139,20 +144,229 @@ export default function Checkout({ navigation }) {
         let total_price = 0
 
         for (const datum of data) {
-            // console.log(datum.mp_product_sku.price)
             total_price += datum.mp_product_sku.price * datum.quantity
         }
         setTotalPrice(total_price)
+    }
+
+
+    // const handleChangeKurir = (value) => {
+    //     console.log(value)
+    //     setSelectedKurir(value)
+    // }
+
+    const handleModal = (record) => {
+        setModalEditAddress(true)
+        setModalAddress(false)
+        setIdAddress(record.id)
+        set_receiver_name(record.receiver_name)
+        set_address_name(record.address_name)
+        set_postal_code(record.postal_code)
+        set_city(record.city);
+        set_subdistrict(record.subdistrict);
+        set_province(record.province);
+        set_address_name(record.address_name);
+        set_address(record.address);
+        set_receiver_phone(record.receiver_phone);
+        set_ismain(record.is_main)
+    }
+
+
+
+    const getProvisi = async () => {
+        let jsonValue = JSON.parse(await AsyncStorage.getItem("token"))
+
+        await axios.get(API_URL + `profile/address/getProvince`,
+            {
+                headers: {
+                    "Origin": HOST,
+                    "Authorization": `Bearer ${jsonValue}`,
+                }
+            }
+        ).then(response => {
+            set_provinces(response.data.data)
+        }).catch(error => {
+            console.log(error);
+        })
 
     }
 
-    console.log(totalPrice)
 
+    const handleProvinceSelect = async (option) => {
 
-    const handleChangeKurir = (value) => {
-        console.log(value)
+        let provinsi_name = provinces?.find(obj => obj.value === option)
+
+        set_province(provinsi_name.label)
+
+        let jsonValue = JSON.parse(await AsyncStorage.getItem("token"))
+
+        let url = API_URL + `profile/address/getCityByProvince`
+        let data = {
+            mp_province_name: provinsi_name.label
+        }
+        await axios.post(url, data, {
+            headers: {
+                "Origin": HOST,
+                "Authorization": `Bearer ${jsonValue}`,
+            }
+        }).then(res => {
+            set_cities(res.data.data)
+        }).catch(error => {
+            console.log(error)
+        })
     }
 
+
+    const handleCitySelect = async (option) => {
+
+        let city_name = cities?.find(obj => obj.value === option)
+
+        set_city(city_name.label);
+
+        let jsonValue = JSON.parse(await AsyncStorage.getItem("token"))
+
+        let url = API_URL + `profile/address/getSubdistrictByCity`
+
+        let data = {
+            mp_city_name: city_name.label
+        }
+        await axios.post(url, data, {
+            headers: {
+                "Origin": HOST,
+                "Authorization": `Bearer ${jsonValue}`,
+            }
+        }).then(res => {
+            console.clear()
+            set_subdistricts(res.data.data)
+        }).catch(error => {
+            console.log(error)
+        })
+    }
+
+    const handleSubdistictSelect = (value) => {
+        let sub_name = subdistricts?.find(obj => obj.value === value)
+        set_subdistrict(sub_name?.label)
+
+    }
+
+    const handleSaveAddress = async () => {
+
+        let jsonValue = JSON.parse(await AsyncStorage.getItem("token"))
+
+        let url = API_URL + `profile/address/update`
+        let data = {
+            mp_customer_address_id: idAddress,
+            receiver_name: receiver_name,
+            receiver_phone: receiver_phone,
+            city: city,
+            subdistrict: subdistrict,
+            province: province,
+            postal_code: postal_code,
+            address_name: address_name,
+            address: address_,
+            is_main: false,
+            lng: null,
+            lat: null
+        }
+        let config = {
+            headers: {
+                Origin: HOST,
+                Authorization: `Bearer ${jsonValue}`,
+            }
+        }
+
+        await axios.post(url, data, config).then(res => {
+            console.log(res.data.message)
+            setModalEditAddress(false)
+            Alert.alert(
+                "",
+                "Berhasil ubah alamat",
+                [
+                    { text: "OK" }
+                ]
+            )
+            getCustomerAddresses()
+
+        }).catch((error) => {
+            console.log(error)
+        })
+    }
+
+    const handleChangeKurir = async (value) => {
+
+        setSelectedKurir(value)
+
+        let url = API_URL + `checkout/getCourierTypes?`
+        let jsonValue = JSON.parse(await AsyncStorage.getItem("token"))
+
+        let data = {
+            mp_seller_id: 2,
+            mp_courier_key: value,
+            mp_customer_address_id: addressSelected.id
+        }
+        let config = {
+            headers: {
+                Origin: HOST,
+                Authorization: `Bearer ${jsonValue}`,
+            }
+        }
+        await axios.post(url, data, config).then(res => {
+            console.log(res.data.message)
+        }).catch(error => {
+            console.log(error.response.data);
+        })
+    }
+
+
+    const checkout = async (e) => {
+
+        const getCartIds = (item) => {
+            let ids = [];
+            for (const cart of item.carts) {
+                for (const item2 of cart.items) {
+                    ids.push(item2.id)
+                }
+            }
+            return ids
+        }
+
+        let voucher_customer_ids = []
+        for (const selected_voucher of this.state.selected_vouchers) {
+            voucher_customer_ids.push(selected_voucher.id)
+        }
+
+        let params = {
+            mp_customer_address_id: addressSelected.id,
+            voucher_customer_ids: null,
+            transactions: data.map((item) => (
+                {
+                    cart_ids: getCartIds(item),
+                    mp_courier_key: selectedKurir,
+                    mp_courier_type_key: item.courier_type_selected.value,
+                    mp_seller_id: item.seller.id,
+                    shipping_fee: item.courier_type_selected.cost.value,
+                }
+            ))
+        }
+
+        let config = {
+            headers: {
+                Origin: HOST,
+                Authorization: `Bearer ${jsonValue}`,
+            }
+        }
+        console.log(params)
+        return
+        let jsonValue = JSON.parse(await AsyncStorage.getItem("token"))
+
+        axios.post(API_URL + `checkout/save`, params, config)
+            .then(response => {
+                console.log(response.data.message)
+                // this.props.history.push(EcommerceRoutePath.CHECKOUT_PAY.replace(":invoice_number", response.data.data))
+            }).catch(error => {
+                console.log(error.response.data.message);
+            })
+    }
 
     return (
         <ScrollView style={{ backgroundColor: "#FFFFFF" }}>
@@ -181,18 +395,10 @@ export default function Checkout({ navigation }) {
                                 {addressSelected?.postal_code}
                             </Text>
                         </View>
-                        <View>
-                            <Pressable>
-                                <Text style={{ color: "#F18910", fontSize: 16, marginLeft: -10 }}>
-                                    Ubah
-                                </Text>
-                            </Pressable>
-                        </View>
                     </View>
 
                     <View style={{ borderWidth: 1, borderColor: "#F18910", padding: 10, borderRadius: 10, marginTop: 10 }}>
                         <TouchableOpacity
-                            // onPress={() => navigation.navigate("Address")}
                             onPress={() => setModalAddress(true)}
                         >
                             <Text style={{ textAlign: "center", fontSize: 18 }}>
@@ -207,7 +413,7 @@ export default function Checkout({ navigation }) {
                     <View style={{ borderWidth: 1, color: "#A6A6A6", marginVertical: 10 }} />
                     <View style={[styles.section, { justifyContent: "space-between" }]}>
                         {data && data.map((item) => {
-                            // console.log("item", item.)
+
                             return (
                                 <View style={[styles.section, { justifyContent: "space-between" }]} key={item.id}>
                                     <Image
@@ -303,15 +509,128 @@ export default function Checkout({ navigation }) {
                         </Pressable>
                     </View>
                 </View>
-            </View >
+            </View>
+            {/* </View > */}
             <ModalDialog
                 onShow={modalEditAdrress}
                 onHide={() => setModalEditAddress(false)}
                 contentHeader={"Ganti Alamat"}
                 contentText={
-                    <Text style={{ fontSize: 16, color: "black" }}>
-                        test
-                    </Text>
+                    <ScrollView style={{ height: 500 }}>
+                        {/* <View style={[styles.section, { justifyContent: "space-between" }]}>
+                            <View style={{ width: "48%" }}> */}
+                        <Text style={{ fontSize: 16, color: "black" }}>
+                            Nama Alamat11
+                        </Text>
+                        <TextInput
+                            style={styles.input}
+                            onChangeText={(e) => set_address_name(e)}
+                            value={address_name}
+                            placeholder="Masukkan Alamat"
+                        />
+                        {/* </View> */}
+                        {/* <View style={{ width: "48%" }}> */}
+                        <Text style={{ fontSize: 16, color: "black" }}>
+                            Nama Penerima
+                        </Text>
+                        <TextInput
+                            style={styles.input}
+                            onChangeText={(e) => set_receiver_name(e)}
+                            value={receiver_name}
+                            placeholder="Masukkan Nama Penerima"
+                        />
+                        {/* </View>
+                        </View> */}
+                        {/* <View style={[styles.section, { justifyContent: "space-between" }]}>
+                            <View style={{ width: "48%" }}> */}
+                        <Text style={{ fontSize: 16, color: "black" }}>
+                            Nomor Telepon
+                        </Text>
+                        <TextInput
+                            style={styles.input}
+                            onChangeText={(e) => set_receiver_phone(e)}
+                            value={receiver_phone}
+                            placeholder="Masukkan Nomor Telepon"
+                        />
+                        {/* </View> */}
+                        {/* <View style={{ width: "48%" }}> */}
+                        <Text style={{ fontSize: 16, color: "black" }}>
+                            Provinsi
+                        </Text>
+                        <Select
+                            onValueChange={option => { set_city(""); set_subdistrict(""); handleProvinceSelect(option) }}
+                            items={provinces}
+                            placeholder={{ label: "Provinsi", value: null }}
+                            style={styles.input}
+                            useNativeAndroidPickerStyle={true}
+                        />
+                        {/* </View>
+                        </View> */}
+                        {/* <View style={[styles.section, { justifyContent: "space-between" }]}>
+                            <View style={{ width: "48%" }}> */}
+                        <Text style={{ fontSize: 16, color: "black" }}>
+                            Kota
+                        </Text>
+                        <Select
+                            onValueChange={option => handleCitySelect(option)}
+                            items={cities}
+                            placeholder={{ label: "Kota", value: null }}
+                            style={styles.input}
+                            useNativeAndroidPickerStyle={true}
+                        />
+                        {/* </View> */}
+                        {/* <View style={{ width: "48%" }}> */}
+                        <Text style={{ fontSize: 16, color: "black" }}>
+                            Kecamatan
+                        </Text>
+                        <Select
+                            onValueChange={option => handleSubdistictSelect(option)}
+                            items={subdistricts}
+                            placeholder={{ label: "Kecamatan", value: null }}
+                            style={styles.input}
+                            useNativeAndroidPickerStyle={true}
+                        />
+                        {/* </View>
+                        </View> */}
+                        <Text style={{ fontSize: 16, color: "black" }}>
+                            Alamat
+                        </Text>
+                        <TextInput
+                            multiline={true}
+                            numberOfLines={10}
+                            style={[styles.input, { height: 80 }]}
+                            onChangeText={(e) => set_address(e)}
+                            value={address_}
+                            placeholder="Alamat"
+                        />
+                        {/* <View style={[styles.section, { justifyContent: "space-between" }]}>
+                            <View style={{ width: "48%" }}> */}
+                        <Text style={{ fontSize: 16, color: "black" }}>
+                            Kode Pos
+                        </Text>
+                        <TextInput
+                            style={styles.input}
+                            onChangeText={(e) => set_postal_code(e)}
+                            value={postal_code}
+                            placeholder="Masukkan Kecamatan"
+                        />
+                        <View style={styles.checkboxContainer}>
+                            <CheckBox
+                                value={is_main}
+                                onValueChange={() => set_ismain(true)}
+                                style={styles.checkbox}
+                            />
+                            <Text style={styles.label}>Tandai sebagai default</Text>
+                        </View>
+                        <View style={{ width: "48%", justifyContent: "center" }}>
+                            <TouchableOpacity
+                                onPress={handleSaveAddress}
+                                style={{ backgroundColor: "#F18910", alignItems: "center", padding: 10, borderRadius: 10 }}>
+                                <Text>Simpan</Text>
+                            </TouchableOpacity>
+                        </View>
+                        {/* </View> */}
+                    </ScrollView>
                 }
             />
             <ModalDialog
@@ -324,16 +643,17 @@ export default function Checkout({ navigation }) {
                     </Text>
                 }
             />
-            <ModalDialog
+            < ModalDialog
                 onShow={modalAddress}
                 onHide={() => setModalAddress(false)}
                 contentHeader={"Pilih Alamat Pengiriman"}
                 contentText={
-                    <ScrollView style={{}}>
+                    <ScrollView style={{ height: 500 }}>
                         {address && address.map((item) => {
                             return (
-                                <View style={[styles.section]} key={item.id}>
-                                    <View style={[styles.card, { width: "100%" }]}>
+                                <View style={[styles.section, { width: "100%" }]} key={item.id}>
+                                    <View style={[styles.card, { width: "95%" }]}>
+
                                         <View style={{ flexDirection: "row", alignItems: "center" }}>
                                             <Text style={[styles.h6, { color: "#000", fontWeight: "700" }]}>
                                                 {item.receiver_name} ({item?.address_name}) | {item.receiver_phone}
@@ -358,7 +678,7 @@ export default function Checkout({ navigation }) {
                                             {item.postal_code}
                                         </Text>
                                         <View style={{ flexDirection: "row", justifyContent: "space-between", marginVertical: 10 }}>
-                                            <TouchableOpacity onPress={() => { setModalEditAddress(true), setModalAddress(false) }}>
+                                            <TouchableOpacity onPress={() => handleModal(item)}>
                                                 <Text style={{ color: "#F18910", fontSize: 16, fontWeight: "600" }}>
                                                     UBAH
                                                 </Text>
@@ -378,7 +698,7 @@ export default function Checkout({ navigation }) {
                     </ScrollView>
                 }
             />
-        </ScrollView >
+        </ScrollView>
     )
 }
 
@@ -414,7 +734,7 @@ const styles = StyleSheet.create({
     },
     checkboxContainer: {
         flexDirection: "row",
-        marginBottom: 20,
+        marginBottom: 0,
     },
     checkbox: {
         alignSelf: "center",
@@ -444,13 +764,14 @@ const styles = StyleSheet.create({
     },
     input: {
         paddingHorizontal: 20,
-        marginTop: 10,
+        marginTop: 5,
         marginBottom: 20,
         borderWidth: 1,
         borderColor: "#F18910",
         height: 40,
         borderRadius: 10,
-        color: "black"
+        color: "black",
+        // width: "90%"
 
     },
     searchBar: {
