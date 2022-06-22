@@ -19,11 +19,12 @@ export default function Checkout({ navigation }) {
     ])
     const [modalVoucher, setModalVoucher] = useState(false)
     const [modalAddress, setModalAddress] = useState(false)
-    const [data, setData] = useState([])
+    const [dataCart, setData] = useState([])
     const [address, setCostumerAddress] = useState()
     const [addressSelected, setCostumerAddressSelected] = useState()
     const [totalPrice, setTotalPrice] = useState();
     const [modalEditAdrress, setModalEditAddress] = useState(false)
+    const [modalAddAdrress, setModalAddAddress] = useState(false)
 
     const [receiver_name, set_receiver_name] = useState('');
     const [receiver_phone, set_receiver_phone] = useState('');
@@ -49,7 +50,6 @@ export default function Checkout({ navigation }) {
         getMasterData();
         getCustomerAddresses();
         getProvisi();
-        // handleChangeKurir();
     }, []);
 
 
@@ -63,25 +63,23 @@ export default function Checkout({ navigation }) {
                     "Authorization": `Bearer ${jsonValue}`,
                 }
             }
-        )
-            .then((response) => {
-
-                response.data.data.data.map((item) => {
-                    setData(item.carts)
-                    setKurirList(
-                        item.couriers.map((kurir) =>
-                        ({
-                            value: kurir.key,
-                            label: kurir.name
-                        })
-                        )
-                    );
-                })
-
-            }).catch(error => {
-                console.log(error)
-
+        ).then((response) => {
+            setData(response.data.data.data)
+            response.data.data.data.map((item) => {
+                setKurirList(
+                    item.couriers.map((kurir) =>
+                    ({
+                        value: kurir.key,
+                        label: kurir.name
+                    })
+                    )
+                );
             })
+            calculateTotalPrice();
+        }).catch(error => {
+            console.log(error)
+
+        })
     }
 
     const setDefaultAddress = async (id) => {
@@ -143,8 +141,10 @@ export default function Checkout({ navigation }) {
     const calculateTotalPrice = () => {
         let total_price = 0
 
-        for (const datum of data) {
-            total_price += datum.mp_product_sku.price * datum.quantity
+        for (const datum of dataCart) {
+            for (const cart of datum.carts) {
+                total_price += cart.mp_product_sku.price * cart.quantity
+            }
         }
         setTotalPrice(total_price)
     }
@@ -154,6 +154,7 @@ export default function Checkout({ navigation }) {
     //     console.log(value)
     //     setSelectedKurir(value)
     // }
+
 
     const handleModal = (record) => {
         setModalEditAddress(true)
@@ -171,6 +172,21 @@ export default function Checkout({ navigation }) {
         set_ismain(record.is_main)
     }
 
+    const handleModalAdd = () => {
+        setModalAddress(false)
+        setModalAddAddress(true)
+        setIdAddress()
+        set_receiver_name()
+        set_address_name()
+        set_postal_code()
+        set_city();
+        set_subdistrict();
+        set_province();
+        set_address_name();
+        set_address();
+        set_receiver_phone();
+        set_ismain()
+    }
 
 
     const getProvisi = async () => {
@@ -249,6 +265,47 @@ export default function Checkout({ navigation }) {
 
     }
 
+    const handleAddAddress = async () => {
+
+        let jsonValue = JSON.parse(await AsyncStorage.getItem("token"))
+
+        let url = API_URL + `profile/address/add`
+        let data = {
+            receiver_name: receiver_name,
+            receiver_phone: receiver_phone,
+            city: city,
+            subdistrict: subdistrict,
+            province: province,
+            postal_code: postal_code,
+            address_name: address_name,
+            address: address_,
+            is_main: false,
+            lng: null,
+            lat: null
+        }
+        let config = {
+            headers: {
+                Origin: HOST,
+                Authorization: `Bearer ${jsonValue}`,
+            }
+        }
+
+        await axios.post(url, data, config).then(res => {
+            console.log(res.data.message)
+            setModalAddAddress(false)
+            Alert.alert(
+                "",
+                "Berhasil Tambah alamat",
+                [
+                    { text: "OK" }
+                ]
+            )
+            getCustomerAddresses()
+
+        }).catch((error) => {
+            console.log(error)
+        })
+    }
     const handleSaveAddress = async () => {
 
         let jsonValue = JSON.parse(await AsyncStorage.getItem("token"))
@@ -292,31 +349,42 @@ export default function Checkout({ navigation }) {
         })
     }
 
-    const handleChangeKurir = async (value) => {
+    const handleChangeKurir = async (option, index) => {
 
-        setSelectedKurir(value)
-
-        let url = API_URL + `checkout/getCourierTypes?`
         let jsonValue = JSON.parse(await AsyncStorage.getItem("token"))
 
-        let data = {
-            mp_seller_id: 2,
-            mp_courier_key: value,
-            mp_customer_address_id: addressSelected.id
-        }
-        let config = {
+        const listData = [...dataCart]
+
+
+        let idSeller = listData[index].seller.id
+
+
+        let url = API_URL + `checkout/getCourierTypes`
+
+        await axios.get(url, {
+            params: {
+                mp_seller_id: idSeller,
+                mp_courier_key: option,
+                mp_customer_address_id: addressSelected.id
+            },
             headers: {
                 Origin: HOST,
                 Authorization: `Bearer ${jsonValue}`,
             }
-        }
-        await axios.post(url, data, config).then(res => {
-            console.log(res.data.message)
+        }).then(res => {
+            setDurasi(
+                res.data.data.costs.map((item) =>
+                ({
+                    value: item.service,
+                    label: `${item.description} (Rp${CurrencyFormat(item.cost[0].value)})`
+                })
+                )
+            )
+
         }).catch(error => {
-            console.log(error.response.data);
+            console.log(error);
         })
     }
-
 
     const checkout = async (e) => {
 
@@ -330,10 +398,7 @@ export default function Checkout({ navigation }) {
             return ids
         }
 
-        let voucher_customer_ids = []
-        for (const selected_voucher of this.state.selected_vouchers) {
-            voucher_customer_ids.push(selected_voucher.id)
-        }
+        // let voucher_customer_ids = []
 
         let params = {
             mp_customer_address_id: addressSelected.id,
@@ -368,147 +433,158 @@ export default function Checkout({ navigation }) {
             })
     }
 
+
     return (
         <ScrollView style={{ backgroundColor: "#FFFFFF" }}>
             <View style={styles.container}>
                 <Text style={{ marginTop: 10, fontSize: 18, marginLeft: 10, marginVertical: 10 }}>
                     Checkout
                 </Text>
-                {/* Alamat Saya */}
-                <View style={[styles.card, { width: "87%" }]}>
-                    <Text style={{ fontSize: 16 }}>Alamat Pengiriman</Text>
-                    <View style={{ borderWidth: 1, color: "#A6A6A6", marginVertical: 10 }} />
+                {dataCart.length > 0 &&
+                    <>
+                        {/* Alamat Saya */}
+                        <View style={[styles.card, { width: "87%" }]}>
+                            <Text style={{ fontSize: 16 }}>Alamat Pengiriman</Text>
+                            <View style={{ borderWidth: 1, color: "#A6A6A6", marginVertical: 10 }} />
 
-                    <View style={[styles.section, { justifyContent: "space-between" }]}>
-                        <View>
-                            <Text style={[styles.h6, { fontWeight: "600" }]}>
-                                {addressSelected?.receiver_name}  ({addressSelected?.address_name}) | {addressSelected?.receiver_phone}
-                            </Text>
-                            <Text style={styles.h6}>
-                                {addressSelected?.address}
-                            </Text>
-                            <Text style={styles.h6}>
-                                {`${addressSelected?.subdistrict} , ${addressSelected?.city} ,${addressSelected?.province}`}
-                                {/* Grogol Petamburan, Jakarta Barat, 11440 */}
-                            </Text>
-                            <Text style={styles.h6}>
-                                {addressSelected?.postal_code}
-                            </Text>
-                        </View>
-                    </View>
-
-                    <View style={{ borderWidth: 1, borderColor: "#F18910", padding: 10, borderRadius: 10, marginTop: 10 }}>
-                        <TouchableOpacity
-                            onPress={() => setModalAddress(true)}
-                        >
-                            <Text style={{ textAlign: "center", fontSize: 18 }}>
-                                Pilih alamat lain
-                            </Text>
-                        </TouchableOpacity>
-                    </View>
-                </View>
-                {/* Pesanan Anda */}
-                <View style={[styles.card, { width: "87%" }]}>
-                    <Text style={{ fontSize: 16 }}>Pesanan anda</Text>
-                    <View style={{ borderWidth: 1, color: "#A6A6A6", marginVertical: 10 }} />
-                    <View style={[styles.section, { justifyContent: "space-between" }]}>
-                        {data && data.map((item) => {
-
-                            return (
-                                <View style={[styles.section, { justifyContent: "space-between" }]} key={item.id}>
-                                    <Image
-                                        style={styles.categoryImage}
-                                        source={{
-                                            uri: `https://tsi-1.oss-ap-southeast-5.aliyuncs.com/public/marketplace/products/${item.mp_product.mp_product_images[0].filename}`
-                                        }}
-                                    />
-                                    <Text style={{ alignSelf: "center", width: 150, textAlign: "center" }} >
-                                        {item.mp_product.slug_name}
+                            <View style={[styles.section, { justifyContent: "space-between" }]}>
+                                <View>
+                                    <Text style={[styles.h6, { fontWeight: "600" }]}>
+                                        {addressSelected?.receiver_name}  ({addressSelected?.address_name}) | {addressSelected?.receiver_phone}
                                     </Text>
-                                    <View style={{ alignSelf: "center" }}>
-                                        <Text style={{ fontWeight: "500" }}>
-                                            {item.quantity} Pcs
-                                        </Text>
-                                        <Text style={{ fontWeight: "700" }}>
-                                            Rp.{CurrencyFormat(item.quantity * item.mp_product_sku.price)}
-                                        </Text>
+                                    <Text style={styles.h6}>
+                                        {addressSelected?.address}
+                                    </Text>
+                                    <Text style={styles.h6}>
+                                        {`${addressSelected?.subdistrict} , ${addressSelected?.city} ,${addressSelected?.province}`}
+                                        {/* Grogol Petamburan, Jakarta Barat, 11440 */}
+                                    </Text>
+                                    <Text style={styles.h6}>
+                                        {addressSelected?.postal_code}
+                                    </Text>
+                                </View>
+                            </View>
+
+                            <View style={{ borderWidth: 1, borderColor: "#F18910", padding: 10, borderRadius: 10, marginTop: 10 }}>
+                                <TouchableOpacity
+                                    onPress={() => setModalAddress(true)}
+                                >
+                                    <Text style={{ textAlign: "center", fontSize: 18 }}>
+                                        Pilih alamat lain
+                                    </Text>
+                                </TouchableOpacity>
+                            </View>
+                        </View>
+                        {/* Pesanan Anda */}
+                        {dataCart && dataCart.map((cart, index) => (
+                            <>
+                                <View style={[styles.card, { width: "87%" }]}>
+                                    <Text style={{ fontSize: 16 }}>Pesanan anda</Text>
+                                    <View style={{ borderWidth: 1, color: "#A6A6A6", marginVertical: 10 }} />
+                                    <View style={[styles.section, { justifyContent: "space-between" }]}>
+                                        {cart.carts.map((item) => {
+                                            return (
+                                                <View style={[styles.section, { justifyContent: "space-between" }]}>
+                                                    <Image
+                                                        style={styles.categoryImage}
+                                                        source={{
+                                                            uri: `https://tsi-1.oss-ap-southeast-5.aliyuncs.com/public/marketplace/products/${item.mp_product.mp_product_images[0].filename}`
+                                                        }}
+                                                    />
+                                                    <Text style={{ alignSelf: "center", width: 150, textAlign: "center" }} >
+                                                        {item.mp_product.slug_name}
+                                                    </Text>
+                                                    <View style={{ alignSelf: "center" }}>
+                                                        <Text style={{ fontWeight: "500" }}>
+                                                            {item.quantity} Pcs
+                                                        </Text>
+                                                        <Text style={{ fontWeight: "700" }}>
+                                                            Rp.{CurrencyFormat(item.quantity * item.mp_product_sku.price)}
+                                                        </Text>
+                                                    </View>
+                                                </View>
+                                            )
+                                        })}
                                     </View>
                                 </View>
-                            )
-                        })}
-                    </View>
-                </View>
-                {/* Metode Pengiriman  */}
-                <View style={[styles.card, { width: "87%" }]}>
-                    <Text style={{ fontSize: 16 }}>Metode Pengiriman</Text>
-                    <View style={{ borderWidth: 1, color: "#A6A6A6", marginVertical: 10 }} />
-                    <View style={[styles.section, { justifyContent: "space-between", flexDirection: "column" }]}>
-                        <View style={pickerSelectStyles.inputAndroid}>
-                            <Select
-                                onValueChange={(value) => handleChangeKurir(value)}
-                                items={kurirList}
-                                placeholder={{ label: "Pilih Kurir", value: null }}
-                                useNativeAndroidPickerStyle={false}
-                            />
+                                {/* Metode Pengiriman  */}
+                                <View style={[styles.card, { width: "87%" }]}>
+                                    <Text style={{ fontSize: 16 }}>Metode Pengiriman</Text>
+                                    <View style={{ borderWidth: 1, color: "#A6A6A6", marginVertical: 10 }} />
+                                    <View style={[styles.section, { justifyContent: "space-between", flexDirection: "column" }]}>
+                                        <View style={pickerSelectStyles.inputAndroid}>
+                                            <Select
+                                                onValueChange={(value) => handleChangeKurir(value, index)}
+                                                items={kurirList}
+                                                placeholder={{ label: "Pilih Kurir", value: null }}
+                                                useNativeAndroidPickerStyle={false}
+                                            />
+                                        </View>
+                                        <View style={pickerSelectStyles.inputAndroid}>
+                                            <Select
+                                                onValueChange={(value) => console.log(value)}
+                                                items={durasi}
+                                                placeholder={{ label: "Pilih Durasi Pengiriman", value: null }}
+                                                useNativeAndroidPickerStyle={false}
+                                            />
+                                        </View>
+                                    </View>
+                                </View>
+                            </>
+                        ))}
+                        {/* Voucher Diskon */}
+                        <View style={[styles.card, { width: "87%" }]}>
+                            <Text style={{ fontSize: 16, fontWeight: "700" }}>Voucher Diskon</Text>
+                            <Pressable onPress={() => setModalVoucher(true)}>
+                                <Text style={{ fontSize: 16, textAlign: "center", color: "#F18910", marginVertical: 10 }}>Mau voucher lain ?</Text>
+                            </Pressable>
+                            <Text style={{ fontSize: 16, fontWeight: "700" }}>Ringkasan</Text>
+                            {/* <View style={{ borderWidth: 1, color: "#A6A6A6", marginVertical: 10 }} /> */}
+                            <View style={styles.sectionRow}>
+                                <Text style={styles.h6}>
+                                    Total Harga
+                                </Text>
+                                <Text style={[styles.h6, { fontWeight: "700" }]}>
+                                    Rp{CurrencyFormat(totalPrice)}
+                                </Text>
+                            </View>
+                            <View style={styles.sectionRow}>
+                                <Text>
+                                    Biaya Kirim
+                                </Text>
+                                <Text>
+                                    Rp.0
+                                </Text>
+                            </View>
+                            <View style={styles.sectionRow}>
+                                <Text>
+                                    Total Diskon
+                                </Text>
+                                <Text>
+                                    Rp.0
+                                </Text>
+                            </View>
+                            <View style={styles.sectionRow}>
+                                <Text style={styles.h6}>
+                                    Total Pembayaran
+                                </Text>
+                                <Text style={[styles.h6, { fontWeight: "700" }]}>
+                                    Rp.{CurrencyFormat(totalPrice)}
+                                </Text>
+                            </View>
+                            <View>
+                                <Pressable
+                                    onPress={checkout}
+                                    // onPress={() => navigation.navigate("CheckoutPay")}
+                                    style={{ backgroundColor: "#F18910", height: 35, borderRadius: 5, marginTop: 10, justifyContent: "center", flex: 1, alignItems: "center" }} >
+                                    <Text style={{ fontSize: 20, color: "white" }}>
+                                        Lanjutkan Membeli
+                                    </Text>
+                                </Pressable>
+                            </View>
                         </View>
-                        <View style={pickerSelectStyles.inputAndroid}>
-                            <Select
-                                onValueChange={(value) => console.log(value)}
-                                items={durasi}
-                                placeholder={{ label: "Pilih Durasi Pengiriman", value: null }}
-                                useNativeAndroidPickerStyle={false}
-                            />
-                        </View>
-                    </View>
-                </View>
-                {/* Voucher Diskon */}
-                <View style={[styles.card, { width: "87%" }]}>
-                    <Text style={{ fontSize: 16, fontWeight: "700" }}>Voucher Diskon</Text>
-                    <Pressable onPress={() => setModalVoucher(true)}>
-                        <Text style={{ fontSize: 16, textAlign: "center", color: "#F18910", marginVertical: 10 }}>Mau voucher lain ?</Text>
-                    </Pressable>
-                    <Text style={{ fontSize: 16, fontWeight: "700" }}>Ringkasan</Text>
-                    {/* <View style={{ borderWidth: 1, color: "#A6A6A6", marginVertical: 10 }} /> */}
-                    <View style={styles.sectionRow}>
-                        <Text style={styles.h6}>
-                            Total Harga
-                        </Text>
-                        <Text style={[styles.h6, { fontWeight: "700" }]}>
-                            Rp{CurrencyFormat(totalPrice)}
-                        </Text>
-                    </View>
-                    <View style={styles.sectionRow}>
-                        <Text>
-                            Biaya Kirim
-                        </Text>
-                        <Text>
-                            Rp.0
-                        </Text>
-                    </View>
-                    <View style={styles.sectionRow}>
-                        <Text>
-                            Total Diskon
-                        </Text>
-                        <Text>
-                            Rp.0
-                        </Text>
-                    </View>
-                    <View style={styles.sectionRow}>
-                        <Text style={styles.h6}>
-                            Total Pembayaran
-                        </Text>
-                        <Text style={[styles.h6, { fontWeight: "700" }]}>
-                            Rp.{CurrencyFormat(totalPrice)}
-                        </Text>
-                    </View>
-                    <View>
-                        <Pressable onPress={() => navigation.navigate("CheckoutPay")} style={{ backgroundColor: "#F18910", height: 35, borderRadius: 5, marginTop: 10, justifyContent: "center", flex: 1, alignItems: "center" }} >
-                            <Text style={{ fontSize: 20, color: "white" }}>
-                                Lanjutkan Membeli
-                            </Text>
-                        </Pressable>
-                    </View>
-                </View>
+                    </>
+                }
             </View>
             {/* </View > */}
             <ModalDialog
@@ -517,10 +593,8 @@ export default function Checkout({ navigation }) {
                 contentHeader={"Ganti Alamat"}
                 contentText={
                     <ScrollView style={{ height: 500 }}>
-                        {/* <View style={[styles.section, { justifyContent: "space-between" }]}>
-                            <View style={{ width: "48%" }}> */}
                         <Text style={{ fontSize: 16, color: "black" }}>
-                            Nama Alamat11
+                            Nama Alamat
                         </Text>
                         <TextInput
                             style={styles.input}
@@ -528,8 +602,6 @@ export default function Checkout({ navigation }) {
                             value={address_name}
                             placeholder="Masukkan Alamat"
                         />
-                        {/* </View> */}
-                        {/* <View style={{ width: "48%" }}> */}
                         <Text style={{ fontSize: 16, color: "black" }}>
                             Nama Penerima
                         </Text>
@@ -539,10 +611,6 @@ export default function Checkout({ navigation }) {
                             value={receiver_name}
                             placeholder="Masukkan Nama Penerima"
                         />
-                        {/* </View>
-                        </View> */}
-                        {/* <View style={[styles.section, { justifyContent: "space-between" }]}>
-                            <View style={{ width: "48%" }}> */}
                         <Text style={{ fontSize: 16, color: "black" }}>
                             Nomor Telepon
                         </Text>
@@ -552,8 +620,6 @@ export default function Checkout({ navigation }) {
                             value={receiver_phone}
                             placeholder="Masukkan Nomor Telepon"
                         />
-                        {/* </View> */}
-                        {/* <View style={{ width: "48%" }}> */}
                         <Text style={{ fontSize: 16, color: "black" }}>
                             Provinsi
                         </Text>
@@ -564,10 +630,6 @@ export default function Checkout({ navigation }) {
                             style={styles.input}
                             useNativeAndroidPickerStyle={true}
                         />
-                        {/* </View>
-                        </View> */}
-                        {/* <View style={[styles.section, { justifyContent: "space-between" }]}>
-                            <View style={{ width: "48%" }}> */}
                         <Text style={{ fontSize: 16, color: "black" }}>
                             Kota
                         </Text>
@@ -578,8 +640,6 @@ export default function Checkout({ navigation }) {
                             style={styles.input}
                             useNativeAndroidPickerStyle={true}
                         />
-                        {/* </View> */}
-                        {/* <View style={{ width: "48%" }}> */}
                         <Text style={{ fontSize: 16, color: "black" }}>
                             Kecamatan
                         </Text>
@@ -590,8 +650,6 @@ export default function Checkout({ navigation }) {
                             style={styles.input}
                             useNativeAndroidPickerStyle={true}
                         />
-                        {/* </View>
-                        </View> */}
                         <Text style={{ fontSize: 16, color: "black" }}>
                             Alamat
                         </Text>
@@ -603,8 +661,6 @@ export default function Checkout({ navigation }) {
                             value={address_}
                             placeholder="Alamat"
                         />
-                        {/* <View style={[styles.section, { justifyContent: "space-between" }]}>
-                            <View style={{ width: "48%" }}> */}
                         <Text style={{ fontSize: 16, color: "black" }}>
                             Kode Pos
                         </Text>
@@ -629,7 +685,107 @@ export default function Checkout({ navigation }) {
                                 <Text>Simpan</Text>
                             </TouchableOpacity>
                         </View>
-                        {/* </View> */}
+                    </ScrollView>
+                }
+            />
+            <ModalDialog
+                onShow={modalAddAdrress}
+                onHide={() => setModalAddAddress(false)}
+                contentHeader={"Tambahkan Alamat"}
+                contentText={
+                    <ScrollView style={{ height: 500 }}>
+                        <Text style={{ fontSize: 16, color: "black" }}>
+                            Nama Alamat
+                        </Text>
+                        <TextInput
+                            style={styles.input}
+                            onChangeText={(e) => set_address_name(e)}
+                            value={address_name}
+                            placeholder="Masukkan Alamat"
+                        />
+                        <Text style={{ fontSize: 16, color: "black" }}>
+                            Nama Penerima
+                        </Text>
+                        <TextInput
+                            style={styles.input}
+                            onChangeText={(e) => set_receiver_name(e)}
+                            value={receiver_name}
+                            placeholder="Masukkan Nama Penerima"
+                        />
+                        <Text style={{ fontSize: 16, color: "black" }}>
+                            Nomor Telepon
+                        </Text>
+                        <TextInput
+                            style={styles.input}
+                            onChangeText={(e) => set_receiver_phone(e)}
+                            value={receiver_phone}
+                            placeholder="Masukkan Nomor Telepon"
+                        />
+                        <Text style={{ fontSize: 16, color: "black" }}>
+                            Provinsi
+                        </Text>
+                        <Select
+                            onValueChange={option => { set_city(""); set_subdistrict(""); handleProvinceSelect(option) }}
+                            items={provinces}
+                            placeholder={{ label: "Provinsi", value: null }}
+                            style={styles.input}
+                            useNativeAndroidPickerStyle={true}
+                        />
+                        <Text style={{ fontSize: 16, color: "black" }}>
+                            Kota
+                        </Text>
+                        <Select
+                            onValueChange={option => handleCitySelect(option)}
+                            items={cities}
+                            placeholder={{ label: "Kota", value: null }}
+                            style={styles.input}
+                            useNativeAndroidPickerStyle={true}
+                        />
+                        <Text style={{ fontSize: 16, color: "black" }}>
+                            Kecamatan
+                        </Text>
+                        <Select
+                            onValueChange={option => handleSubdistictSelect(option)}
+                            items={subdistricts}
+                            placeholder={{ label: "Kecamatan", value: null }}
+                            style={styles.input}
+                            useNativeAndroidPickerStyle={true}
+                        />
+                        <Text style={{ fontSize: 16, color: "black" }}>
+                            Alamat
+                        </Text>
+                        <TextInput
+                            multiline={true}
+                            numberOfLines={10}
+                            style={[styles.input, { height: 80 }]}
+                            onChangeText={(e) => set_address(e)}
+                            value={address_}
+                            placeholder="Alamat"
+                        />
+                        <Text style={{ fontSize: 16, color: "black" }}>
+                            Kode Pos
+                        </Text>
+                        <TextInput
+                            style={styles.input}
+                            onChangeText={(e) => set_postal_code(e)}
+                            value={postal_code}
+                            placeholder="Masukkan Kecamatan"
+                        />
+                        {/* <View style={styles.checkboxContainer}>
+                            <CheckBox
+                                value={is_main}
+                                onValueChange={() => set_ismain(true)}
+                                style={styles.checkbox}
+                            />
+                            <Text style={styles.label}>Tandai sebagai default</Text>
+                        </View> */}
+                        <View style={{ width: "48%", justifyContent: "center" }}>
+                            <TouchableOpacity
+                                onPress={handleAddAddress}
+                                style={{ backgroundColor: "#F18910", alignItems: "center", padding: 10, borderRadius: 10 }}>
+                                <Text>Simpan</Text>
+                            </TouchableOpacity>
+                        </View>
                     </ScrollView>
                 }
             />
@@ -649,56 +805,72 @@ export default function Checkout({ navigation }) {
                 contentHeader={"Pilih Alamat Pengiriman"}
                 contentText={
                     <ScrollView style={{ height: 500 }}>
-                        {address && address.map((item) => {
-                            return (
-                                <View style={[styles.section, { width: "100%" }]} key={item.id}>
-                                    <View style={[styles.card, { width: "95%" }]}>
+                        <View style={{
+                            width: 80,
+                            flex: 1,
+                            flexDirection: "row",
+                            alignItems: "center",
+                            justifyContent: "flex-end"
+                        }}
+                        >
+                            <TouchableOpacity
+                                onPress={handleModalAdd}
+                                style={{ backgroundColor: "#F18910", borderRadius: 5, padding: 5, }}>
+                                <Text style={[styles.h6, { color: "#FFF" }]}>Tambah</Text>
+                            </TouchableOpacity>
+                        </View>
+                        {
+                            address && address.map((item) => {
+                                return (
+                                    <View style={[styles.section, { width: "100%" }]} key={item.id}>
+                                        <View style={[styles.card, { width: "95%" }]}>
 
-                                        <View style={{ flexDirection: "row", alignItems: "center" }}>
-                                            <Text style={[styles.h6, { color: "#000", fontWeight: "700" }]}>
-                                                {item.receiver_name} ({item?.address_name}) | {item.receiver_phone}
-                                            </Text>
-                                            {item.is_main === true &&
-                                                <View style={{ backgroundColor: "#F18910", borderRadius: 5, padding: 5, marginLeft: 10 }}>
-                                                    <Text style={{
-                                                        color: "white",
-                                                    }}>
-                                                        default
-                                                    </Text>
-                                                </View>
-                                            }
-                                        </View>
-                                        <Text style={[styles.h6, { color: "#000" }]}>
-                                            {item.address}
-                                        </Text>
-                                        <Text style={[styles.h6, { color: "#000" }]}>
-                                            {`${item.subdistrict} , ${item.city} ,${item.province}`}
-                                        </Text>
-                                        <Text style={[styles.h6, { color: "#000" }]}>
-                                            {item.postal_code}
-                                        </Text>
-                                        <View style={{ flexDirection: "row", justifyContent: "space-between", marginVertical: 10 }}>
-                                            <TouchableOpacity onPress={() => handleModal(item)}>
-                                                <Text style={{ color: "#F18910", fontSize: 16, fontWeight: "600" }}>
-                                                    UBAH
+                                            <View style={{ flexDirection: "row", alignItems: "center" }}>
+                                                <Text style={[styles.h6, { color: "#000", fontWeight: "700" }]}>
+                                                    {item.receiver_name} ({item?.address_name}) | {item.receiver_phone}
                                                 </Text>
-                                            </TouchableOpacity>
-                                            {item.is_main === false &&
-                                                <TouchableOpacity onPress={() => setDefaultAddress(item.id)}>
+                                                {item.is_main === true &&
+                                                    <View style={{ backgroundColor: "#F18910", borderRadius: 5, padding: 5, marginLeft: 10 }}>
+                                                        <Text style={{
+                                                            color: "white",
+                                                        }}>
+                                                            default
+                                                        </Text>
+                                                    </View>
+                                                }
+                                            </View>
+                                            <Text style={[styles.h6, { color: "#000" }]}>
+                                                {item.address}
+                                            </Text>
+                                            <Text style={[styles.h6, { color: "#000" }]}>
+                                                {`${item.subdistrict} , ${item.city} ,${item.province}`}
+                                            </Text>
+                                            <Text style={[styles.h6, { color: "#000" }]}>
+                                                {item.postal_code}
+                                            </Text>
+                                            <View style={{ flexDirection: "row", justifyContent: "space-between", marginVertical: 10 }}>
+                                                <TouchableOpacity onPress={() => handleModal(item)}>
                                                     <Text style={{ color: "#F18910", fontSize: 16, fontWeight: "600" }}>
-                                                        Pilih Sebagai Alamat Default
+                                                        UBAH
                                                     </Text>
                                                 </TouchableOpacity>
-                                            }
+                                                {item.is_main === false &&
+                                                    <TouchableOpacity onPress={() => setDefaultAddress(item.id)}>
+                                                        <Text style={{ color: "#F18910", fontSize: 16, fontWeight: "600" }}>
+                                                            Pilih Sebagai Alamat Default
+                                                        </Text>
+                                                    </TouchableOpacity>
+                                                }
+                                            </View>
                                         </View>
                                     </View>
-                                </View>
-                            )
-                        })}
-                    </ScrollView>
+                                )
+                            })
+                        }
+                    </ScrollView >
                 }
             />
-        </ScrollView>
+        </ScrollView >
     )
 }
 

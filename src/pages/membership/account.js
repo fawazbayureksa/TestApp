@@ -112,13 +112,29 @@ export default function Account({ navigation }) {
                     </View>
                 </TouchableOpacity>
             </View >
+            <View style={styles.section3}>
+
+                <TouchableOpacity onPress={() => navigation.navigate("TransactionList")}>
+                    <View style={{ display: "flex", flexDirection: "row", justifyContent: "space-between" }}>
+                        <View>
+                            <Text style={{ fontSize: 20, color: "#000", fontWeight: "600" }}>My Orders</Text>
+                        </View>
+
+                        <View style={{ alignSelf: "center" }}>
+                            <Text style={{ fontSize: 40, color: "black" }}>
+                                <Icon size={24} color="#000" name="arrow-forward-ios" />
+                            </Text>
+                        </View>
+                    </View>
+                </TouchableOpacity>
+            </View >
             <View style={{}}>
                 <TouchableOpacity
                     style={{
                         backgroundColor: "red",
                         height: 40,
                         borderRadius: 50,
-                        marginTop: "90%",
+                        marginTop: "80%",
                     }}
                     onPress={handleLogout}
                 >

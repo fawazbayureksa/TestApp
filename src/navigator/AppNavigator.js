@@ -5,6 +5,7 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import Login from '../reducers/auth/Login';
 import Membership from '../pages/membership/index';
+import TransactionList from '../pages/membership/transaksiList';
 import Register from "../reducers/auth/register";
 import Email from "../reducers/auth/email";
 import Account from "../pages/membership/account";
@@ -132,6 +133,11 @@ export default function AppNavigator() {
                     <Stack.Screen name="Address" component={Address}
                         options={{
                             headerTitle: "Pilih Alamat"
+                        }}
+                    />
+                    <Stack.Screen name="TransactionList" component={TransactionList}
+                        options={{
+                            headerTitle: "My Orders"
                         }}
                     />
                     <Stack.Screen name="Checkout" component={Checkout} />
