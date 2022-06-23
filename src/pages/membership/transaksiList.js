@@ -4,7 +4,6 @@ import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { API_URL, HOST } from "@env"
 import { CurrencyFormat } from '../../components/CurrencyFormat';
-import DatetimeFormat from '../../components/DatetimeFormat'
 
 export default function TransaksiList({ navigation }) {
 
@@ -13,6 +12,8 @@ export default function TransaksiList({ navigation }) {
     useEffect(() => {
         getMasterData()
     }, [])
+
+
 
     const getMasterData = async () => {
 
@@ -35,6 +36,7 @@ export default function TransaksiList({ navigation }) {
         })
     }
 
+
     return (
         <ScrollView>
             {data && data.map((item) => (
@@ -47,8 +49,8 @@ export default function TransaksiList({ navigation }) {
                             <Text style={{ fontSize: 18, color: "#000" }}>
                                 Status
                                 <Text style={{ color: "red", marginLeft: 3 }}>
-                                    : {item?.last_status?.status}
-                                    {/* {DatetimeFormat(item.created_at, 5)} */}
+                                    : {item?.last_status?.status === "waiting_for_upload" ? "Unggah bukti bayar" :
+                                        item?.last_status?.status}
                                 </Text>
                             </Text>
                         </View>
@@ -119,6 +121,21 @@ export default function TransaksiList({ navigation }) {
                                     </TouchableOpacity>
                                 </View>
                             </>
+                        }
+                        {item?.last_status?.status === "waiting_for_upload" &&
+
+                            <View style={{ marginTop: 10 }}>
+                                <TouchableOpacity
+                                    onPress={() => navigation.navigate("awaitingPayments", {
+                                        id: item.mp_payment_destination.id
+                                    })}
+                                    style={{ borderWidth: 1, borderColor: "#F18910", width: "100%", padding: 5, borderRadius: 5 }}>
+                                    <Text style={{ textAlign: "center", fontSize: 18, fontWeight: "600", color: "#F18910" }}>
+                                        Lanjutkan bayar
+                                    </Text>
+                                </TouchableOpacity>
+                            </View>
+
                         }
                     </View>
                 </View >

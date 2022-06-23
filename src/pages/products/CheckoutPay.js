@@ -1,4 +1,4 @@
-import { Image, StyleSheet, View, Pressable } from 'react-native'
+import { Image, StyleSheet, View, Pressable, TouchableOpacityBase, TouchableOpacity } from 'react-native'
 import React, { useState, useEffect } from 'react'
 import { ScrollView } from 'react-native-gesture-handler'
 import { RadioButton, Text } from 'react-native-paper';
@@ -6,6 +6,7 @@ import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { API_URL, HOST } from "@env"
 import { CurrencyFormat } from '../../components/CurrencyFormat';
+import ModalDialog from '../../commons/Modal';
 
 export default function CheckoutPay({ route, navigation }) {
 
@@ -13,13 +14,15 @@ export default function CheckoutPay({ route, navigation }) {
     const [grandTotal, setGrandTotal] = useState();
     const [qty, setQty] = useState()
     const [data, setData] = useState()
-
+    const [bankAccount, setBankAccount] = useState([])
     const [platformFee, setPlatformFee] = useState(0)
     const [platformFeePercentage, setPlatformFeePercentage] = useState(null)
     const [grand_total_before_platform_fee, set_grand_total_before_platform_fee] = useState(0)
 
     const [config, setConfig] = useState()
     const [payment_method, set_payment_method] = useState()
+
+    const [modal, setModal] = useState()
 
     useEffect(() => {
         getMasterData()
@@ -40,7 +43,7 @@ export default function CheckoutPay({ route, navigation }) {
                 Authorization: `Bearer ${jsonValue}`,
             }
         }).then(response => {
-            // console.log(response.data.data)
+
             if (!response.data.data.data || response.data.data.data.length === 0) {
                 navigation.navigate("TransaksiList")
             } else {
@@ -66,53 +69,52 @@ export default function CheckoutPay({ route, navigation }) {
                 set_grand_total_before_platform_fee(grand_total)
                 set_payment_method(payment_method)
                 setConfig(config)
+                setBankAccount(response.data.data.bank_accounts)
 
-                //     this.setState({
-                //         config: config,
-                //         payment_method: payment_method,
-                //         data: response.data.data.data,
-                //         grand_total_before_platform_fee: grand_total,
-                //         grand_total: grand_total,
-                //         bank_accounts: response.data.data.bank_accounts,
-                //         total_quantity: sumQty
-                //     });
             }
         }).catch(error => {
             console.log(error.response.data.message);
         })
     }
 
-    // console.log(config)
-    // console.log(payment_method.manual)
 
-    // checkoutManual = (e) => {
-    //     e.preventDefault();
-    //     if (!this.state.data) return;
-    //     if (!this.state.selected_manual_destination) return;
+    const checkoutManual = async (bankId) => {
 
-    //     let params = {
-    //         mp_payment_id: this.state.data.id,
-    //         mp_company_bank_account_id: this.state.selected_manual_destination
-    //     }
+        let jsonValue = JSON.parse(await AsyncStorage.getItem("token"))
 
-    //     this.setState({ submitting: true })
-    //     axios.post(`${process.env.REACT_APP_BASE_API_URL}checkout-pay/checkoutManual`, params, Config({
-    //         Authorization: `Bearer ${Cookie.get('token')}`
-    //     })).then(response => {
-    //         SwalToast.fire({ icon: "success", title: response.data.message })
-    //         this.props.history.push({ pathname: EcommerceRoutePath.AWAITING_PAYMENT.replace(":id", response.data.data) })
-    //     }).catch(error => {
-    //         console.log(error);
-    //         if (error.response) {
-    //             console.log(error.response);
-    //             SwalToast.fire({ icon: "error", title: error.response.data.message })
-    //         }
-    //     }).finally(() => {
-    //         this.setState({ submitting: false })
-    //     });
-    // }
+        let params = {
+            mp_payment_id: data.id,
+            mp_company_bank_account_id: bankId
+        }
+
+        await axios.post(API_URL + `checkout-pay/checkoutManual`, params,
+            {
+                headers: {
+                    "Origin": "http://localhost:3002/",
+                    "Authorization": `Bearer ${jsonValue}`,
+                }
+            }).then(response => {
+                console.log(response.data.message)
+                navigation.navigate("awaitingPayments", {
+                    id: response.data.data.id
+                })
+            }).catch(error => {
+                console.log(error);
+                navigation.navigate("TransaksiList")
+            })
+    }
 
     const regex = /<[^>]*>/mgi
+
+    const paymentMethodChange = (key) => {
+        if (value === key) {
+            setValue()
+        }
+        else {
+            setValue(key)
+        }
+    }
+
     return (
         <ScrollView>
             <View style={styles.container}>
@@ -121,11 +123,11 @@ export default function CheckoutPay({ route, navigation }) {
                 </Text>
                 <View style={[styles.card, { width: "85%" }]}>
                     <View style={[styles.section, { alignItems: "center" }]}>
-                        <RadioButton.Group
-                            onValueChange={newValue => setValue(newValue)}
-                            value={value}>
-                            <RadioButton value="first" />
-                        </RadioButton.Group>
+                        <RadioButton
+                            value="first"
+                            status={value === 'first' ? 'checked' : 'unchecked'}
+                            onPress={() => paymentMethodChange('first')}
+                        />
                         <View style={styles.sectionRow}>
                             <Image
                                 source={{
@@ -198,15 +200,61 @@ export default function CheckoutPay({ route, navigation }) {
                             </Text>
                         </View>
                         <View>
-                            <Pressable onPress={() => navigation.navigate("CheckoutPay")} style={{ backgroundColor: "#F18910", height: 35, borderRadius: 5, marginTop: 10, justifyContent: "center", flex: 1, alignItems: "center" }} >
+                            <TouchableOpacity onPress={() => setModal(true)} style={{ backgroundColor: "#F18910", height: 35, borderRadius: 5, marginTop: 10, justifyContent: "center", flex: 1, alignItems: "center" }} >
                                 <Text style={{ fontSize: 20, color: "white" }}>
                                     Lanjutkan Membeli
                                 </Text>
-                            </Pressable>
+                            </TouchableOpacity>
                         </View>
                     </View>
                 ))}
+                <ModalDialog
+                    onShow={modal}
+                    onHide={() => setModal(false)}
+                    contentHeader={"Select Manual Bank Transfer"}
+                    contentText={
+                        <ScrollView>
+                            {bankAccount && bankAccount.map((item) => (
+                                <View style={[styles.card, { width: "95%" }]} key={item.id}>
+                                    <TouchableOpacity onPress={() => checkoutManual(item.id)}>
+                                        <View style={[styles.section, { alignItems: "center" }]}>
+                                            <View style={styles.sectionRow}>
+                                                {item.mp_bank.name === "BCA" ?
+                                                    <Image
+                                                        source={{
+                                                            uri: `https://mpng.subpng.com/20180802/lcs/kisspng-bank-central-asia-logo-bca-finance-business-logo-bank-central-asia-bca-format-cdr-amp-pn-5b63687e470088.3520223915332414702908.jpg`
+                                                        }}
+                                                        style={styles.produkImage}
+                                                    />
+                                                    :
+                                                    <Image
+                                                        source={{
+                                                            uri: `https://rekreartive.com/wp-content/uploads/2019/04/Logo-BRI-Bank-Rakyat-Indonesia-PNG-Terbaru.png`
+                                                        }}
+                                                        style={styles.produkImage}
+                                                    />
+                                                }
+                                            </View>
+                                            <View style={{ width: "70%", marginLeft: 100 }}>
+                                                <Text style={[styles.h6, { fontWeight: "700" }]}>
+                                                    {item.mp_bank.name}
+                                                </Text>
+                                                <Text style={[styles.h6]} >
+                                                    {item.account_name}
+                                                </Text>
+                                                <Text style={[styles.h6]} >
+                                                    {item.account_number}
+                                                </Text>
+                                            </View>
+                                        </View>
+                                    </TouchableOpacity>
+                                </View>
+                            ))}
+                        </ScrollView>
+                    }
+                ></ModalDialog>
             </View>
+
         </ScrollView>
     )
 }
@@ -294,12 +342,11 @@ const styles = StyleSheet.create({
         marginHorizontal: 10,
         backgroundColor: "#FFFFFF",
         height: "auto",
-        width: "40%",
         borderRadius: 10,
         shadowColor: "#000",
         shadowOffset: {
             width: 0,
-            height: 3,
+            height: 2,
         },
         shadowOpacity: 0.29,
         shadowRadius: 4.65,

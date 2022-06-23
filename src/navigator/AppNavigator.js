@@ -22,6 +22,8 @@ import Checkout from '../pages/products/Checkout';
 import CheckoutPay from '../pages/products/CheckoutPay';
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import axios from 'axios';
+import AwaitingPayments from '../pages/membership/awaitingPayments';
+import DetailOrder from '../pages/membership/detailOrder';
 // import '../i18n/index'
 const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator();
@@ -144,6 +146,16 @@ export default function AppNavigator() {
                     <Stack.Screen name="CheckoutPay" component={CheckoutPay}
                         options={{
                             headerTitle: "Metode Pembayaran"
+                        }}
+                    />
+                    <Stack.Screen name="awaitingPayments" component={AwaitingPayments}
+                        options={{
+                            headerTitle: "Menunggu Pembayaran"
+                        }}
+                    />
+                    <Stack.Screen name="DetailOrder" component={DetailOrder}
+                        options={{
+                            headerTitle: "Detail Pesanan"
                         }}
                     />
                     <Stack.Screen name="DetailProduct" component={DetailProduct} />
