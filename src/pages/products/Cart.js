@@ -150,7 +150,6 @@ export default function Cart({ navigation }) {
         });
     }
 
-    console.log(idCart)
 
     return (
         <ScrollView style={{ backgroundColor: "#FFFFFF" }}>

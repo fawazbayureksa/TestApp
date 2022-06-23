@@ -299,7 +299,7 @@ const DetailProduct = ({ route, navigation }) => {
                                             height: 50
                                         }}
                                         onPress={() => setIdVar(item.id)}
-
+                                        key={item.id}
                                     >
                                         <Text
                                             style={{

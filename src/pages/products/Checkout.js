@@ -47,8 +47,8 @@ export default function Checkout({ navigation }) {
 
 
     useEffect(() => {
-        calculateTotalPrice();
         getMasterData();
+        calculateTotalPrice();
         getCustomerAddresses();
         getProvisi();
     }, []);
@@ -76,7 +76,7 @@ export default function Checkout({ navigation }) {
                     )
                 );
             })
-
+            calculateTotalPrice();
         }).catch(error => {
             console.log(error)
 
@@ -149,7 +149,6 @@ export default function Checkout({ navigation }) {
         }
         setTotalPrice(total_price)
     }
-
     const handleModal = (record) => {
         setModalEditAddress(true)
         setModalAddress(false)
@@ -520,7 +519,7 @@ export default function Checkout({ navigation }) {
                                     <View style={[styles.section, { justifyContent: "space-between" }]}>
                                         {cart.carts.map((item) => {
                                             return (
-                                                <View style={[styles.section, { justifyContent: "space-between" }]}>
+                                                <View style={[styles.section, { justifyContent: "space-evenly", padding: 20 }]}>
                                                     <Image
                                                         style={styles.categoryImage}
                                                         source={{

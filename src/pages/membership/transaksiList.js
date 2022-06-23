@@ -4,9 +4,9 @@ import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { API_URL, HOST } from "@env"
 import { CurrencyFormat } from '../../components/CurrencyFormat';
+import DatetimeFormat from '../../components/DatetimeFormat'
 
-
-export default function TransaksiList() {
+export default function TransaksiList({ navigation }) {
 
     const [data, setData] = useState()
 
@@ -34,7 +34,6 @@ export default function TransaksiList() {
             console.log(error.response.data.message);
         })
     }
-    console.log(data?.length)
 
     return (
         <ScrollView>
@@ -48,7 +47,8 @@ export default function TransaksiList() {
                             <Text style={{ fontSize: 18, color: "#000" }}>
                                 Status
                                 <Text style={{ color: "red", marginLeft: 3 }}>
-                                    {` : ${item?.last_status?.status}`}
+                                    : {item?.last_status?.status}
+                                    {/* {DatetimeFormat(item.created_at, 5)} */}
                                 </Text>
                             </Text>
                         </View>
@@ -65,30 +65,29 @@ export default function TransaksiList() {
                             <View style={{ marginLeft: 10, justifyContent: "center" }}>
                                 <Text
                                     style={{ fontSize: 18, fontWeight: "600", color: "black" }}>
-                                    {item?.mp_transaction_details[0]?.mp_transaction_product[0]?.mp_transaction_product_informations[0]?.name}
+                                    {item.mp_transaction_details[0].mp_transaction_product.mp_transaction_product_informations[0].name}
                                 </Text>
+                                {item?.mp_transaction_details[0].mp_transaction_product.mp_transaction_product_sku_variants.map((variant) => (
+                                    <View key={variant.id}>
+                                        <Text
+                                            style={{ fontSize: 16, fontWeight: "300", color: "black" }}
+                                        >
+                                            {variant.name}: {variant.mp_transaction_product_sku_variant_option.name}
+                                        </Text>
+                                    </View>
+                                ))}
                                 <Text
                                     style={{ fontSize: 16, fontWeight: "300", color: "black" }}
                                 >
-                                    Color : Blue
-                                </Text>
-                                <Text
-                                    style={{ fontSize: 16, fontWeight: "300", color: "black" }}
-                                >
-                                    Leaf Door: Leaf 1
-                                </Text>
-                                <Text
-                                    style={{ fontSize: 16, fontWeight: "300", color: "black" }}
-                                >
-                                    Rp.29.823.354
+                                    Rp.{CurrencyFormat(item?.mp_transaction_details[0].mp_transaction_product.mp_transaction_product_sku.price)}
                                 </Text>
                             </View>
-                            <View style={{ justifyContent: "center", alignItems: "flex-end", marginLeft: 10 }}>
-                                <Text>
-                                    1 Products
+                            <View style={{ justifyContent: "center", marginLeft: 10, flex: 1 }}>
+                                <Text style={{ textAlign: "right", alignSelf: "flex-end" }}>
+                                    {item?.mp_transaction_details[0].quantity} Products
                                 </Text>
-                                <Text style={{ fontSize: 16, fontWeight: "700", color: "#000" }}>
-                                    Rp.29.823.354
+                                <Text style={{ fontSize: 16, fontWeight: "700", color: "#000", textAlign: "right", alignSelf: "flex-end" }}>
+                                    Rp.{CurrencyFormat(item?.mp_transaction_details[0].grand_total)}
                                 </Text>
                             </View>
                         </View>
@@ -97,8 +96,30 @@ export default function TransaksiList() {
                         />
                         <View style={styles.sectionRow}>
                             <Text style={{ fontSize: 18, color: "#000" }}>Total Payment</Text>
-                            <Text style={{ fontSize: 18, color: "#000" }}>Rp.29.823.354</Text>
+                            <Text style={{ fontSize: 18, color: "#000" }}>Rp.{CurrencyFormat(item?.mp_transaction_details[0].grand_total)}</Text>
                         </View>
+                        {item?.last_status?.status === "pending" &&
+                            <>
+                                <View style={{ marginTop: 10 }}>
+                                    <TouchableOpacity
+                                        onPress={() => navigation.navigate("CheckoutPay", {
+                                            invoice_number: item.invoice_number
+                                        })}
+                                        style={{ borderWidth: 1, borderColor: "#F18910", width: "100%", padding: 5, borderRadius: 5 }}>
+                                        <Text style={{ textAlign: "center", fontSize: 18, fontWeight: "600", color: "#F18910" }}>
+                                            Bayar
+                                        </Text>
+                                    </TouchableOpacity>
+                                </View>
+                                <View style={{ marginTop: 10 }}>
+                                    <TouchableOpacity style={{ borderWidth: 1, borderColor: "red", width: "100%", padding: 5, borderRadius: 5 }}>
+                                        <Text style={{ textAlign: "center", fontSize: 18, fontWeight: "600", color: "red" }}>
+                                            Batalkan Pesanan
+                                        </Text>
+                                    </TouchableOpacity>
+                                </View>
+                            </>
+                        }
                     </View>
                 </View >
             ))}

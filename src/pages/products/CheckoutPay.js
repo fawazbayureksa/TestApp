@@ -40,20 +40,18 @@ export default function CheckoutPay({ route, navigation }) {
                 Authorization: `Bearer ${jsonValue}`,
             }
         }).then(response => {
-            console.log(response.data.data)
+            // console.log(response.data.data)
             if (!response.data.data.data || response.data.data.data.length === 0) {
                 navigation.navigate("TransaksiList")
             } else {
-                //     // ========================== Config ==========================
+
                 let config = JSON.parse(response.data.data.config) || {};
 
-                //     // ========================== Payment method ==========================
                 let payment_method = {}
                 for (const item of JSON.parse(response.data.data.payment_method).value) {
                     payment_method[item.key] = item
                 }
 
-                //     // ========================== sumQty, grand_total ==========================
                 let sumQty = 0
                 let grand_total = 0
                 for (const datum of response.data.data.data.mp_payment_transactions) {
