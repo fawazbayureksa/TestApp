@@ -1,61 +1,107 @@
 import { TouchableOpacity, ScrollView, StyleSheet, Text, View, Image } from 'react-native'
-import React from 'react'
+import React, { useState, useEffect } from 'react'
+import axios from 'axios';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { API_URL, HOST } from "@env"
+import { CurrencyFormat } from '../../components/CurrencyFormat';
+
 
 export default function TransaksiList() {
+
+    const [data, setData] = useState()
+
+    useEffect(() => {
+        getMasterData()
+    }, [])
+
+    const getMasterData = async () => {
+
+        let jsonValue = JSON.parse(await AsyncStorage.getItem("token"))
+
+        let url = API_URL + `my-orders/get`
+
+        await axios.get(url, {
+            params: {
+                status: "pending",
+            },
+            headers: {
+                Origin: HOST,
+                Authorization: `Bearer ${jsonValue}`,
+            }
+        }).then(response => {
+            setData(response.data.data.data)
+        }).catch(error => {
+            console.log(error.response.data.message);
+        })
+    }
+    console.log(data?.length)
+
     return (
         <ScrollView>
-            <View style={styles.section}>
-                <View style={[styles.card, { width: "95%" }]}>
-                    <View style={styles.sectionRow}>
-                        <Text style={{ fontSize: 18, color: "#000" }}>Eat and Drunk</Text>
-                        <Text style={{ fontSize: 18, color: "red" }}>Status : Expired</Text>
-                    </View>
-                    <View style={{ display: "flex", flexDirection: "row" }}>
-                        <Image
-                            style={styles.produkImage}
-                            source={{
-                                uri: 'https://images.unsplash.com/photo-1633332755192-727a05c4013d?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=580&q=80',
-                            }}
+            {data && data.map((item) => (
+                <View style={styles.section} key={item.id}>
+                    <View style={[styles.card, { width: "95%" }]}>
+                        <View style={styles.sectionRow}>
+                            <Text style={{ fontSize: 18, color: "#000" }}>
+                                {item?.mp_transaction_details[0]?.mp_transaction.mp_seller.name}
+                            </Text>
+                            <Text style={{ fontSize: 18, color: "#000" }}>
+                                Status
+                                <Text style={{ color: "red", marginLeft: 3 }}>
+                                    {` : ${item?.last_status?.status}`}
+                                </Text>
+                            </Text>
+                        </View>
+                        <View
+                            style={{ borderWidth: 0.5, color: "gray", width: "100%", marginTop: 10 }}
                         />
-                        <View style={{ marginLeft: 10, justifyContent: "center" }}>
-                            <Text
-                                style={{ fontSize: 18, fontWeight: "600", color: "black" }}>
-                                Product 15
-                            </Text>
-                            <Text
-                                style={{ fontSize: 16, fontWeight: "300", color: "black" }}
-                            >
-                                Color : Blue
-                            </Text>
-                            <Text
-                                style={{ fontSize: 16, fontWeight: "300", color: "black" }}
-                            >
-                                Leaf Door: Leaf 1
-                            </Text>
-                            <Text
-                                style={{ fontSize: 16, fontWeight: "300", color: "black" }}
-                            >
-                                Rp.29.823.354
-                            </Text>
+                        <View style={{ display: "flex", flexDirection: "row" }}>
+                            <Image
+                                style={styles.produkImage}
+                                source={{
+                                    uri: `https://tsi-1.oss-ap-southeast-5.aliyuncs.com/public/${item.mp_transaction_details[0].mp_transaction_product.mp_transaction_product_images[0].filename}`,
+                                }}
+                            />
+                            <View style={{ marginLeft: 10, justifyContent: "center" }}>
+                                <Text
+                                    style={{ fontSize: 18, fontWeight: "600", color: "black" }}>
+                                    {item?.mp_transaction_details[0]?.mp_transaction_product[0]?.mp_transaction_product_informations[0]?.name}
+                                </Text>
+                                <Text
+                                    style={{ fontSize: 16, fontWeight: "300", color: "black" }}
+                                >
+                                    Color : Blue
+                                </Text>
+                                <Text
+                                    style={{ fontSize: 16, fontWeight: "300", color: "black" }}
+                                >
+                                    Leaf Door: Leaf 1
+                                </Text>
+                                <Text
+                                    style={{ fontSize: 16, fontWeight: "300", color: "black" }}
+                                >
+                                    Rp.29.823.354
+                                </Text>
+                            </View>
+                            <View style={{ justifyContent: "center", alignItems: "flex-end", marginLeft: 10 }}>
+                                <Text>
+                                    1 Products
+                                </Text>
+                                <Text style={{ fontSize: 16, fontWeight: "700", color: "#000" }}>
+                                    Rp.29.823.354
+                                </Text>
+                            </View>
                         </View>
-                        <View style={{ justifyContent: "center", alignItems: "flex-end", marginLeft: 10 }}>
-                            <Text>
-                                1 Products
-                            </Text>
-                            <Text style={{ fontSize: 16, fontWeight: "700", color: "#000" }}>
-                                Rp.29.823.354
-                            </Text>
+                        <View
+                            style={{ borderWidth: 0.5, color: "gray", width: "100%", marginBottom: 10 }}
+                        />
+                        <View style={styles.sectionRow}>
+                            <Text style={{ fontSize: 18, color: "#000" }}>Total Payment</Text>
+                            <Text style={{ fontSize: 18, color: "#000" }}>Rp.29.823.354</Text>
                         </View>
                     </View>
-                    <View
-                        style={{ borderWidth: 0.5, color: "gray", width: "100%" }}
-                    />
-                    <View style={styles.sectionRow}>
-                        <Text style={{ fontSize: 18, color: "#000" }}>Total Payment</Text>
-                        <Text style={{ fontSize: 18, color: "#000" }}>Rp.29.823.354</Text>
-                    </View>
-                </View>
-            </View >
+                </View >
+            ))}
         </ScrollView >
     )
 }
@@ -141,6 +187,7 @@ const styles = StyleSheet.create({
         height: 120,
         borderRadius: 10,
         resizeMode: "cover",
+        backgroundColor: "#A6A6A6"
     },
     card: {
         padding: 10,

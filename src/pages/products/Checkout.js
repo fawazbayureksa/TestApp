@@ -20,9 +20,10 @@ export default function Checkout({ navigation }) {
     const [modalVoucher, setModalVoucher] = useState(false)
     const [modalAddress, setModalAddress] = useState(false)
     const [dataCart, setData] = useState([])
+    const [allData, setAllData] = useState([])
     const [address, setCostumerAddress] = useState()
     const [addressSelected, setCostumerAddressSelected] = useState()
-    const [totalPrice, setTotalPrice] = useState();
+    const [totalPrice, setTotalPrice] = useState(0);
     const [modalEditAdrress, setModalEditAddress] = useState(false)
     const [modalAddAdrress, setModalAddAddress] = useState(false)
 
@@ -40,10 +41,10 @@ export default function Checkout({ navigation }) {
     const [idAddress, setIdAddress] = useState()
     const [is_main, set_ismain] = useState(false)
     const [selectedKurir, setSelectedKurir] = useState()
+    const [pengiriman, setPengiriman] = useState([])
+    const [hargaKirim, setHargaKirim] = useState(0)
+    const [kurirType, setKurirType] = useState()
 
-    const onChangeSearch = (e) => {
-        console.log(e)
-    }
 
     useEffect(() => {
         calculateTotalPrice();
@@ -75,7 +76,7 @@ export default function Checkout({ navigation }) {
                     )
                 );
             })
-            calculateTotalPrice();
+
         }).catch(error => {
             console.log(error)
 
@@ -104,7 +105,7 @@ export default function Checkout({ navigation }) {
                     { text: "OK" }
                 ]
             )
-            // console.log(res.data.message)
+
             setModalEditAddress(false)
             setModalAddress(false)
             getCustomerAddresses()
@@ -148,13 +149,6 @@ export default function Checkout({ navigation }) {
         }
         setTotalPrice(total_price)
     }
-
-
-    // const handleChangeKurir = (value) => {
-    //     console.log(value)
-    //     setSelectedKurir(value)
-    // }
-
 
     const handleModal = (record) => {
         setModalEditAddress(true)
@@ -350,14 +344,21 @@ export default function Checkout({ navigation }) {
     }
 
     const handleChangeKurir = async (option, index) => {
-
+        setSelectedKurir(option)
         let jsonValue = JSON.parse(await AsyncStorage.getItem("token"))
 
         const listData = [...dataCart]
 
+        // dataCart.push(listData[index], {
+        //     courier_selected: option,
+        //     courier_type_selected: null,
+        //     courier_types: [],
+        //     courier_error: ""
+        // })
+
+        // console.log(dataCart)
 
         let idSeller = listData[index].seller.id
-
 
         let url = API_URL + `checkout/getCourierTypes`
 
@@ -376,9 +377,12 @@ export default function Checkout({ navigation }) {
                 res.data.data.costs.map((item) =>
                 ({
                     value: item.service,
-                    label: `${item.description} (Rp${CurrencyFormat(item.cost[0].value)})`
+                    label: `${item.description} (Rp${CurrencyFormat(item.cost[0].value)})`,
                 })
                 )
+            )
+            setPengiriman(
+                res.data.data.costs.map((item) => item)
             )
 
         }).catch(error => {
@@ -386,30 +390,40 @@ export default function Checkout({ navigation }) {
         })
     }
 
-    const checkout = async (e) => {
+    const handleChangeDurasi = (value) => {
+        setKurirType(value)
+        let ongkos = []
+
+        ongkos = pengiriman.find((obj) => obj.service === value)
+
+        setHargaKirim(ongkos?.cost[0]?.value)
+
+    }
+
+
+
+    const checkout = async () => {
 
         const getCartIds = (item) => {
             let ids = [];
-            for (const cart of item.carts) {
-                for (const item2 of cart.items) {
-                    ids.push(item2.id)
+            for (const cart of item) {
+                for (const i of cart.carts) {
+                    ids.push(i.id)
                 }
             }
             return ids
         }
 
-        // let voucher_customer_ids = []
-
         let params = {
             mp_customer_address_id: addressSelected.id,
-            voucher_customer_ids: null,
-            transactions: data.map((item) => (
+            voucher_customer_ids: [],
+            transactions: dataCart.map((item) => (
                 {
-                    cart_ids: getCartIds(item),
+                    cart_ids: getCartIds(dataCart),
                     mp_courier_key: selectedKurir,
-                    mp_courier_type_key: item.courier_type_selected.value,
+                    mp_courier_type_key: kurirType,
                     mp_seller_id: item.seller.id,
-                    shipping_fee: item.courier_type_selected.cost.value,
+                    shipping_fee: hargaKirim,
                 }
             ))
         }
@@ -420,14 +434,36 @@ export default function Checkout({ navigation }) {
                 Authorization: `Bearer ${jsonValue}`,
             }
         }
-        console.log(params)
-        return
+        // console.log(params)
+        // return
         let jsonValue = JSON.parse(await AsyncStorage.getItem("token"))
 
-        axios.post(API_URL + `checkout/save`, params, config)
-            .then(response => {
+        await axios.post(API_URL + `checkout/save`,
+            {
+                mp_customer_address_id: addressSelected.id,
+                voucher_customer_ids: [],
+                transactions: dataCart.map((item) => (
+                    {
+                        cart_ids: getCartIds(dataCart),
+                        mp_courier_key: selectedKurir,
+                        mp_courier_type_key: kurirType,
+                        mp_seller_id: item.seller.id,
+                        shipping_fee: hargaKirim,
+                    }
+                ))
+            },
+            {
+                headers: {
+                    Origin: HOST,
+                    Authorization: `Bearer ${jsonValue}`,
+                }
+            }).then(response => {
+                console.log(response.data.data)
                 console.log(response.data.message)
-                // this.props.history.push(EcommerceRoutePath.CHECKOUT_PAY.replace(":invoice_number", response.data.data))
+
+                navigation.navigate("CheckoutPay", {
+                    invoice_number: response.data.data
+                })
             }).catch(error => {
                 console.log(error.response.data.message);
             })
@@ -517,15 +553,15 @@ export default function Checkout({ navigation }) {
                                                 onValueChange={(value) => handleChangeKurir(value, index)}
                                                 items={kurirList}
                                                 placeholder={{ label: "Pilih Kurir", value: null }}
-                                                useNativeAndroidPickerStyle={false}
+                                                useNativeAndroidPickerStyle={true}
                                             />
                                         </View>
                                         <View style={pickerSelectStyles.inputAndroid}>
                                             <Select
-                                                onValueChange={(value) => console.log(value)}
+                                                onValueChange={(value) => handleChangeDurasi(value)}
                                                 items={durasi}
                                                 placeholder={{ label: "Pilih Durasi Pengiriman", value: null }}
-                                                useNativeAndroidPickerStyle={false}
+                                                useNativeAndroidPickerStyle={true}
                                             />
                                         </View>
                                     </View>
@@ -544,16 +580,16 @@ export default function Checkout({ navigation }) {
                                 <Text style={styles.h6}>
                                     Total Harga
                                 </Text>
-                                <Text style={[styles.h6, { fontWeight: "700" }]}>
-                                    Rp{CurrencyFormat(totalPrice)}
+                                <Text style={[styles.h6, { fontWeight: "500" }]}>
+                                    Rp.{CurrencyFormat(totalPrice)}
                                 </Text>
                             </View>
                             <View style={styles.sectionRow}>
                                 <Text>
                                     Biaya Kirim
                                 </Text>
-                                <Text>
-                                    Rp.0
+                                <Text style={[styles.h6, { fontWeight: "500" }]}>
+                                    Rp.{CurrencyFormat(hargaKirim)}
                                 </Text>
                             </View>
                             <View style={styles.sectionRow}>
@@ -569,13 +605,12 @@ export default function Checkout({ navigation }) {
                                     Total Pembayaran
                                 </Text>
                                 <Text style={[styles.h6, { fontWeight: "700" }]}>
-                                    Rp.{CurrencyFormat(totalPrice)}
+                                    Rp.{CurrencyFormat(totalPrice + hargaKirim)}
                                 </Text>
                             </View>
                             <View>
                                 <Pressable
                                     onPress={checkout}
-                                    // onPress={() => navigation.navigate("CheckoutPay")}
                                     style={{ backgroundColor: "#F18910", height: 35, borderRadius: 5, marginTop: 10, justifyContent: "center", flex: 1, alignItems: "center" }} >
                                     <Text style={{ fontSize: 20, color: "white" }}>
                                         Lanjutkan Membeli
