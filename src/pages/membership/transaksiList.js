@@ -4,7 +4,7 @@ import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { API_URL, HOST } from "@env"
 import { CurrencyFormat } from '../../components/CurrencyFormat';
-import { TabView, SceneMap } from 'react-native-tab-view';
+import { TabView, SceneMap, TabBar } from 'react-native-tab-view';
 
 
 const SecondRoute = () => {
@@ -49,11 +49,10 @@ const SecondRoute = () => {
                             <Text style={{ fontSize: 18, color: "#000" }}>
                                 Status
                                 <Text style={{ color: "red", marginLeft: 3 }}>
-                                    :
                                     : {
                                         item?.last_status?.status === "waiting_for_upload" ? "Unggah bukti bayar" :
                                             item?.last_status?.status === "waiting_approval" ? "Mengunggu Konfirmasi" :
-                                                !item?.last_status?.status ? item?.last_status?.mp_transaction_status_master_key : item?.last_status?.mp_transaction_status_master_key === "forwarded_to_seller" ? "Diteruskan ke seller" : item?.last_status?.mp_transaction_status_master_key
+                                                item?.last_status?.status
                                     }
                                 </Text>
                             </Text>
@@ -195,7 +194,7 @@ const FirstRoute = () => {
                                         item?.last_status?.status === "waiting_for_upload" ? "Unggah bukti bayar" :
                                             item?.last_status?.status === "waiting_approval" ? "Mengunggu Konfirmasi" :
                                                 !item?.last_status?.status ? item?.last_status?.mp_transaction_status_master_key : item?.last_status?.mp_transaction_status_master_key === "forwarded_to_seller" ? "Diteruskan ke seller" : item?.last_status?.mp_transaction_status_master_key
-                                    } */}
+                                            } */}
                                     {item?.last_status?.mp_transaction_status_master_key === "forwarded_to_seller" ? "diteruskan ke seller" : item?.last_status?.mp_transaction_status_master_key}
                                 </Text>
                             </Text>
@@ -297,18 +296,20 @@ const renderScene = SceneMap({
 });
 
 
+
 export default function TransaksiList({ navigation }) {
 
     const layout = useWindowDimensions();
 
-    const [index, setIndex] = React.useState(0);
-    const [routes] = React.useState([
+    const [index, setIndex] = useState(0);
+    const [routes] = useState([
         { key: 'first', title: 'Semua' },
         { key: 'second', title: 'Pending' },
     ]);
 
     return (
         <TabView
+            renderTabBar={renderTabBar}
             navigationState={{ index, routes }}
             renderScene={renderScene}
             onIndexChange={setIndex}
@@ -317,6 +318,14 @@ export default function TransaksiList({ navigation }) {
     );
 
 }
+
+const renderTabBar = props => (
+    <TabBar
+        {...props}
+        indicatorStyle={{ backgroundColor: 'white' }}
+        style={{ backgroundColor: '#F18910' }}
+    />
+);
 
 
 const styles = StyleSheet.create({

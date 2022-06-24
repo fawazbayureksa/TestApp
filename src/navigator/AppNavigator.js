@@ -5,6 +5,7 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import Login from '../reducers/auth/Login';
 import Membership from '../pages/membership/index';
+// import SecondRoute from '../pages/membership/transaksiList';
 import TransactionList from '../pages/membership/transaksiList';
 import Register from "../reducers/auth/register";
 import Email from "../reducers/auth/email";
