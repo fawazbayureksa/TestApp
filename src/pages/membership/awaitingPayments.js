@@ -1,4 +1,4 @@
-import { Image, StyleSheet, View, Pressable, TouchableOpacityBase, TouchableOpacity, Button } from 'react-native'
+import { Image, StyleSheet, View, Pressable, TouchableOpacityBase, TouchableOpacity, Button, Alert } from 'react-native'
 import React, { useState, useEffect } from 'react'
 import { ScrollView } from 'react-native-gesture-handler'
 import { RadioButton, Text } from 'react-native-paper';
@@ -16,6 +16,7 @@ export default function AwaitingPayments({ route, navigation }) {
     const [data, setData] = useState();
     const [modal, setModal] = useState();
     const [photo, setPhoto] = useState(null);
+    const [uriPhoto, setUriPhoto] = useState(null);
     const [mpBanks, set_mpBanks] = useState([])
     const [nama, setNama] = useState();
     const [noRek, setNorek] = useState();
@@ -51,12 +52,40 @@ export default function AwaitingPayments({ route, navigation }) {
         })
     }
 
-    const handleUploadPhoto = () => {
+    const handleUploadPhoto = async () => {
+        const formData = new FormData();
+        if (photo) {
+            const tempPhoto = {
+                uri: photo?.assets[0]?.uri,
+                type: photo?.assets[0]?.type,
+                name: photo?.assets[0]?.fileName,
+            };
+            formData.append('file', tempPhoto);
 
+            let jsonValue = JSON.parse(await AsyncStorage.getItem("token"))
+
+            await axios.post(API_URL + `my-orders/uploadPaymentProof`, formData, {
+                headers: {
+                    "Origin": "http://localhost:3002/",
+                    "Authorization": `Bearer ${jsonValue}`,
+                    'content-type': 'multipart/form-data'
+                }
+            }).then(response => {
+                Alert.alert(
+                    "",
+                    "Berhasil unggah gambar",
+                    [
+                        { text: "OK" }
+                    ]
+                )
+                setUriPhoto(response.data.data)
+            }).catch(error => {
+                console.log(error);
+            })
+        }
     }
     const handleChoosePhoto = () => {
         launchImageLibrary({ noData: true }, (response) => {
-            console.log(response);
             if (response) {
                 setPhoto(response);
             }
@@ -65,14 +94,12 @@ export default function AwaitingPayments({ route, navigation }) {
     }
     const handleCamera = () => {
         launchCamera({ noData: true }, (response) => {
-            console.log(response);
             if (response) {
                 setPhoto(response);
             }
         });
 
     }
-
     const getBanks = async () => {
 
         let jsonValue = JSON.parse(await AsyncStorage.getItem("token"))
@@ -93,17 +120,33 @@ export default function AwaitingPayments({ route, navigation }) {
         })
     }
 
-    const handleSave = () => {
-        let data = {
-            mp_payment_id: route.params.id,
-            // payment_proof,
-            nama,
-            noRek,
-            mp_bank_id: idBank,
-        }
-        console.log(data)
-    }
 
+
+    const handleSave = async () => {
+        let param = {
+            account_name: nama,
+            account_number: noRek,
+            mp_bank_id: idBank,
+            mp_payment_id: data.payment_id,
+            payment_proof: uriPhoto,
+        }
+
+        let jsonValue = JSON.parse(await AsyncStorage.getItem("token"))
+
+        await axios.post(API_URL + `my-orders/savePaymentProof`, param, {
+            headers: {
+                "Origin": "http://localhost:3002/",
+                "Authorization": `Bearer ${jsonValue}`,
+            }
+        }).then(response => {
+            setModal(false);
+            getManualTransferDestination();
+            navigation.navigate("TransaksiList")
+        }).catch(error => {
+            console.log(error.response.data.message);
+        })
+
+    }
 
     return (
         <View>
@@ -151,8 +194,8 @@ export default function AwaitingPayments({ route, navigation }) {
                         </Text>
                         <View style={[styles.section, { marginVertical: 10 }]}>
                             <Image
-                                source={{ uri: photo?.uri }}
-                                style={{ width: 100, height: 100, backgroundColor: "#A6A6A6", borderRadius: 5, }}
+                                source={{ uri: photo?.assets[0]?.uri }}
+                                style={{ width: 150, height: 150, backgroundColor: "#A6A6A6", borderRadius: 5, }}
                             />
                             <View style={{ marginLeft: 20, alignItems: "center", justifyContent: "center" }}>
                                 <TouchableOpacity
@@ -186,8 +229,28 @@ export default function AwaitingPayments({ route, navigation }) {
                                         Pilih Gambar
                                     </Text>
                                 </TouchableOpacity>
+                                {!uriPhoto &&
+                                    <TouchableOpacity
+                                        onPress={handleUploadPhoto}
+                                        style={{
+                                            backgroundColor: "green",
+                                            height: 30,
+                                            width: 100,
+                                            padding: 5,
+                                            marginVertical: 10,
+                                            borderRadius: 5,
+                                        }}
+                                    >
+                                        <Text style={{ textAlign: "center", color: "#FFF" }}>
+                                            Unggah Gambar
+                                        </Text>
+                                    </TouchableOpacity>
+                                }
                             </View>
                         </View>
+                        <Text style={{ fontSize: 14, color: "red" }}>
+                            Sebelum klik kirim , unggah gambar terlebih dahulu
+                        </Text>
                         <TextInput
                             onChangeText={(e) => setNama(e)}
                             mode="outlined"
@@ -236,6 +299,7 @@ export default function AwaitingPayments({ route, navigation }) {
                                     marginVertical: 10,
                                     borderRadius: 5,
                                 }}
+                                disabled={!uriPhoto ? true : false}
                             >
                                 <Text
                                     style={{

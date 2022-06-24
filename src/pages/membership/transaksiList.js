@@ -1,19 +1,18 @@
-import { TouchableOpacity, ScrollView, StyleSheet, Text, View, Image } from 'react-native'
+import { TouchableOpacity, ScrollView, StyleSheet, Text, View, Image, useWindowDimensions } from 'react-native'
 import React, { useState, useEffect } from 'react'
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { API_URL, HOST } from "@env"
 import { CurrencyFormat } from '../../components/CurrencyFormat';
+import { TabView, SceneMap } from 'react-native-tab-view';
 
-export default function TransaksiList({ navigation }) {
 
-    const [data, setData] = useState()
+const SecondRoute = () => {
+    const [data, setData] = useState();
 
     useEffect(() => {
         getMasterData()
     }, [])
-
-
 
     const getMasterData = async () => {
 
@@ -24,6 +23,7 @@ export default function TransaksiList({ navigation }) {
         await axios.get(url, {
             params: {
                 status: "pending",
+                length: 10
             },
             headers: {
                 Origin: HOST,
@@ -32,7 +32,7 @@ export default function TransaksiList({ navigation }) {
         }).then(response => {
             setData(response.data.data.data)
         }).catch(error => {
-            console.log(error.response.data.message);
+            console.log(error);
         })
     }
 
@@ -40,7 +40,7 @@ export default function TransaksiList({ navigation }) {
     return (
         <ScrollView>
             {data && data.map((item) => (
-                <View style={styles.section} key={item.id}>
+                <View style={styles.section} key={item?.id}>
                     <View style={[styles.card, { width: "95%" }]}>
                         <View style={styles.sectionRow}>
                             <Text style={{ fontSize: 18, color: "#000" }}>
@@ -49,8 +49,12 @@ export default function TransaksiList({ navigation }) {
                             <Text style={{ fontSize: 18, color: "#000" }}>
                                 Status
                                 <Text style={{ color: "red", marginLeft: 3 }}>
-                                    : {item?.last_status?.status === "waiting_for_upload" ? "Unggah bukti bayar" :
-                                        item?.last_status?.status}
+                                    :
+                                    : {
+                                        item?.last_status?.status === "waiting_for_upload" ? "Unggah bukti bayar" :
+                                            item?.last_status?.status === "waiting_approval" ? "Mengunggu Konfirmasi" :
+                                                !item?.last_status?.status ? item?.last_status?.mp_transaction_status_master_key : item?.last_status?.mp_transaction_status_master_key === "forwarded_to_seller" ? "Diteruskan ke seller" : item?.last_status?.mp_transaction_status_master_key
+                                    }
                                 </Text>
                             </Text>
                         </View>
@@ -61,15 +65,15 @@ export default function TransaksiList({ navigation }) {
                             <Image
                                 style={styles.produkImage}
                                 source={{
-                                    uri: `https://tsi-1.oss-ap-southeast-5.aliyuncs.com/public/${item.mp_transaction_details[0].mp_transaction_product.mp_transaction_product_images[0].filename}`,
+                                    uri: `https://tsi-1.oss-ap-southeast-5.aliyuncs.com/public/${item?.mp_transaction_details[0].mp_transaction_product.mp_transaction_product_images[0].filename}`,
                                 }}
                             />
                             <View style={{ marginLeft: 10, justifyContent: "center" }}>
                                 <Text
                                     style={{ fontSize: 18, fontWeight: "600", color: "black" }}>
-                                    {item.mp_transaction_details[0].mp_transaction_product.mp_transaction_product_informations[0].name}
+                                    {item?.mp_transaction_details[0].mp_transaction_product.mp_transaction_product_informations[0].name}
                                 </Text>
-                                {item?.mp_transaction_details[0].mp_transaction_product.mp_transaction_product_sku_variants.map((variant) => (
+                                {item?.mp_transaction_details[0]?.mp_transaction_product.mp_transaction_product_sku_variants.map((variant) => (
                                     <View key={variant.id}>
                                         <Text
                                             style={{ fontSize: 16, fontWeight: "300", color: "black" }}
@@ -105,7 +109,7 @@ export default function TransaksiList({ navigation }) {
                                 <View style={{ marginTop: 10 }}>
                                     <TouchableOpacity
                                         onPress={() => navigation.navigate("CheckoutPay", {
-                                            invoice_number: item.invoice_number
+                                            invoice_number: item?.invoice_number
                                         })}
                                         style={{ borderWidth: 1, borderColor: "#F18910", width: "100%", padding: 5, borderRadius: 5 }}>
                                         <Text style={{ textAlign: "center", fontSize: 18, fontWeight: "600", color: "#F18910" }}>
@@ -127,7 +131,7 @@ export default function TransaksiList({ navigation }) {
                             <View style={{ marginTop: 10 }}>
                                 <TouchableOpacity
                                     onPress={() => navigation.navigate("awaitingPayments", {
-                                        id: item.mp_payment_destination.id
+                                        id: item?.mp_payment_destination.id
                                     })}
                                     style={{ borderWidth: 1, borderColor: "#F18910", width: "100%", padding: 5, borderRadius: 5 }}>
                                     <Text style={{ textAlign: "center", fontSize: 18, fontWeight: "600", color: "#F18910" }}>
@@ -142,6 +146,176 @@ export default function TransaksiList({ navigation }) {
             ))}
         </ScrollView >
     )
+};
+
+const FirstRoute = () => {
+    const [data, setData] = useState();
+
+    useEffect(() => {
+        getMasterData()
+    }, [])
+
+    const getMasterData = async () => {
+
+        let jsonValue = JSON.parse(await AsyncStorage.getItem("token"))
+
+        let url = API_URL + `my-orders/get`
+
+        await axios.get(url, {
+            params: {
+                status: "all",
+                length: 10
+            },
+            headers: {
+                Origin: HOST,
+                Authorization: `Bearer ${jsonValue}`,
+            }
+        }).then(response => {
+            setData(response.data.data.data)
+        }).catch(error => {
+            console.log(error);
+        })
+    }
+
+
+    return (
+        <ScrollView>
+            {data && data.map((item) => (
+                <View style={styles.section} key={item?.id}>
+                    <View style={[styles.card, { width: "95%" }]}>
+                        <View style={styles.sectionRow}>
+                            <Text style={{ fontSize: 18, color: "#000" }}>
+                                {item?.mp_seller?.name}
+                            </Text>
+                            <Text style={{ fontSize: 18, color: "#000" }}>
+                                Status
+                                <Text style={{ color: "red", marginLeft: 3 }}>
+                                    :
+                                    {/* : {
+                                        item?.last_status?.status === "waiting_for_upload" ? "Unggah bukti bayar" :
+                                            item?.last_status?.status === "waiting_approval" ? "Mengunggu Konfirmasi" :
+                                                !item?.last_status?.status ? item?.last_status?.mp_transaction_status_master_key : item?.last_status?.mp_transaction_status_master_key === "forwarded_to_seller" ? "Diteruskan ke seller" : item?.last_status?.mp_transaction_status_master_key
+                                    } */}
+                                    {item?.last_status?.mp_transaction_status_master_key === "forwarded_to_seller" ? "diteruskan ke seller" : item?.last_status?.mp_transaction_status_master_key}
+                                </Text>
+                            </Text>
+                        </View>
+                        <View
+                            style={{ borderWidth: 0.5, color: "gray", width: "100%", marginTop: 10 }}
+                        />
+                        <View style={{ display: "flex", flexDirection: "row" }}>
+                            <Image
+                                style={styles.produkImage}
+                                source={{
+                                    uri: `https://tsi-1.oss-ap-southeast-5.aliyuncs.com/public/${item?.mp_transaction_details[0].mp_transaction_product.mp_transaction_product_images[0].filename}`,
+                                }}
+                            />
+                            <View style={{ marginLeft: 10, justifyContent: "center" }}>
+                                <Text
+                                    style={{ fontSize: 18, fontWeight: "600", color: "black" }}>
+                                    {item?.mp_transaction_details[0].mp_transaction_product.mp_transaction_product_informations[0].name}
+                                </Text>
+                                {item?.mp_transaction_details[0]?.mp_transaction_product.mp_transaction_product_sku_variants.map((variant) => (
+                                    <View key={variant.id}>
+                                        <Text
+                                            style={{ fontSize: 16, fontWeight: "300", color: "black" }}
+                                        >
+                                            {variant.name}: {variant.mp_transaction_product_sku_variant_option.name}
+                                        </Text>
+                                    </View>
+                                ))}
+                                <Text
+                                    style={{ fontSize: 16, fontWeight: "300", color: "black" }}
+                                >
+                                    Rp.{CurrencyFormat(item?.mp_transaction_details[0].mp_transaction_product.mp_transaction_product_sku.price)}
+                                </Text>
+                            </View>
+                            <View style={{ justifyContent: "center", marginLeft: 10, flex: 1 }}>
+                                <Text style={{ textAlign: "right", alignSelf: "flex-end" }}>
+                                    {item?.mp_transaction_details[0].quantity} Products
+                                </Text>
+                                <Text style={{ fontSize: 16, fontWeight: "700", color: "#000", textAlign: "right", alignSelf: "flex-end" }}>
+                                    Rp.{CurrencyFormat(item?.mp_transaction_details[0].grand_total)}
+                                </Text>
+                            </View>
+                        </View>
+                        <View
+                            style={{ borderWidth: 0.5, color: "gray", width: "100%", marginBottom: 10 }}
+                        />
+                        <View style={styles.sectionRow}>
+                            <Text style={{ fontSize: 18, color: "#000" }}>Total Payment</Text>
+                            <Text style={{ fontSize: 18, color: "#000" }}>Rp.{CurrencyFormat(item?.mp_transaction_details[0].grand_total)}</Text>
+                        </View>
+                        {item?.last_status?.status === "pending" &&
+                            <>
+                                <View style={{ marginTop: 10 }}>
+                                    <TouchableOpacity
+                                        onPress={() => navigation.navigate("CheckoutPay", {
+                                            invoice_number: item?.invoice_number
+                                        })}
+                                        style={{ borderWidth: 1, borderColor: "#F18910", width: "100%", padding: 5, borderRadius: 5 }}>
+                                        <Text style={{ textAlign: "center", fontSize: 18, fontWeight: "600", color: "#F18910" }}>
+                                            Bayar
+                                        </Text>
+                                    </TouchableOpacity>
+                                </View>
+                                <View style={{ marginTop: 10 }}>
+                                    <TouchableOpacity style={{ borderWidth: 1, borderColor: "red", width: "100%", padding: 5, borderRadius: 5 }}>
+                                        <Text style={{ textAlign: "center", fontSize: 18, fontWeight: "600", color: "red" }}>
+                                            Batalkan Pesanan
+                                        </Text>
+                                    </TouchableOpacity>
+                                </View>
+                            </>
+                        }
+                        {item?.last_status?.status === "waiting_for_upload" &&
+
+                            <View style={{ marginTop: 10 }}>
+                                <TouchableOpacity
+                                    onPress={() => navigation.navigate("awaitingPayments", {
+                                        id: item?.mp_payment_destination.id
+                                    })}
+                                    style={{ borderWidth: 1, borderColor: "#F18910", width: "100%", padding: 5, borderRadius: 5 }}>
+                                    <Text style={{ textAlign: "center", fontSize: 18, fontWeight: "600", color: "#F18910" }}>
+                                        Lanjutkan bayar
+                                    </Text>
+                                </TouchableOpacity>
+                            </View>
+
+                        }
+                    </View>
+                </View >
+            ))}
+        </ScrollView >
+    )
+};
+
+
+const renderScene = SceneMap({
+    first: FirstRoute,
+    second: SecondRoute,
+});
+
+
+export default function TransaksiList({ navigation }) {
+
+    const layout = useWindowDimensions();
+
+    const [index, setIndex] = React.useState(0);
+    const [routes] = React.useState([
+        { key: 'first', title: 'Semua' },
+        { key: 'second', title: 'Pending' },
+    ]);
+
+    return (
+        <TabView
+            navigationState={{ index, routes }}
+            renderScene={renderScene}
+            onIndexChange={setIndex}
+            initialLayout={{ width: layout.width }}
+        />
+    );
+
 }
 
 
