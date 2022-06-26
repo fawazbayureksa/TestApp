@@ -427,14 +427,7 @@ export default function Checkout({ navigation }) {
             ))
         }
 
-        let config = {
-            headers: {
-                Origin: HOST,
-                Authorization: `Bearer ${jsonValue}`,
-            }
-        }
-        // console.log(params)
-        // return
+
         let jsonValue = JSON.parse(await AsyncStorage.getItem("token"))
 
         await axios.post(API_URL + `checkout/save`,
@@ -464,9 +457,16 @@ export default function Checkout({ navigation }) {
                     invoice_number: response.data.data
                 })
             }).catch(error => {
-                console.log(error.response.data.message);
+                Alert.alert(
+                    "",
+                    `${error.response.data.message}`,
+                    [
+                        { text: "OK" }
+                    ]
+                )
             })
     }
+
 
 
     return (

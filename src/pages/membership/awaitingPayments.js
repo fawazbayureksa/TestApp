@@ -25,6 +25,7 @@ export default function AwaitingPayments({ route, navigation }) {
     useEffect(() => {
         getManualTransferDestination()
         getBanks()
+
     }, [])
 
     const getManualTransferDestination = async () => {
@@ -46,7 +47,10 @@ export default function AwaitingPayments({ route, navigation }) {
             if (error.response) {
                 console.log(error.response)
                 if (error.response.status === 403) {
-                    navigation.navigate("TransaksiList")
+                    navigation.navigate("TransactionList")
+                }
+                else if (error.response.status === 400) {
+                    navigation.navigate("TransactionList")
                 }
             }
         })
@@ -88,6 +92,8 @@ export default function AwaitingPayments({ route, navigation }) {
         launchImageLibrary({ noData: true }, (response) => {
             if (response) {
                 setPhoto(response);
+            } else {
+                setPhoto()
             }
         });
 
@@ -141,7 +147,7 @@ export default function AwaitingPayments({ route, navigation }) {
         }).then(response => {
             setModal(false);
             getManualTransferDestination();
-            navigation.navigate("TransaksiList")
+            navigation.navigate("TransactionList")
         }).catch(error => {
             console.log(error.response.data.message);
         })

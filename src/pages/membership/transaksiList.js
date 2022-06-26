@@ -5,10 +5,14 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { API_URL, HOST } from "@env"
 import { CurrencyFormat } from '../../components/CurrencyFormat';
 import { TabView, SceneMap, TabBar } from 'react-native-tab-view';
-
+import { navigate, navigationRef } from '../../navigator/RootNavigation';
+import ModalDialog from '../../commons/Modal';
+import { Alert } from 'react-native';
 
 const SecondRoute = () => {
     const [data, setData] = useState();
+    const [orderCode, setOrderCode] = useState();
+    const [modalCancel, setModalCancel] = useState();
 
     useEffect(() => {
         getMasterData()
@@ -34,6 +38,47 @@ const SecondRoute = () => {
         }).catch(error => {
             console.log(error);
         })
+    }
+
+
+    const handleModalCancel = (record) => {
+        setModalCancel(true)
+        // console.log(record.mp_payment_transactions[0].mp_transaction.order_code)
+        setOrderCode(record?.mp_payment_transactions[0].mp_transaction.order_code)
+    }
+
+    const handleCancel = async (e) => {
+        let jsonValue = JSON.parse(await AsyncStorage.getItem("token"))
+
+        let url = API_URL + `my-orders/cancelOrder`
+        await axios.post(url,
+            {
+                order_code: orderCode,
+            },
+            {
+                headers: {
+                    Origin: HOST,
+                    Authorization: `Bearer ${jsonValue}`,
+                }
+            }).then(response => {
+                closeModal()
+                getMasterData()
+            }).catch(error => {
+                console.log(error)
+                if (error.response) {
+                    console.log(error.response)
+                    if (error.response.data.message) {
+                        Alert.alert(
+                            "",
+                            `${error.response.data.message}`,
+                            [
+                                { text: "OK" }
+                            ]
+                        )
+
+                    }
+                }
+            })
     }
 
 
@@ -107,7 +152,7 @@ const SecondRoute = () => {
                             <>
                                 <View style={{ marginTop: 10 }}>
                                     <TouchableOpacity
-                                        onPress={() => navigation.navigate("CheckoutPay", {
+                                        onPress={() => navigationRef.navigate("CheckoutPay", {
                                             invoice_number: item?.invoice_number
                                         })}
                                         style={{ borderWidth: 1, borderColor: "#F18910", width: "100%", padding: 5, borderRadius: 5 }}>
@@ -117,7 +162,9 @@ const SecondRoute = () => {
                                     </TouchableOpacity>
                                 </View>
                                 <View style={{ marginTop: 10 }}>
-                                    <TouchableOpacity style={{ borderWidth: 1, borderColor: "red", width: "100%", padding: 5, borderRadius: 5 }}>
+                                    <TouchableOpacity
+                                        onPress={() => handleModalCancel(item)}
+                                        style={{ borderWidth: 1, borderColor: "red", width: "100%", padding: 5, borderRadius: 5 }}>
                                         <Text style={{ textAlign: "center", fontSize: 18, fontWeight: "600", color: "red" }}>
                                             Batalkan Pesanan
                                         </Text>
@@ -129,7 +176,7 @@ const SecondRoute = () => {
 
                             <View style={{ marginTop: 10 }}>
                                 <TouchableOpacity
-                                    onPress={() => navigation.navigate("awaitingPayments", {
+                                    onPress={() => navigationRef.navigate("awaitingPayments", {
                                         id: item?.mp_payment_destination.id
                                     })}
                                     style={{ borderWidth: 1, borderColor: "#F18910", width: "100%", padding: 5, borderRadius: 5 }}>
@@ -143,6 +190,36 @@ const SecondRoute = () => {
                     </View>
                 </View >
             ))}
+            <ModalDialog
+                onShow={modalCancel}
+                onHide={() => setModalCancel(false)}
+                contentHeader={"Batalkan Pesanan"}
+                contentText={
+                    <View style={{ height: 100 }}>
+                        <Text style={{ fontSize: 20, color: "#000" }}>Yakin batalkan Pesanan ?</Text>
+                        <View style={[styles.sectionRow, { marginTop: 30 }]}>
+                            <TouchableOpacity
+                                onPress={() => setModalCancel(false)}
+                                style={{ borderWidth: 1, borderColor: "#F18910", width: "45%", padding: 5, borderRadius: 5, height: 40, }}
+                            >
+                                <Text style={{ color: "#000", textAlign: "center", fontSize: 20 }}>
+                                    Kembali
+                                </Text>
+                            </TouchableOpacity>
+                            <TouchableOpacity
+                                onPress={handleCancel}
+                                style={{ backgroundColor: "#F18910", width: "45%", padding: 5, borderRadius: 5, height: 40 }}
+                            >
+                                <Text style={{ color: "#FFF", textAlign: "center", fontSize: 20 }}>
+                                    Batalkan
+                                </Text>
+                            </TouchableOpacity>
+                        </View>
+                    </View>
+                }
+            >
+
+            </ModalDialog >
         </ScrollView >
     )
 };
@@ -249,7 +326,7 @@ const FirstRoute = () => {
                             <>
                                 <View style={{ marginTop: 10 }}>
                                     <TouchableOpacity
-                                        onPress={() => navigation.navigate("CheckoutPay", {
+                                        onPress={() => navigationRef.navigate("CheckoutPay", {
                                             invoice_number: item?.invoice_number
                                         })}
                                         style={{ borderWidth: 1, borderColor: "#F18910", width: "100%", padding: 5, borderRadius: 5 }}>
@@ -271,7 +348,7 @@ const FirstRoute = () => {
 
                             <View style={{ marginTop: 10 }}>
                                 <TouchableOpacity
-                                    onPress={() => navigation.navigate("awaitingPayments", {
+                                    onPress={() => navigationRef.navigate("awaitingPayments", {
                                         id: item?.mp_payment_destination.id
                                     })}
                                     style={{ borderWidth: 1, borderColor: "#F18910", width: "100%", padding: 5, borderRadius: 5 }}>
@@ -297,7 +374,7 @@ const renderScene = SceneMap({
 
 
 
-export default function TransaksiList({ navigation }) {
+export default function TransaksiList() {
 
     const layout = useWindowDimensions();
 

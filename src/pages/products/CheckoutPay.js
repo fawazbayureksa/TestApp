@@ -45,7 +45,7 @@ export default function CheckoutPay({ route, navigation }) {
         }).then(response => {
 
             if (!response.data.data.data || response.data.data.data.length === 0) {
-                navigation.navigate("TransaksiList")
+                navigation.navigate("TransactionList")
             } else {
 
                 let config = JSON.parse(response.data.data.config) || {};
@@ -100,7 +100,7 @@ export default function CheckoutPay({ route, navigation }) {
                 })
             }).catch(error => {
                 console.log(error);
-                navigation.navigate("TransaksiList")
+                navigation.navigate("TransactionList")
             })
     }
 
