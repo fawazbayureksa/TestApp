@@ -40,12 +40,8 @@ export default function ProductList({ navigation }) {
             order: 'desc',
             length: 1,
             page: 1,
-            // type: props.data.type,
-            // custom_product_url: props.data.custom_product_url
         }
-        // if (props.data.mp_category_slug) {
-        //     params = { ...params, category: props.data.mp_category_slug }
-        // }
+
 
         await axios.get(API_URL + `ecommerce/products/get?order_by=${params.order_by}&order=${params.order}&length=${params.length}&page=${params.page}`,
             {

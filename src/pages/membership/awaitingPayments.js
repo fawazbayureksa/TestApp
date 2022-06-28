@@ -25,7 +25,6 @@ export default function AwaitingPayments({ route, navigation }) {
     useEffect(() => {
         getManualTransferDestination()
         getBanks()
-
     }, [])
 
     const getManualTransferDestination = async () => {
@@ -145,15 +144,20 @@ export default function AwaitingPayments({ route, navigation }) {
                 "Authorization": `Bearer ${jsonValue}`,
             }
         }).then(response => {
+            Alert.alert(
+                "",
+                `${response.data.message}`,
+                [
+                    { text: "OK" }
+                ]
+            )
             setModal(false);
-            getManualTransferDestination();
             navigation.navigate("TransactionList")
         }).catch(error => {
             console.log(error.response.data.message);
         })
 
     }
-
     return (
         <View>
             <View style={styles.section}>
@@ -166,7 +170,9 @@ export default function AwaitingPayments({ route, navigation }) {
                     </Text>
                     <View style={{ marginTop: 10 }}>
                         <TouchableOpacity
-                            onPress={() => navigation.navigate("DetailOrder")}
+                            onPress={() => navigation.navigate("DetailOrder", {
+                                invoice: data.payment_invoice_number
+                            })}
                             style={{ borderWidth: 1, borderColor: "#000", padding: 10, borderRadius: 50 }}
                         >
                             <Text style={{ textAlign: "center", fontSize: 16 }}>

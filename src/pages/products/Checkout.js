@@ -78,10 +78,11 @@ export default function Checkout({ navigation }) {
             })
             calculateTotalPrice();
         }).catch(error => {
-            console.log(error)
+            console.log("get master data", error)
 
         })
     }
+
 
     const setDefaultAddress = async (id) => {
         let jsonValue = JSON.parse(await AsyncStorage.getItem("token"))
@@ -114,7 +115,6 @@ export default function Checkout({ navigation }) {
         })
     }
 
-
     const getCustomerAddresses = async () => {
 
         let jsonValue = JSON.parse(await AsyncStorage.getItem("token"))
@@ -134,10 +134,9 @@ export default function Checkout({ navigation }) {
             setCostumerAddressSelected(address_selected)
             setCostumerAddress(response.data.data);
         }).catch(error => {
-            console.log(error);
+            console.log("getAlamat", error);
         })
     }
-
 
     const calculateTotalPrice = () => {
         let total_price = 0
@@ -181,7 +180,6 @@ export default function Checkout({ navigation }) {
         set_ismain()
     }
 
-
     const getProvisi = async () => {
         let jsonValue = JSON.parse(await AsyncStorage.getItem("token"))
 
@@ -195,7 +193,7 @@ export default function Checkout({ navigation }) {
         ).then(response => {
             set_provinces(response.data.data)
         }).catch(error => {
-            console.log(error);
+            console.log("get Provinsi", error);
         })
 
     }
@@ -282,7 +280,6 @@ export default function Checkout({ navigation }) {
                 Authorization: `Bearer ${jsonValue}`,
             }
         }
-
         await axios.post(url, data, config).then(res => {
             console.log(res.data.message)
             setModalAddAddress(false)
@@ -355,8 +352,6 @@ export default function Checkout({ navigation }) {
         //     courier_error: ""
         // })
 
-        // console.log(dataCart)
-
         let idSeller = listData[index].seller.id
 
         let url = API_URL + `checkout/getCourierTypes`
@@ -365,7 +360,7 @@ export default function Checkout({ navigation }) {
             params: {
                 mp_seller_id: idSeller,
                 mp_courier_key: option,
-                mp_customer_address_id: addressSelected.id
+                mp_customer_address_id: addressSelected?.id
             },
             headers: {
                 Origin: HOST,
@@ -383,9 +378,8 @@ export default function Checkout({ navigation }) {
             setPengiriman(
                 res.data.data.costs.map((item) => item)
             )
-
         }).catch(error => {
-            console.log(error);
+            console.log("handle kurir", error.response.data.message);
         })
     }
 
@@ -427,12 +421,11 @@ export default function Checkout({ navigation }) {
             ))
         }
 
-
         let jsonValue = JSON.parse(await AsyncStorage.getItem("token"))
 
         await axios.post(API_URL + `checkout/save`,
             {
-                mp_customer_address_id: addressSelected.id,
+                mp_customer_address_id: addressSelected?.id,
                 voucher_customer_ids: [],
                 transactions: dataCart.map((item) => (
                     {
@@ -451,8 +444,6 @@ export default function Checkout({ navigation }) {
                 }
             }).then(response => {
                 console.log(response.data.data)
-                console.log(response.data.message)
-
                 navigation.navigate("CheckoutPay", {
                     invoice_number: response.data.data
                 })
@@ -466,8 +457,6 @@ export default function Checkout({ navigation }) {
                 )
             })
     }
-
-
 
     return (
         <ScrollView style={{ backgroundColor: "#FFFFFF" }}>
@@ -513,13 +502,13 @@ export default function Checkout({ navigation }) {
                         {/* Pesanan Anda */}
                         {dataCart && dataCart.map((cart, index) => (
                             <>
-                                <View style={[styles.card, { width: "87%" }]}>
+                                <View style={[styles.card, { width: "87%" }]} key={index}>
                                     <Text style={{ fontSize: 16 }}>Pesanan anda</Text>
                                     <View style={{ borderWidth: 1, color: "#A6A6A6", marginVertical: 10 }} />
-                                    <View style={[styles.section, { justifyContent: "space-between" }]}>
-                                        {cart.carts.map((item) => {
-                                            return (
-                                                <View style={[styles.section, { justifyContent: "space-evenly", padding: 20 }]}>
+                                    {cart.carts.map((item) => {
+                                        return (
+                                            <View style={[styles.section, { justifyContent: "space-between" }]} key={item.id}>
+                                                <View style={[{ flex: 1, flexDirection: "row", justifyContent: "space-evenly", padding: 20 }]}>
                                                     <Image
                                                         style={styles.categoryImage}
                                                         source={{
@@ -538,9 +527,9 @@ export default function Checkout({ navigation }) {
                                                         </Text>
                                                     </View>
                                                 </View>
-                                            )
-                                        })}
-                                    </View>
+                                            </View>
+                                        )
+                                    })}
                                 </View>
                                 {/* Metode Pengiriman  */}
                                 <View style={[styles.card, { width: "87%" }]}>
@@ -566,6 +555,7 @@ export default function Checkout({ navigation }) {
                                     </View>
                                 </View>
                             </>
+
                         ))}
                         {/* Voucher Diskon */}
                         <View style={[styles.card, { width: "87%" }]}>
@@ -722,6 +712,7 @@ export default function Checkout({ navigation }) {
                     </ScrollView>
                 }
             />
+
             <ModalDialog
                 onShow={modalAddAdrress}
                 onHide={() => setModalAddAddress(false)}

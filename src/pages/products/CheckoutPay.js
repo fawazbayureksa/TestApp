@@ -1,4 +1,4 @@
-import { Image, StyleSheet, View, Pressable, TouchableOpacityBase, TouchableOpacity } from 'react-native'
+import { Image, StyleSheet, View, Pressable, TouchableOpacityBase, TouchableOpacity, Alert } from 'react-native'
 import React, { useState, useEffect } from 'react'
 import { ScrollView } from 'react-native-gesture-handler'
 import { RadioButton, Text } from 'react-native-paper';
@@ -24,9 +24,11 @@ export default function CheckoutPay({ route, navigation }) {
 
     const [modal, setModal] = useState()
 
-    useEffect(() => {
-        getMasterData()
-    }, [])
+    useEffect(
+        () => {
+            getMasterData()
+        }, []
+    )
 
     const getMasterData = async () => {
 
@@ -45,7 +47,7 @@ export default function CheckoutPay({ route, navigation }) {
         }).then(response => {
 
             if (!response.data.data.data || response.data.data.data.length === 0) {
-                navigation.navigate("TransactionList")
+                return navigation.navigate("awaitingPayments")
             } else {
 
                 let config = JSON.parse(response.data.data.config) || {};
@@ -87,6 +89,8 @@ export default function CheckoutPay({ route, navigation }) {
             mp_company_bank_account_id: bankId
         }
 
+        // console.log(params)
+
         await axios.post(API_URL + `checkout-pay/checkoutManual`, params,
             {
                 headers: {
@@ -94,13 +98,23 @@ export default function CheckoutPay({ route, navigation }) {
                     "Authorization": `Bearer ${jsonValue}`,
                 }
             }).then(response => {
-                console.log(response.data.message)
-                navigation.navigate("awaitingPayments", {
-                    id: response.data.data.id
-                })
+                console.log(response.data.data)
+                // navigation.navigate("awaitingPayments", {
+                //     id: response.data.data.id
+                // })
             }).catch(error => {
-                console.log(error);
-                navigation.navigate("TransactionList")
+                console.log(error.response.data.message);
+                if (error.response.data.message === "Payment status isn't pending!") {
+                    console.log("Silahkan lakukan pembayaran")
+                    Alert.alert(
+                        "",
+                        "Silahkan lakukan pembayaran",
+                        [
+                            { text: "OK" }
+                        ]
+                    )
+                    navigation.navigate("TransactionList")
+                }
             })
     }
 

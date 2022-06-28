@@ -99,7 +99,6 @@ const DetailProduct = ({ route, navigation }) => {
                             { text: "OK" }
                         ]
                     )
-                    console.log(error.response.data.message)
                 }
                 else {
                     console.log(error.response.data.message)
@@ -196,46 +195,7 @@ const DetailProduct = ({ route, navigation }) => {
                             <Text
                                 style={{ fontSize: 16, color: "gray", marginLeft: 5, fontWeight: "500", marginBottom: 10 }}
                             >
-                                Rating {dataDetail?.rating ? dataDetail?.rating : "-"} ({dataDetail?.mp_product_ratings[0].count} Ulasan)
-                            </Text>
-                        </View>
-
-                        <View
-                            style={{
-                                dispaly: "flex",
-                                flexDirection: "row",
-                                alignItems: "center"
-                            }}>
-                            <Text
-                                style={{
-                                    backgroundColor: "#F18910",
-                                    color: "white",
-                                    padding: 5,
-                                    borderRadius: 5,
-                                    fontSize: 16,
-                                }}>
-                                {PriceRatio(dataDetail?.mp_product_skus.find(value1 => value1.is_main).normal_price, dataDetail?.mp_product_skus.find(value1 => value1.is_main).price)}
-
-                            </Text>
-                            <Text
-                                numberOfLines={1}
-                                style={{
-                                    fontSize: 18,
-                                    color: "black",
-                                    marginLeft: 10,
-                                    textDecorationLine: "line-through"
-                                }}>
-                                Rp.{CurrencyFormat(dataDetail?.mp_product_skus.find(value1 => value1.is_main).normal_price)}
-                            </Text>
-                            <Text
-                                style={{
-                                    fontSize: 18,
-                                    color: "black",
-                                    marginLeft: 20,
-                                    fontWeight: "600"
-                                }}
-                            >
-                                Rp.{CurrencyFormat(dataDetail?.mp_product_skus.find(value1 => value1.is_main).price)}
+                                {/* Rating {dataDetail?.rating ? dataDetail?.rating : "-"} ({dataDetail?.mp_product_ratings[0].count} Ulasan) */}
                             </Text>
                         </View>
                     </View>
@@ -464,7 +424,8 @@ const DetailProduct = ({ route, navigation }) => {
                                 onPress={follow}
                             >
                                 <Text style={{ fontSize: 18, color: "#FFFFFF" }}>
-                                    {dataDetail.mp_seller.follow.is_follow === false ? "Ikuti" : "Diikuti"}
+                                    {/* {dataDetail.mp_seller.follow.is_follow === false ? "Ikuti" : "Diikuti"} */}
+                                    Ikuti
                                 </Text>
                             </TouchableOpacity>
                         </View>
@@ -501,34 +462,7 @@ const DetailProduct = ({ route, navigation }) => {
                                     <Text style={{ color: "black" }}>
                                         {item?.mp_seller.city}
                                     </Text>
-                                    <View
-                                        style={{
-                                            dispaly: "flex",
-                                            flexDirection: "row",
-                                            alignItems: "center"
-                                        }}>
-                                        <Text
-                                            style={{
-                                                backgroundColor: "#F18910",
-                                                color: "white",
-                                                width: "25%",
-                                                padding: 3,
-                                                borderRadius: 5,
-                                            }}>
-                                            {PriceRatio(item?.mp_product_skus.find(value1 => value1.is_main).normal_price, item?.mp_product_skus.find(value1 => value1.is_main).price)}
 
-                                        </Text>
-                                        <Text
-                                            numberOfLines={1}
-                                            style={{
-                                                width: "75%",
-                                                color: "black",
-                                                marginLeft: 5,
-                                                textDecorationLine: "line-through"
-                                            }}>
-                                            Rp.{CurrencyFormat(item?.mp_product_skus.find(value1 => value1.is_main).normal_price)}
-                                        </Text>
-                                    </View>
                                     <Text style={{ color: "black", fontSize: 16, fontWeight: "500" }}>
                                         Rp.{CurrencyFormat(item?.mp_product_skus.find(value1 => value1.is_main).price)}
                                     </Text>

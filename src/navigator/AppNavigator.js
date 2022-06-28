@@ -22,16 +22,18 @@ import { Badge } from 'react-native-paper';
 import Checkout from '../pages/products/Checkout';
 import CheckoutPay from '../pages/products/CheckoutPay';
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import axios from 'axios';
 import AwaitingPayments from '../pages/membership/awaitingPayments';
 import DetailOrder from '../pages/membership/detailOrder';
 // import '../i18n/index'
+import axios from 'axios';
+import { API_URL, HOST } from "@env"
+import IsEmpty from '../commons/IsEmpty';
+
 const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator();
 
 
 function LogoTitle() {
-
 
     return (
         <Image
@@ -43,33 +45,38 @@ function LogoTitle() {
     );
 }
 
-
 export default function AppNavigator() {
     const drawer = useRef(null);
     const [drawerPosition, setDrawerPosition] = useState("right");
+    const [countCart, setCountCart] = useState(0)
 
+    useEffect(
+        () => {
+            getCart();
+        },
+        []
+    );
+    const getCart = async () => {
+        let jsonValue = JSON.parse(await AsyncStorage.getItem("token"))
 
-
-    // useEffect(async () => {
-    //     let jsonValue = JSON.parse(await AsyncStorage.getItem("token"))
-
-    //     if (!jsonValue) {
-    //         navigationRef.navigate("Login")
-    //         Alert.alert(
-    //             "",
-    //             "Silahkan login terlebih dahulu",
-    //             [
-    //                 { text: "OK" }
-    //             ]
-    //         )
-    //         return
-    //     }
-    // }, []);
-
-
+        await axios.get(API_URL + `cart/get`,
+            {
+                headers: {
+                    "Origin": HOST,
+                    "Authorization": `Bearer ${jsonValue}`,
+                }
+            }).then((response) => {
+                if (!IsEmpty(response.data.data)) {
+                    setCountCart(response.data.data[0].carts.length)
+                } else {
+                    console.log("Cart Kosong")
+                }
+            }).catch(error => {
+                console.log(error)
+            })
+    }
 
     return (
-
         <DrawerLayoutAndroid
             ref={drawer}
             drawerWidth={200}
@@ -112,7 +119,7 @@ export default function AppNavigator() {
                                             onPress={() => navigationRef.navigate("Cart")}
                                         >
                                             <View style={{ marginRight: 10 }}>
-                                                <Badge style={{ marginBottom: -12, zIndex: 2, marginLeft: 15, backgroundColor: "red" }}>1</Badge>
+                                                <Badge style={{ marginBottom: -12, zIndex: 2, marginLeft: 15, backgroundColor: "red" }}>{countCart}</Badge>
                                                 <Icon size={28} color="#F18910" name="shopping-cart" />
                                             </View>
                                         </TouchableOpacity>

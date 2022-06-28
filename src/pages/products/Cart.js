@@ -47,11 +47,6 @@ export default function Cart({ navigation }) {
         )
             .then((response) => {
                 if (!IsEmpty(response.data.data)) {
-                    // response.data.data.map((item) => {
-                    //     setSeller(item.seller.name)
-                    //     setDataProduct(item.carts)
-                    //     // setData(item)
-                    // })
                     setData(response.data.data)
                 } else {
                     console.log("Cart Kosong")
@@ -135,6 +130,8 @@ export default function Cart({ navigation }) {
             cart_ids: idCart,
             lang: "id"
         }
+        console.log(data)
+        // return
         let config = {
             headers: {
                 Origin: HOST,
@@ -174,14 +171,14 @@ export default function Cart({ navigation }) {
                     <Text style={{ marginTop: 10, fontSize: 18 }}>
                         Keranjang Saya
                     </Text>
-                    {/* <View style={styles.checkboxContainer}>
+                    <View style={styles.checkboxContainer}>
                         <CheckBox
                             value={isSelected}
                             onValueChange={setSelection}
                             style={styles.checkbox}
-                            />
+                        />
                         <Text style={styles.label}>Pilih Semua</Text>
-                    </View> */}
+                    </View>
                 </View>
                 {data.length === 0 ?
 
@@ -306,55 +303,55 @@ export default function Cart({ navigation }) {
                                 })}
 
                             </View>
-                            <View style={[styles.card, { width: "87%" }]}>
-                                <Text style={{ fontSize: 16, fontWeight: "700", marginBottom: 10 }}>Ringkasan</Text>
-                                <View style={styles.sectionRow}>
-                                    <Text>
-                                        Total Harga
-                                    </Text>
-                                    <Text>
-                                        Rp.{CurrencyFormat(totalPrice)}
-
-                                    </Text>
-                                </View>
-                                <View style={styles.sectionRow}>
-                                    <Text>
-                                        Total Diskon
-                                    </Text>
-                                    <Text>
-                                        Rp.0
-                                    </Text>
-                                </View>
-                                <View style={styles.sectionRow}>
-                                    <Text style={{ fontWeight: "700" }}>
-                                        Total Pembayaran
-                                    </Text>
-                                    <Text style={{ fontWeight: "700" }}>
-                                        Rp.{CurrencyFormat(totalPrice)}
-                                    </Text>
-                                </View>
-                                <View>
-                                    <TouchableOpacity
-                                        style={{
-                                            backgroundColor: "#F18910",
-                                            height: 40,
-                                            borderRadius: 50,
-                                            marginTop: 10,
-                                            justifyContent: "center",
-                                            flex: 1,
-                                            alignItems: "center"
-                                        }}
-                                        onPress={submitCart}
-                                    >
-                                        <Text style={{ fontSize: 20, color: "white" }}>
-                                            Beli
-                                        </Text>
-                                    </TouchableOpacity>
-                                </View>
-                            </View>
                         </View>
                     ))}
-            </View >
+                <View style={[styles.card, { width: "87%" }]}>
+                    <Text style={{ fontSize: 16, fontWeight: "700", marginBottom: 10 }}>Ringkasan</Text>
+                    <View style={styles.sectionRow}>
+                        <Text>
+                            Total Harga
+                        </Text>
+                        <Text>
+                            Rp.{CurrencyFormat(totalPrice)}
+
+                        </Text>
+                    </View>
+                    <View style={styles.sectionRow}>
+                        <Text>
+                            Total Diskon
+                        </Text>
+                        <Text>
+                            Rp.0
+                        </Text>
+                    </View>
+                    <View style={styles.sectionRow}>
+                        <Text style={{ fontWeight: "700" }}>
+                            Total Pembayaran
+                        </Text>
+                        <Text style={{ fontWeight: "700" }}>
+                            Rp.{CurrencyFormat(totalPrice)}
+                        </Text>
+                    </View>
+                    <View>
+                        <TouchableOpacity
+                            style={{
+                                backgroundColor: "#F18910",
+                                height: 40,
+                                borderRadius: 50,
+                                marginTop: 10,
+                                justifyContent: "center",
+                                flex: 1,
+                                alignItems: "center"
+                            }}
+                            onPress={submitCart}
+                        >
+                            <Text style={{ fontSize: 20, color: "white" }}>
+                                Beli
+                            </Text>
+                        </TouchableOpacity>
+                    </View>
+                </View>
+            </View>
 
         </ScrollView >
     )

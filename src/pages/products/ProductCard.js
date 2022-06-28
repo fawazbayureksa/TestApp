@@ -73,33 +73,6 @@ export default function ProductCard({ navi }) {
                                     {item.mp_seller.city}
                                 </Text>
                             </View>
-                            <View
-                                style={{
-                                    dispaly: "flex",
-                                    flexDirection: "row",
-                                    alignItems: "center"
-                                }}>
-                                <Text
-                                    style={{
-                                        backgroundColor: "#F18910",
-                                        color: "white",
-                                        padding: 3,
-                                        borderRadius: 5,
-                                    }}>
-                                    {/* 46% */}
-                                    {PriceRatio(item.mp_product_skus.find(value1 => value1.is_main).normal_price, item.mp_product_skus.find(value1 => value1.is_main).price)}
-                                </Text>
-                                <Text
-                                    numberOfLines={1}
-                                    style={{
-                                        width: "75%",
-                                        color: "black",
-                                        marginLeft: 5,
-                                        textDecorationLine: "line-through"
-                                    }}>
-                                    Rp.{CurrencyFormat(item.mp_product_skus.find(value1 => value1.is_main).normal_price)}
-                                </Text>
-                            </View>
                             <Text style={{ color: "black", fontSize: 16, fontWeight: "500" }}>
                                 Rp.{CurrencyFormat(item.mp_product_skus.find(value1 => value1.is_main).price)}
                             </Text>
@@ -167,7 +140,7 @@ const styles = StyleSheet.create({
         height: 135,
         resizeMode: "cover",
         borderRadius: 5,
-        backgroundColor: "gray"
+        backgroundColor: "#F6F6F6"
 
     },
     card: {

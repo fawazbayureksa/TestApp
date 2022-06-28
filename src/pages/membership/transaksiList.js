@@ -43,7 +43,7 @@ const SecondRoute = () => {
 
     const handleModalCancel = (record) => {
         setModalCancel(true)
-        // console.log(record.mp_payment_transactions[0].mp_transaction.order_code)
+        console.log(record.mp_payment_transactions[0].mp_transaction.order_code)
         setOrderCode(record?.mp_payment_transactions[0].mp_transaction.order_code)
     }
 
@@ -61,7 +61,7 @@ const SecondRoute = () => {
                     Authorization: `Bearer ${jsonValue}`,
                 }
             }).then(response => {
-                closeModal()
+                modalCancel()
                 getMasterData()
             }).catch(error => {
                 console.log(error)
@@ -78,6 +78,7 @@ const SecondRoute = () => {
 
                     }
                 }
+                getMasterData()
             })
     }
 
@@ -109,7 +110,7 @@ const SecondRoute = () => {
                             <Image
                                 style={styles.produkImage}
                                 source={{
-                                    uri: `https://tsi-1.oss-ap-southeast-5.aliyuncs.com/public/${item?.mp_transaction_details[0].mp_transaction_product.mp_transaction_product_images[0].filename}`,
+                                    uri: `https://tsi-1.oss-ap-southeast-5.aliyuncs.com/public/marketplace/products/${item?.mp_transaction_details[0].mp_transaction_product.mp_transaction_product_images[0].filename}`,
                                 }}
                             />
                             <View style={{ marginLeft: 10, justifyContent: "center" }}>
@@ -141,13 +142,35 @@ const SecondRoute = () => {
                                 </Text>
                             </View>
                         </View>
+                        <View style={{ flex: 1, }}>
+                            {item.mp_transaction_details.length > 1 &&
+                                <Text style={{ textAlign: "right", fontSize: 20, color: "#F18910" }} onPress={() => navigationRef.navigate("DetailOrder", {
+                                    invoice: item?.invoice_number
+                                })}>
+                                    +1Produk
+                                </Text>
+                            }
+                        </View>
                         <View
                             style={{ borderWidth: 0.5, color: "gray", width: "100%", marginBottom: 10 }}
                         />
                         <View style={styles.sectionRow}>
                             <Text style={{ fontSize: 18, color: "#000" }}>Total Payment</Text>
-                            <Text style={{ fontSize: 18, color: "#000" }}>Rp.{CurrencyFormat(item?.mp_transaction_details[0].grand_total)}</Text>
+                            <Text style={{ fontSize: 18, color: "#000" }}>Rp.{CurrencyFormat(item?.total)}</Text>
                         </View>
+                        {/* {item.mp_transaction_details.length === 1 && */}
+                        <View style={{ marginTop: 10 }}>
+                            <TouchableOpacity
+                                onPress={() => navigationRef.navigate("DetailOrder", {
+                                    invoice: item?.invoice_number
+                                })}
+                                style={{ borderWidth: 1, borderColor: "#F18910", width: "100%", padding: 5, borderRadius: 5 }}>
+                                <Text style={{ textAlign: "center", fontSize: 18, fontWeight: "600", color: "#F18910" }}>
+                                    Detail
+                                </Text>
+                            </TouchableOpacity>
+                        </View>
+                        {/* } */}
                         {item?.last_status?.status === "pending" &&
                             <>
                                 <View style={{ marginTop: 10 }}>
@@ -240,7 +263,7 @@ const FirstRoute = () => {
         await axios.get(url, {
             params: {
                 status: "all",
-                length: 10
+                length: 30
             },
             headers: {
                 Origin: HOST,
@@ -267,12 +290,8 @@ const FirstRoute = () => {
                                 Status
                                 <Text style={{ color: "red", marginLeft: 3 }}>
                                     :
-                                    {/* : {
-                                        item?.last_status?.status === "waiting_for_upload" ? "Unggah bukti bayar" :
-                                            item?.last_status?.status === "waiting_approval" ? "Mengunggu Konfirmasi" :
-                                                !item?.last_status?.status ? item?.last_status?.mp_transaction_status_master_key : item?.last_status?.mp_transaction_status_master_key === "forwarded_to_seller" ? "Diteruskan ke seller" : item?.last_status?.mp_transaction_status_master_key
-                                            } */}
-                                    {item?.last_status?.mp_transaction_status_master_key === "forwarded_to_seller" ? "diteruskan ke seller" : item?.last_status?.mp_transaction_status_master_key}
+                                    {item?.last_status?.mp_transaction_status_master_key === "forwarded_to_seller" ? "diteruskan ke seller" :
+                                        item?.last_status?.mp_transaction_status_master_key === "on_process_by_seller" ? "Pesanan sedang diproses" : item?.last_status?.mp_transaction_status_master_key === "cancelled" ? "Dibatalkan" : item?.last_status?.mp_transaction_status_master_key === "expired" ? "kedaluwarsa" : item?.last_status?.mp_transaction_status_master_key}
                                 </Text>
                             </Text>
                         </View>
@@ -320,7 +339,7 @@ const FirstRoute = () => {
                         />
                         <View style={styles.sectionRow}>
                             <Text style={{ fontSize: 18, color: "#000" }}>Total Payment</Text>
-                            <Text style={{ fontSize: 18, color: "#000" }}>Rp.{CurrencyFormat(item?.mp_transaction_details[0].grand_total)}</Text>
+                            <Text style={{ fontSize: 18, color: "#000" }}>Rp.{CurrencyFormat(item?.grand_total)}</Text>
                         </View>
                         {item?.last_status?.status === "pending" &&
                             <>
@@ -345,7 +364,6 @@ const FirstRoute = () => {
                             </>
                         }
                         {item?.last_status?.status === "waiting_for_upload" &&
-
                             <View style={{ marginTop: 10 }}>
                                 <TouchableOpacity
                                     onPress={() => navigationRef.navigate("awaitingPayments", {
