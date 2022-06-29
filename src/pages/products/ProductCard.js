@@ -44,7 +44,6 @@ export default function ProductCard({ navi }) {
 
             })
     }
-
     return (
         <>
             {data && data.map((item) => {
@@ -53,7 +52,7 @@ export default function ProductCard({ navi }) {
                     <View style={styles.card} key={item.id}>
                         <TouchableOpacity onPress={() => navi.navigate("DetailProduct", {
                             seller_slug: item.mp_seller.slug,
-                            product_slug: item.slug
+                            product_slug: item.slug,
                         })}>
                             <Image
                                 style={styles.produkImage}

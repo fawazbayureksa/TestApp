@@ -48,8 +48,6 @@ export default function Cart({ navigation }) {
             .then((response) => {
                 if (!IsEmpty(response.data.data)) {
                     setData(response.data.data)
-                } else {
-                    console.log("Cart Kosong")
                 }
             }).catch(error => {
                 console.log(error)
@@ -58,7 +56,18 @@ export default function Cart({ navigation }) {
     }
 
     const deleteCart = async () => {
-        console.log(idCart)
+
+        if (IsEmpty(idCart)) {
+            Alert.alert(
+                "",
+                "Pilih produk yang ingin dihapus terlebih dahulu",
+                [
+                    { text: "OK" }
+                ]
+            )
+            return
+        }
+
         let jsonValue = JSON.parse(await AsyncStorage.getItem("token"))
 
         let data = {
@@ -72,7 +81,6 @@ export default function Cart({ navigation }) {
         }
         await axios.post(API_URL + `cart/delete-by-ids`, data, config
         ).then(response => {
-            console.log(response.data)
             getCart()
             setIdCart()
             Alert.alert(
@@ -113,8 +121,7 @@ export default function Cart({ navigation }) {
 
         for (const datum of data) {
             for (const cart of datum.carts) {
-                console.log(cart.mp_product_sku.price)
-                total_price += cart.mp_product_sku.price * qty
+                total_price += cart.mp_product_sku.price * cart.quantity
             }
         }
 
@@ -124,14 +131,23 @@ export default function Cart({ navigation }) {
 
     const submitCart = async () => {
 
+        if (IsEmpty(idCart)) {
+            Alert.alert(
+                "",
+                "Pilih produk yang ingin beli terlebih dahulu",
+                [
+                    { text: "OK" }
+                ]
+            )
+            return
+        }
+
         let jsonValue = JSON.parse(await AsyncStorage.getItem("token"));
 
         let data = {
             cart_ids: idCart,
             lang: "id"
         }
-        console.log(data)
-        // return
         let config = {
             headers: {
                 Origin: HOST,
@@ -140,7 +156,6 @@ export default function Cart({ navigation }) {
         }
 
         await axios.post(API_URL + `cart/submit`, data, config).then(response => {
-            console.log(response.data.data)
             navigation.navigate("Checkout")
         }).catch(error => {
             console.log(error.message)
@@ -212,7 +227,6 @@ export default function Cart({ navigation }) {
                                     }}
                                 />
                                 {item.carts.map((cart) => {
-                                    // console.log(cart)
                                     return (
                                         <View key={cart.id}>
                                             <View style={styles.checkboxContainer}>
@@ -259,7 +273,8 @@ export default function Cart({ navigation }) {
                                                         alignItems: "center",
                                                         borderRadius: 50
                                                     }}
-                                                    disabled={qty === 1}
+                                                    // disabled={qty === 1}
+                                                    disabled={true}
                                                     onPress={() => setQty(qty - 1)}
                                                 >
                                                     <Text style={{ color: "#FFF", fontSize: 20, fontWeight: "700" }}>-</Text>
@@ -268,7 +283,7 @@ export default function Cart({ navigation }) {
                                                     marginHorizontal: 20, fontSize: 20, textDecorationLine: "underline"
                                                 }}
                                                 >
-                                                    {qty}
+                                                    {cart.quantity}
                                                 </Text>
                                                 <TouchableOpacity
                                                     style={{
@@ -279,6 +294,7 @@ export default function Cart({ navigation }) {
                                                         alignItems: "center",
                                                         borderRadius: 50
                                                     }}
+                                                    disabled={true}
                                                     onPress={() => setQty(qty + 1)}
                                                 >
                                                     <Text
@@ -295,7 +311,7 @@ export default function Cart({ navigation }) {
                                                     Barang hampir habis!
                                                 </Text>
                                                 <Text style={{ fontSize: 16, fontWeight: "700", marginLeft: 10 }}>
-                                                    Rp{CurrencyFormat(qty * cart.mp_product_sku.price)}
+                                                    Rp{CurrencyFormat(cart.quantity * cart.mp_product_sku.price)}
                                                 </Text>
                                             </View>
                                         </View>
@@ -429,7 +445,7 @@ const styles = StyleSheet.create({
         width: "30%",
         height: 100,
         resizeMode: "contain",
-        backgroundColor: "#A6A6A6",
+        backgroundColor: "#F6F6F6",
         borderRadius: 5
     },
     card: {

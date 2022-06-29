@@ -53,13 +53,11 @@ export default function AppNavigator() {
     useEffect(
         () => {
             getCart();
-        },
-        []
-    );
+        });
     const getCart = async () => {
         let jsonValue = JSON.parse(await AsyncStorage.getItem("token"))
 
-        await axios.get(API_URL + `cart/get`,
+        axios.get(API_URL + `cart/get`,
             {
                 headers: {
                     "Origin": HOST,
@@ -68,13 +66,12 @@ export default function AppNavigator() {
             }).then((response) => {
                 if (!IsEmpty(response.data.data)) {
                     setCountCart(response.data.data[0].carts.length)
-                } else {
-                    console.log("Cart Kosong")
                 }
             }).catch(error => {
                 console.log(error)
             })
     }
+    // console.log(countCart)
 
     return (
         <DrawerLayoutAndroid

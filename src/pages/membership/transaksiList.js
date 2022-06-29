@@ -302,7 +302,7 @@ const FirstRoute = () => {
                             <Image
                                 style={styles.produkImage}
                                 source={{
-                                    uri: `https://tsi-1.oss-ap-southeast-5.aliyuncs.com/public/${item?.mp_transaction_details[0].mp_transaction_product.mp_transaction_product_images[0].filename}`,
+                                    uri: `https://tsi-1.oss-ap-southeast-5.aliyuncs.com/public/marketplace/products/${item?.mp_transaction_details[0].mp_transaction_product.mp_transaction_product_images[0].filename}`,
                                 }}
                             />
                             <View style={{ marginLeft: 10, justifyContent: "center" }}>
@@ -341,44 +341,8 @@ const FirstRoute = () => {
                             <Text style={{ fontSize: 18, color: "#000" }}>Total Payment</Text>
                             <Text style={{ fontSize: 18, color: "#000" }}>Rp.{CurrencyFormat(item?.grand_total)}</Text>
                         </View>
-                        {item?.last_status?.status === "pending" &&
-                            <>
-                                <View style={{ marginTop: 10 }}>
-                                    <TouchableOpacity
-                                        onPress={() => navigationRef.navigate("CheckoutPay", {
-                                            invoice_number: item?.invoice_number
-                                        })}
-                                        style={{ borderWidth: 1, borderColor: "#F18910", width: "100%", padding: 5, borderRadius: 5 }}>
-                                        <Text style={{ textAlign: "center", fontSize: 18, fontWeight: "600", color: "#F18910" }}>
-                                            Bayar
-                                        </Text>
-                                    </TouchableOpacity>
-                                </View>
-                                <View style={{ marginTop: 10 }}>
-                                    <TouchableOpacity style={{ borderWidth: 1, borderColor: "red", width: "100%", padding: 5, borderRadius: 5 }}>
-                                        <Text style={{ textAlign: "center", fontSize: 18, fontWeight: "600", color: "red" }}>
-                                            Batalkan Pesanan
-                                        </Text>
-                                    </TouchableOpacity>
-                                </View>
-                            </>
-                        }
-                        {item?.last_status?.status === "waiting_for_upload" &&
-                            <View style={{ marginTop: 10 }}>
-                                <TouchableOpacity
-                                    onPress={() => navigationRef.navigate("awaitingPayments", {
-                                        id: item?.mp_payment_destination.id
-                                    })}
-                                    style={{ borderWidth: 1, borderColor: "#F18910", width: "100%", padding: 5, borderRadius: 5 }}>
-                                    <Text style={{ textAlign: "center", fontSize: 18, fontWeight: "600", color: "#F18910" }}>
-                                        Lanjutkan bayar
-                                    </Text>
-                                </TouchableOpacity>
-                            </View>
-
-                        }
                     </View>
-                </View >
+                </View>
             ))}
         </ScrollView >
     )
@@ -494,7 +458,7 @@ const styles = StyleSheet.create({
         width: 100,
         height: 100,
         resizeMode: "contain",
-        backgroundColor: "#A6A6A6",
+        backgroundColor: "#F6F6F6",
         borderRadius: 5
     },
     produkImage: {
@@ -503,7 +467,7 @@ const styles = StyleSheet.create({
         height: 120,
         borderRadius: 10,
         resizeMode: "cover",
-        backgroundColor: "#A6A6A6"
+        backgroundColor: "#F6F6F6"
     },
     card: {
         padding: 10,

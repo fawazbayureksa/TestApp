@@ -11,12 +11,8 @@ import { CurrencyFormat } from '../../components/CurrencyFormat';
 import IsEmpty from '../../commons/IsEmpty';
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { API_URL, HOST } from "@env"
-
-const renderScene = SceneMap({
-    first: InfromationProduct,
-    second: UlasanProduct,
-});
-
+import { Collapse, CollapseHeader, CollapseBody, AccordionList } from 'accordion-collapse-react-native';
+import moment from 'moment';
 
 const DetailProduct = ({ route, navigation }) => {
 
@@ -32,11 +28,23 @@ const DetailProduct = ({ route, navigation }) => {
     const [total, setTotal] = useState()
     const [variantId, setVariantId] = useState()
     const [idVar, setIdVar] = useState()
+    const [dataRating, setDataRating] = useState()
+    const [idProdcut, setIdProdcut] = useState()
 
+    const regex = /<[^>]*>/mgi
 
     useEffect(() => {
         getDataProductDetail()
+        getRatingByParam()
     }, [])
+
+    // useEffect(() => {
+    //     if (!dataDetail) {
+    //         getRating()
+    //     }
+
+    // }, [dataRating])
+
 
     const getDataProductDetail = async () => {
         await axios.get(API_URL + `ecommerce/product/find?seller_slug=${route.params.seller_slug}&product_slug=${route.params.product_slug}`,
@@ -48,6 +56,7 @@ const DetailProduct = ({ route, navigation }) => {
         )
             .then((response) => {
                 setDataDetail(response.data.data.detail)
+                setIdProdcut(response.data.data.detail.id)
                 setDataRelated(response.data.data.related)
                 setVariantId(response.data.data.detail.mp_product_skus.find(value => value.is_main === true))
             }).catch(error => {
@@ -107,7 +116,6 @@ const DetailProduct = ({ route, navigation }) => {
         } else {
             console.log("Stok tidak cukup")
         }
-
     }
 
 
@@ -141,14 +149,27 @@ const DetailProduct = ({ route, navigation }) => {
                     { text: "OK" }
                 ]
             )
-            console.log(response.data.data)
             getDataProductDetail()
         }).catch(error => {
             console.log(error)
         })
     }
 
+    const getRatingByParam = async () => {
 
+        let id = await getDataProductDetail()
+
+        let url = API_URL + `review/getWithParams?page=1&per_page=2&filter=all&product_id=${idProdcut}`
+        axios.get(url, {
+            headers: {
+                Origin: HOST,
+            }
+        }).then(response => {
+            setDataRating(response.data.data.data)
+        }).catch(error => {
+            console.log(error.response.data.message)
+        })
+    }
     return (
         <ScrollView style={{ backgroundColor: "#FFFFFF" }}>
             {dataDetail === null ?
@@ -423,12 +444,150 @@ const DetailProduct = ({ route, navigation }) => {
                                 }}
                                 onPress={follow}
                             >
+                                {/* {console.log(dataDetail)} */}
                                 <Text style={{ fontSize: 18, color: "#FFFFFF" }}>
-                                    {/* {dataDetail.mp_seller.follow.is_follow === false ? "Ikuti" : "Diikuti"} */}
-                                    Ikuti
+                                    {dataDetail.mp_seller.follow.is_follow === false ? "Ikuti" : "Diikuti"}
                                 </Text>
                             </TouchableOpacity>
                         </View>
+                    </View>
+                    <View>
+                        <Collapse>
+                            <CollapseHeader>
+                                <View style={[styles.card, { marginTop: 20 }]}>
+                                    <View style={{ flex: 1, flexDirection: "row", justifyContent: "space-between" }}>
+                                        <Text style={[{ fontSize: 18, color: "#F18910" }]}>Deskripsi</Text>
+                                        <Icon size={24} color="#000" name="arrow-forward-ios" />
+                                    </View>
+                                </View>
+                            </CollapseHeader>
+                            <CollapseBody>
+                                <View style={[styles.card, { marginTop: 5 }]}>
+                                    {dataDetail?.mp_product_informations.map((item) => {
+                                        let section = JSON.parse(item.sections)
+                                        return (
+                                            <View>
+                                                <Text style={[{ fontSize: 18, color: "#000" }]}>{section[0].content.replace(regex, "")}</Text>
+                                            </View>
+                                        )
+                                    })}
+                                </View>
+                            </CollapseBody>
+                        </Collapse>
+                    </View>
+                    <View>
+                        <Collapse>
+                            <CollapseHeader>
+                                <View style={[styles.card, { marginTop: 20 }]}>
+                                    <View style={{ flex: 1, flexDirection: "row", justifyContent: "space-between" }}>
+                                        <Text style={[{ fontSize: 18, color: "#F18910" }]}>Ulasan</Text>
+                                        <Icon size={24} color="#000" name="arrow-forward-ios" />
+                                    </View>
+                                </View>
+                            </CollapseHeader>
+                            <CollapseBody>
+                                <View style={[styles.card, { marginTop: 5 }]}>
+                                    {dataDetail?.mp_product_ratings && dataDetail?.mp_product_ratings.map((item) => {
+                                        return (
+                                            <View>
+                                                {/* <Text style={[{ fontSize: 18, color: "#F18910" }]}>Rating {item.rating}</Text> */}
+                                                {item.rating === 5 ?
+                                                    <View style={{ flex: 1, flexDirection: "row" }}>
+                                                        <Icon size={24} color="#F18910" name="star" />
+                                                        <Icon size={24} color="#F18910" name="star" />
+                                                        <Icon size={24} color="#F18910" name="star" />
+                                                        <Icon size={24} color="#F18910" name="star" />
+                                                        <Icon size={24} color="#F18910" name="star" />
+                                                    </View>
+                                                    : item.rating === 4 ?
+                                                        <View style={{ flex: 1, flexDirection: "row" }}>
+                                                            <Icon size={24} color="#F18910" name="star" />
+                                                            <Icon size={24} color="#F18910" name="star" />
+                                                            <Icon size={24} color="#F18910" name="star" />
+                                                            <Icon size={24} color="#F18910" name="star" />
+                                                        </View>
+                                                        : item.rating === 3 ?
+                                                            <View style={{ flex: 1, flexDirection: "row" }}>
+                                                                <Icon size={24} color="#F18910" name="star" />
+                                                                <Icon size={24} color="#F18910" name="star" />
+                                                                <Icon size={24} color="#F18910" name="star" />
+                                                            </View>
+                                                            : item.rating === 2 ?
+                                                                <View style={{ flex: 1, flexDirection: "row" }}>
+                                                                    <Icon size={24} color="#F18910" name="star" />
+                                                                    <Icon size={24} color="#F18910" name="star" />
+                                                                </View>
+                                                                : item.rating === 1 ?
+                                                                    <View style={{ flex: 1, flexDirection: "row" }}>
+                                                                        <Icon size={24} color="#F18910" name="star" />
+                                                                    </View>
+                                                                    :
+                                                                    <View>
+                                                                    </View>
+                                                }
+
+                                                <Text style={{ marginTop: 10 }}>
+                                                    {dataDetail?.mp_product_ratings.length} Ulasan
+                                                </Text>
+                                                <View style={{ borderColor: "#A6A6A6", borderWidth: 1, width: "100%", marginTop: 20 }} />
+                                                <View style={{ marginVertical: 20 }}>
+                                                    {dataRating && dataRating.map((rate) => {
+                                                        return (
+                                                            <View key={item.id} style={styles.section}>
+                                                                <Image
+                                                                    style={styles.profil}
+                                                                    source={{
+                                                                        uri: `${rate?.mp_customer?.profile_picture}`,
+                                                                    }}
+                                                                />
+                                                                <View style={{ marginLeft: 20 }}>
+                                                                    <Text>{rate.mp_customer.name}</Text>
+                                                                    <Text>{moment(rate.created_at).format("DD-MM-YYYY")}</Text>
+                                                                    {rate.rating == 5 ?
+                                                                        <View style={{ flex: 1, flexDirection: "row" }}>
+                                                                            <Icon size={24} color="#F18910" name="star" />
+                                                                            <Icon size={24} color="#F18910" name="star" />
+                                                                            <Icon size={24} color="#F18910" name="star" />
+                                                                            <Icon size={24} color="#F18910" name="star" />
+                                                                            <Icon size={24} color="#F18910" name="star" />
+                                                                        </View>
+                                                                        : item.rating === 4 ?
+                                                                            <View style={{ flex: 1, flexDirection: "row" }}>
+                                                                                <Icon size={24} color="#F18910" name="star" />
+                                                                                <Icon size={24} color="#F18910" name="star" />
+                                                                                <Icon size={24} color="#F18910" name="star" />
+                                                                                <Icon size={24} color="#F18910" name="star" />
+                                                                            </View>
+                                                                            : item.rating === 3 ?
+                                                                                <View style={{ flex: 1, flexDirection: "row" }}>
+                                                                                    <Icon size={24} color="#F18910" name="star" />
+                                                                                    <Icon size={24} color="#F18910" name="star" />
+                                                                                    <Icon size={24} color="#F18910" name="star" />
+                                                                                </View>
+                                                                                : item.rating === 2 ?
+                                                                                    <View style={{ flex: 1, flexDirection: "row" }}>
+                                                                                        <Icon size={24} color="#F18910" name="star" />
+                                                                                        <Icon size={24} color="#F18910" name="star" />
+                                                                                    </View>
+                                                                                    : item.rating === 1 ?
+                                                                                        <View style={{ flex: 1, flexDirection: "row" }}>
+                                                                                            <Icon size={24} color="#F18910" name="star" />
+                                                                                        </View>
+                                                                                        :
+                                                                                        <View>
+                                                                                        </View>
+                                                                    }
+                                                                </View>
+                                                            </View>
+                                                        )
+                                                    })}
+                                                </View>
+                                            </View>
+                                        )
+                                    })}
+                                </View>
+                            </CollapseBody>
+                        </Collapse>
                     </View>
                     <Text
                         style={{
@@ -484,6 +643,10 @@ const DetailProduct = ({ route, navigation }) => {
     )
 }
 
+
+
+
+
 export default DetailProduct
 
 const styles = StyleSheet.create({
@@ -527,7 +690,7 @@ const styles = StyleSheet.create({
         width: "90%",
         height: 350,
         resizeMode: "cover",
-        backgroundColor: "gray",
+        backgroundColor: "#F6F6F6",
         borderRadius: 10
     },
     cardProdukImage: {
@@ -535,7 +698,7 @@ const styles = StyleSheet.create({
         width: "100%",
         height: 120,
         resizeMode: "contain",
-        backgroundColor: "#A6A6A6",
+        backgroundColor: "#F6F6F6",
         borderRadius: 5
 
     },
@@ -547,7 +710,7 @@ const styles = StyleSheet.create({
         borderWidth: 1,
         borderColor: "gray",
         marginRight: 10,
-        backgroundColor: "gray",
+        backgroundColor: "#F6F6F6",
         borderRadius: 10
 
     },

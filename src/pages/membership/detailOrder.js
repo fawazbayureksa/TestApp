@@ -65,26 +65,22 @@ export default function DetailOrder({ navigation, route }) {
                                 <Text style={styles.h6}>{data?.invoice_number}</Text>
                             </View>
                             <View style={{ borderWidth: 0.5, color: "#A6A6A6", marginVertical: 10 }} />
-                            <View style={[styles.section, { justifyContent: "space-between" }]}>
-                                <View style={[{ flex: 1, flexDirection: "column", justifyContent: "space-evenly" }]}>
-                                    {item.mp_transaction.mp_transaction_details.map((item) => (
-                                        <View style={{ flex: 1, justifyContent: "space-between", flexDirection: "row" }} key={item.id}>
-                                            <Image
-                                                style={styles.categoryImage}
-                                                source={{
-                                                    uri: `https://tsi-1.oss-ap-southeast-5.aliyuncs.com/public/marketplace/products/${item.mp_transaction_product.mp_transaction_product_images[0].filename}`
-                                                }}
-                                            />
-                                            < Text style={{ alignSelf: "center", width: 150, textAlign: "center" }} >
-                                                x {item.quantity}
-                                            </Text >
-                                            < Text style={{ alignSelf: "center", width: 150, textAlign: "center" }} >
-                                                Rp {CurrencyFormat(item.total_price)}
-                                            </Text >
-                                        </View>
-                                    ))}
-                                </View >
-                            </View >
+                            {item.mp_transaction.mp_transaction_details.map((item) => (
+                                <View style={{ flex: 1, justifyContent: "space-between", flexDirection: "row" }} key={item.id}>
+                                    <Image
+                                        style={styles.categoryImage}
+                                        source={{
+                                            uri: `https://tsi-1.oss-ap-southeast-5.aliyuncs.com/public/marketplace/products/${item.mp_transaction_product.mp_transaction_product_images[0].filename}`
+                                        }}
+                                    />
+                                    < Text style={{ alignSelf: "center", textAlign: "center" }} >
+                                        x {item.quantity}
+                                    </Text >
+                                    < Text style={{ alignSelf: "center", textAlign: "center" }} >
+                                        Rp {CurrencyFormat(item.total_price)}
+                                    </Text >
+                                </View>
+                            ))}
                             <View style={{ borderWidth: 0.2, color: "#A6A6A6", marginVertical: 20 }} />
                             <View style={[styles.section, { justifyContent: "space-between" }]}>
                                 <Text style={styles.h6}>Total Product Price</Text>
@@ -207,7 +203,7 @@ const styles = StyleSheet.create({
         width: 100,
         height: 100,
         resizeMode: "contain",
-        backgroundColor: "#A6A6A6",
+        backgroundColor: "#F6F6F6",
         borderRadius: 5
     },
     produkImage: {

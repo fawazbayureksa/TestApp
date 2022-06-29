@@ -9,6 +9,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { API_URL, HOST } from "@env"
 import IsEmpty from '../../commons/IsEmpty';
 import { CurrencyFormat } from '../../components/CurrencyFormat';
+import moment from 'moment';
 
 export default function Checkout({ navigation }) {
     const [searchQuery, setSearchQuery] = useState()
@@ -44,20 +45,27 @@ export default function Checkout({ navigation }) {
     const [pengiriman, setPengiriman] = useState([])
     const [hargaKirim, setHargaKirim] = useState(0)
     const [kurirType, setKurirType] = useState()
+    const [idCart, setIdCart] = useState()
+    const [dataVoucher, setDataVoucher] = useState()
+    const [idVoucher, setIdVoucher] = useState()
 
 
     useEffect(() => {
         getMasterData();
-        calculateTotalPrice();
         getCustomerAddresses();
         getProvisi();
+        getVoucherCart();
     }, []);
+
+    useEffect(() => {
+        calculateTotalPrice();
+    });
 
 
     const getMasterData = async () => {
         let jsonValue = JSON.parse(await AsyncStorage.getItem("token"))
 
-        await axios.get(API_URL + `checkout/getMasterData`,
+        axios.get(API_URL + `checkout/getMasterData`,
             {
                 headers: {
                     "Origin": HOST,
@@ -67,6 +75,7 @@ export default function Checkout({ navigation }) {
         ).then((response) => {
             setData(response.data.data.data)
             response.data.data.data.map((item) => {
+                setIdCart(item.carts.map((x) => x.id))
                 setKurirList(
                     item.couriers.map((kurir) =>
                     ({
@@ -397,6 +406,8 @@ export default function Checkout({ navigation }) {
 
     const checkout = async () => {
 
+
+
         const getCartIds = (item) => {
             let ids = [];
             for (const cart of item) {
@@ -457,6 +468,31 @@ export default function Checkout({ navigation }) {
                 )
             })
     }
+
+
+
+    const getVoucherCart = async () => {
+
+        // let jsonValue = JSON.parse(await AsyncStorage.getItem("token"))
+        // let url = API_URL + `checkout/getAvailableVouchers?&cart_ids=442`
+
+        // axios.get(url, {
+        //     headers: {
+        //         Origin: HOST,
+        //         Authorization: `Bearer ${jsonValue}`,
+        //     }
+        // }).then(res => {
+        //     setDataVoucher(res.data.data)
+        // }).catch(error => {
+        //     console.log(error)
+        // })
+
+    }
+
+    const handleSelectVoucher = (VoucherID) => {
+        setIdVoucher(VoucherID)
+    }
+
 
     return (
         <ScrollView style={{ backgroundColor: "#FFFFFF" }}>
@@ -819,9 +855,38 @@ export default function Checkout({ navigation }) {
                 onHide={() => setModalVoucher(false)}
                 contentHeader={"Pilih Voucher"}
                 contentText={
-                    <Text style={{ fontSize: 16, color: "black" }}>
-
-                    </Text>
+                    <ScrollView style={{ height: 400 }}>
+                        {dataVoucher && dataVoucher.map((item) => {
+                            return (
+                                <View style={[styles.card, { width: "95%" }]} >
+                                    <TouchableOpacity onPress={handleSelectVoucher(item.id)}>
+                                        <View style={{ flexDirection: "row", alignItems: "center" }}>
+                                            <Image
+                                                style={styles.voucherImage}
+                                                source={{
+                                                    uri: `https://tsi-1.oss-ap-southeast-5.aliyuncs.com/public/marketplace/voucher/${item.voucher.image}`
+                                                }}
+                                            />
+                                            <View style={{ marginLeft: 10, width: "70%" }}>
+                                                <Text style={[{ color: "#000", fontWeight: "700" }]}>
+                                                    {item.voucher.name}
+                                                </Text>
+                                                <Text style={[{ color: "#333" }]}>
+                                                    {item.voucher.code}
+                                                </Text>
+                                                {/* <Text style={[{ color: "#000" }]}>
+                                                Minimal pembelian 10000
+                                            </Text> */}
+                                                <Text style={[{ color: "#000" }]}>
+                                                    Berakhir {moment(item.active_end_date).format("DD MM YYYY h:m")}
+                                                </Text>
+                                            </View>
+                                        </View>
+                                    </TouchableOpacity>
+                                </View>
+                            )
+                        })}
+                    </ScrollView>
                 }
             />
             < ModalDialog
@@ -923,7 +988,6 @@ const pickerSelectStyles = StyleSheet.create({
         paddingRight: 30 // to ensure the text is never behind the icon
     }
 });
-
 const styles = StyleSheet.create({
 
     h6: {
@@ -994,6 +1058,14 @@ const styles = StyleSheet.create({
         marginVertical: 10,
         width: 100,
         height: 100,
+        resizeMode: "contain",
+        backgroundColor: "#F6F6F6",
+        borderRadius: 5
+    },
+    voucherImage: {
+        marginVertical: 10,
+        width: 90,
+        height: 90,
         resizeMode: "contain",
         backgroundColor: "#A6A6A6",
         borderRadius: 5
