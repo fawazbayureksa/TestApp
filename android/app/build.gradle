@@ -4,14 +4,15 @@ apply plugin: "com.android.application"
 
 
 
-// project.ext.vectoricons = [
-//     iconFontNames: [ 'MaterialIcons.ttf', 'EvilIcons.ttf','FontAwesome.ttf' ] // Name of the font files you want to copy
-// ]
-// apply from: "../../node_modules/react-native-vector-icons/fonts.gradle"
+project.ext.vectoricons = [
+    iconFontNames: [ 'MaterialIcons.ttf', 'EvilIcons.ttf','FontAwesome.ttf' ] // Name of the font files you want to copy
+]
 
 
 import com.android.build.OutputFile
 import org.apache.tools.ant.taskdefs.condition.Os
+
+apply from: "../../node_modules/react-native-vector-icons/fonts.gradle"
 /**
  * The react.gradle file registers a task for each build variant (e.g. bundleDebugJsAndAssets
  * and bundleReleaseJsAndAssets).
@@ -341,5 +342,3 @@ def isNewArchitectureEnabled() {
     return project.hasProperty("newArchEnabled") && project.newArchEnabled == "true"
 }
 
-
-apply from: "../../node_modules/react-native-vector-icons/fonts.gradle"

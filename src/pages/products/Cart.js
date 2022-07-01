@@ -33,7 +33,6 @@ export default function Cart({ navigation }) {
 
 
 
-
     const getCart = async () => {
         let jsonValue = JSON.parse(await AsyncStorage.getItem("token"))
 
@@ -56,7 +55,6 @@ export default function Cart({ navigation }) {
     }
 
     const deleteCart = async () => {
-
         if (IsEmpty(idCart)) {
             Alert.alert(
                 "",
@@ -97,24 +95,39 @@ export default function Cart({ navigation }) {
     }
 
 
-    const checkSingleCheckbox = (value1) => {
-        return idCart.find(value2 => value2 === value1.id)
-    }
+    const checkSingleCheckbox = async (value1, index, key) => {
+        // console.log(value1.id)
+        let cart = []
+        // data.map((item) => {
+        //     // console.log(item.carts[index])
+        //     cart = item.carts.findIndex(value => value.id === value1.id)
+        //     // console.log(cart.is_selected)
+        //     // console.log(item.carts.find(value => value.id === value1.id))
+        // })
 
+        data[index].carts[key].is_selected = false
+        console.log(data[index].carts[key].is_selected)
+        // console.log(data[index].carts[key])
+        // console.log(data.find(value2 => value2.id === value1.id))
+    }
 
     const handleCheckbox = (value1) => {
         if (idCart.find(value2 => value2 === value1.id)) {
             idCart.splice(idCart.findIndex(value2 => value2 === value1.id), 1);
             setSelection(isSelected === true ? false : true)
             setTotalPrice(0)
+            console.log(idCart)
         } else {
             const listId = [...idCart]
             listId.push(value1.id)
             setIdCart(listId)
             setSelection(isSelected === true ? false : true)
             calculateTotalPrice()
+            console.log(listId)
         }
     }
+
+
 
     const calculateTotalPrice = () => {
         let total_price = 0
@@ -124,7 +137,6 @@ export default function Cart({ navigation }) {
                 total_price += cart.mp_product_sku.price * cart.quantity
             }
         }
-
         setTotalPrice(total_price)
     }
 
@@ -226,15 +238,17 @@ export default function Cart({ navigation }) {
                                         marginTop: -20
                                     }}
                                 />
-                                {item.carts.map((cart) => {
+                                {item.carts.map((cart, key) => {
                                     return (
                                         <View key={cart.id}>
                                             <View style={styles.checkboxContainer}>
+                                                {/* <TouchableOpacity style={styles.checkbox} onPress={() => handleCheckbox(cart, index, key)}> */}
                                                 <CheckBox
                                                     value={isSelected}
                                                     onValueChange={() => handleCheckbox(cart)}
                                                     style={styles.checkbox}
                                                 />
+                                                {/* </TouchableOpacity> */}
                                                 <Image
                                                     style={styles.produkImage}
                                                     source={{

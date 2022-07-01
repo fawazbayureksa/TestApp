@@ -80,7 +80,7 @@ export default function Account({ navigation }) {
             <Text style={{ fontSize: 24, color: "black", fontWeight: "600" }}>Hi , {name?.name}!</Text>
             <View style={styles.section3}>
 
-                <TouchableOpacity onPress={() => navigation.navigate("Membership")}>
+                <TouchableOpacity onPress={() => navigation.navigate("Membership")} disabled={data ? false : true}>
                     <View style={{ display: "flex", flexDirection: "row", justifyContent: "space-between" }}>
                         <View style={{ display: "flex", flexDirection: "row" }}>
                             <View>
@@ -97,11 +97,19 @@ export default function Account({ navigation }) {
                                     style={{ fontSize: 20, fontWeight: "600", color: "black" }}>
                                     {data?.levelName}
                                 </Text>
-                                <Text
-                                    style={{ fontSize: 16, fontWeight: "300", color: "black" }}
-                                >
-                                    {`(${data?.currentLoyaltyPoint} Poin)`}
-                                </Text>
+                                {data ?
+                                    <Text
+                                        style={{ fontSize: 16, fontWeight: "300", color: "black" }}
+                                    >
+                                        {`(${data?.currentLoyaltyPoint} Poin)`}
+                                    </Text>
+                                    :
+                                    <Text
+                                        style={{ fontSize: 16, fontWeight: "300", color: "black" }}
+                                    >
+                                        0 Point
+                                    </Text>
+                                }
                             </View>
                         </View>
                         <View style={{ alignSelf: "center" }}>

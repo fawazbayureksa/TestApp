@@ -81,8 +81,6 @@ const SecondRoute = () => {
                 getMasterData()
             })
     }
-
-
     return (
         <ScrollView>
             {data && data.map((item) => (
@@ -98,7 +96,8 @@ const SecondRoute = () => {
                                     : {
                                         item?.last_status?.status === "waiting_for_upload" ? "Unggah bukti bayar" :
                                             item?.last_status?.status === "waiting_approval" ? "Mengunggu Konfirmasi" :
-                                                item?.last_status?.status
+                                                item?.last_status?.status === "expired" ? "Kedaluwarsa" :
+                                                    item?.last_status?.status
                                     }
                                 </Text>
                             </Text>

@@ -65,7 +65,11 @@ export default function AppNavigator() {
                 }
             }).then((response) => {
                 if (!IsEmpty(response.data.data)) {
-                    setCountCart(response.data.data[0].carts.length)
+                    let count = 0
+                    response.data.data.map((item) => {
+                        count += item.carts.length
+                    })
+                    setCountCart(count)
                 }
             }).catch(error => {
                 console.log(error)

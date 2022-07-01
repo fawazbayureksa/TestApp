@@ -349,6 +349,8 @@ export default function Checkout({ navigation }) {
     }
 
     const handleChangeKurir = async (option, index) => {
+        // setDurasi([{ label: 'No Item', value: '1' }])
+        // setPengiriman()
         setSelectedKurir(option)
         let jsonValue = JSON.parse(await AsyncStorage.getItem("token"))
 
@@ -400,13 +402,13 @@ export default function Checkout({ navigation }) {
 
         setHargaKirim(ongkos?.cost[0]?.value)
 
+
+
     }
 
 
 
     const checkout = async () => {
-
-
 
         const getCartIds = (item) => {
             let ids = [];
@@ -416,20 +418,6 @@ export default function Checkout({ navigation }) {
                 }
             }
             return ids
-        }
-
-        let params = {
-            mp_customer_address_id: addressSelected.id,
-            voucher_customer_ids: [],
-            transactions: dataCart.map((item) => (
-                {
-                    cart_ids: getCartIds(dataCart),
-                    mp_courier_key: selectedKurir,
-                    mp_courier_type_key: kurirType,
-                    mp_seller_id: item.seller.id,
-                    shipping_fee: hargaKirim,
-                }
-            ))
         }
 
         let jsonValue = JSON.parse(await AsyncStorage.getItem("token"))
