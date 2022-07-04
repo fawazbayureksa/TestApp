@@ -28,9 +28,8 @@ export default function Cart({ navigation }) {
 
     useEffect(() => {
         getCart();
-        calculateTotalPrice()
+        calculateTotalPrice();
     }, []);
-
 
 
     const getCart = async () => {
@@ -95,9 +94,17 @@ export default function Cart({ navigation }) {
     }
 
 
-    const checkSingleCheckbox = async (value1, index, key) => {
-        // console.log(value1.id)
-        let cart = []
+    const checkSingleCheckbox = (value) => {
+        // console.log(value.id)
+        let x = data.map(value1 => value1.carts.findIndex(item => item.id == value.id))
+
+        // console.log(x)
+
+        data[0].carts[x].is_selected.push(false)
+        console.log(data[0].carts[x].is_selected)
+
+
+        // let cart = []
         // data.map((item) => {
         //     // console.log(item.carts[index])
         //     cart = item.carts.findIndex(value => value.id === value1.id)
@@ -105,8 +112,8 @@ export default function Cart({ navigation }) {
         //     // console.log(item.carts.find(value => value.id === value1.id))
         // })
 
-        data[index].carts[key].is_selected = false
-        console.log(data[index].carts[key].is_selected)
+        // data[index].carts[key].is_selected = false
+        // console.log(data[index].carts[key].is_selected)
         // console.log(data[index].carts[key])
         // console.log(data.find(value2 => value2.id === value1.id))
     }
@@ -242,20 +249,18 @@ export default function Cart({ navigation }) {
                                     return (
                                         <View key={cart.id}>
                                             <View style={styles.checkboxContainer}>
-                                                {/* <TouchableOpacity style={styles.checkbox} onPress={() => handleCheckbox(cart, index, key)}> */}
                                                 <CheckBox
                                                     value={isSelected}
                                                     onValueChange={() => handleCheckbox(cart)}
                                                     style={styles.checkbox}
                                                 />
-                                                {/* </TouchableOpacity> */}
                                                 <Image
                                                     style={styles.produkImage}
                                                     source={{
                                                         uri: `https://tsi-1.oss-ap-southeast-5.aliyuncs.com/public/marketplace/products/${cart.mp_product.mp_product_images[0].filename}`
                                                     }}
                                                 />
-                                                <View style={{ width: "30%", alignSelf: "center", marginLeft: 20 }}>
+                                                <View style={{ width: "30%", alignSelf: "center" }}>
                                                     <Text style={{ fontSize: 20 }}>
                                                         {cart.mp_product.slug_name}
                                                     </Text>
@@ -263,7 +268,7 @@ export default function Cart({ navigation }) {
                                                         Rp{CurrencyFormat(cart.mp_product_sku.price)}
                                                     </Text>
                                                 </View>
-                                                <View style={{ alignSelf: "center", marginLeft: 20 }}>
+                                                <View style={{ alignSelf: "center" }}>
                                                     <View style={[styles.sectionRow, { justifyContent: "center", alignItems: "center" }]}>
                                                         <Icon size={32} name="favorite-outline" color="#F18910" />
                                                         <TouchableOpacity

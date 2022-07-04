@@ -54,12 +54,17 @@ export default function Checkout({ navigation }) {
         getMasterData();
         getCustomerAddresses();
         getProvisi();
-        getVoucherCart();
     }, []);
 
     useEffect(() => {
         calculateTotalPrice();
     });
+
+    // useEffect(() => {
+    //     getVoucherCart();
+    // }, [dataVoucher]);
+
+
 
 
     const getMasterData = async () => {
@@ -401,9 +406,6 @@ export default function Checkout({ navigation }) {
         ongkos = pengiriman.find((obj) => obj.service === value)
 
         setHargaKirim(ongkos?.cost[0]?.value)
-
-
-
     }
 
 
@@ -458,24 +460,36 @@ export default function Checkout({ navigation }) {
     }
 
 
+    // const getVoucherCart = async () => {
 
-    const getVoucherCart = async () => {
+    //     const getCartIds = (item) => {
+    //         let ids = [];
+    //         for (const cart of item) {
+    //             for (const i of cart.carts) {
+    //                 ids.push({ cart_ids: i.id })
+    //             }
+    //         }
+    //         return ids
+    //     }
 
-        // let jsonValue = JSON.parse(await AsyncStorage.getItem("token"))
-        // let url = API_URL + `checkout/getAvailableVouchers?&cart_ids=442`
+    //     let params = getCartIds(dataCart)
+    //     let id = params[0].cart_ids
+    //     // return
+    //     let jsonValue = JSON.parse(await AsyncStorage.getItem("token"))
 
-        // axios.get(url, {
-        //     headers: {
-        //         Origin: HOST,
-        //         Authorization: `Bearer ${jsonValue}`,
-        //     }
-        // }).then(res => {
-        //     setDataVoucher(res.data.data)
-        // }).catch(error => {
-        //     console.log(error)
-        // })
+    //     let url = API_URL + `checkout/getAvailableVouchers?cart_ids=${id}`
+    //     axios.get(url, {
+    //         headers: {
+    //             Origin: HOST,
+    //             Authorization: `Bearer ${jsonValue}`,
+    //         }
+    //     }).then(res => {
+    //         setDataVoucher(res.data.data)
+    //     }).catch(error => {
+    //         console.log(error)
+    //     })
+    // }
 
-    }
 
     const handleSelectVoucher = (VoucherID) => {
         setIdVoucher(VoucherID)
