@@ -4,6 +4,7 @@ import { Alert, View, Text, Button, TextInput, StyleSheet, KeyboardAvoidingView,
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { createTwoButtonAlert } from "../../commons/Alert"
 import { API_URL, HOST } from "@env"
+import { ScrollView } from 'react-native-gesture-handler';
 
 export default function Login({ navigation }) {
     const [email, setEmail] = useState()
@@ -60,18 +61,21 @@ export default function Login({ navigation }) {
 
 
     return (
-        // <View style={styles.container}>
-        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: "#FFFFFF" }}>
-            <View style={{ width: "80%" }}>
+        <ScrollView style={{ backgroundColor: "#FFFFFF", }}>
+            <View style={{
+                flex: 1,
+                justifyContent: 'center',
+                width: "100%"
+            }}>
                 <Text style={styles.title}>Masuk Ke Akun Anda</Text>
-                <Text style={{ fontSize: 14, color: "black" }}>Email Address</Text>
+                <Text style={{ fontSize: 16, color: "black", marginLeft: 20 }}>Email Address</Text>
                 <TextInput
                     style={styles.input}
                     onChangeText={(e) => (setEmail(e))}
                     value={email}
                     placeholder="Masukkan Email"
                 />
-                <Text style={{ fontSize: 14, color: "black" }}>Password</Text>
+                <Text style={{ fontSize: 16, color: "black", marginLeft: 20 }}>Password</Text>
                 <TextInput
                     style={styles.input}
                     onChangeText={(e) => (setPassword(e))}
@@ -79,30 +83,33 @@ export default function Login({ navigation }) {
                     placeholder="Masukkan Password"
                     secureTextEntry={true}
                 />
-            </View>
-            <View style={{ flexDirection: "row", justifyContent: "center", width: "40%" }}>
-                <TouchableOpacity>
-                    <Button
-                        title="Masuk"
+                <View style={{ flexDirection: "row", justifyContent: "center" }}>
+                    <TouchableOpacity style={{
+                        backgroundColor: "#F18910",
+                        height: 40,
+                        borderRadius: 50,
+                        width: "90%"
+
+                    }}
                         onPress={handleLogin}
-                        color="#F18910"
-                    />
-                </TouchableOpacity>
-            </View>
-            <View style={{ display: "flex", flexDirection: "row", marginTop: 15 }}>
-                <Text style={{ color: "black", fontSize: 16 }}>
-                    Belum Punya Akun ?
-                </Text>
-                <Pressable
-                    onPress={() => navigation.navigate('Register')}
-                >
-                    <Text style={{ marginLeft: 10, color: "#F18910", fontSize: 16 }}>
-                        Daftar
+                    >
+                        <Text style={{ fontSize: 24, textAlign: "center", color: "#FFF" }}>Masuk</Text>
+                    </TouchableOpacity>
+                </View>
+                <View style={{ display: "flex", flexDirection: "row", marginTop: 15, justifyContent: "center" }}>
+                    <Text style={{ color: "black", fontSize: 16 }}>
+                        Belum Punya Akun ?
                     </Text>
-                </Pressable>
+                    <Pressable
+                        onPress={() => navigation.navigate('Register')}
+                    >
+                        <Text style={{ marginLeft: 10, color: "#F18910", fontSize: 16 }}>
+                            Daftar
+                        </Text>
+                    </Pressable>
+                </View>
             </View>
-        </View>
-        // </View>
+        </ScrollView>
     )
 }
 
@@ -120,14 +127,16 @@ const styles = StyleSheet.create({
         height: 50,
         borderRadius: 10,
         width: "90%",
-        color: "black"
-
+        color: "black",
+        alignSelf: "center",
+        // alignItems: "center",
     },
     title: {
         color: "#F18910",
         fontSize: 24,
         letterSpacing: 2,
         fontWeight: "700",
-        marginBottom: 20
+        marginBottom: 20,
+        textAlign: "center"
     },
 })

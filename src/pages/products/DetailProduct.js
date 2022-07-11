@@ -118,6 +118,7 @@ const DetailProduct = ({ route, navigation }) => {
         }
     }
 
+    // console.log(dataDetail?.mp_product_ratings)
 
     const follow = async () => {
         let jsonValue = JSON.parse(await AsyncStorage.getItem("token"))
@@ -157,7 +158,6 @@ const DetailProduct = ({ route, navigation }) => {
 
     const getRatingByParam = async () => {
 
-        let id = await getDataProductDetail()
 
         let url = API_URL + `review/getWithParams?page=1&per_page=2&filter=all&product_id=${idProdcut}`
         axios.get(url, {
@@ -172,15 +172,13 @@ const DetailProduct = ({ route, navigation }) => {
     }
     return (
         <ScrollView style={{ backgroundColor: "#FFFFFF" }}>
-            {dataDetail === null ?
-
+            {((dataDetail === null) || (dataRating === null)) ?
                 <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
                     <Text>
                         Wait ...
                     </Text>
                 </View>
                 :
-
                 <View style={styles.container}>
                     <View>
                         <Image
@@ -540,6 +538,7 @@ const DetailProduct = ({ route, navigation }) => {
                                                                         uri: `${rate?.mp_customer?.profile_picture}`,
                                                                     }}
                                                                 />
+
                                                                 <View style={{ marginLeft: 20 }}>
                                                                     <Text>{rate.mp_customer.name}</Text>
                                                                     <Text>{moment(rate.created_at).format("DD-MM-YYYY")}</Text>
@@ -638,7 +637,6 @@ const DetailProduct = ({ route, navigation }) => {
                     </View>
                 </View>
             }
-
         </ScrollView >
     )
 }
@@ -720,7 +718,7 @@ const styles = StyleSheet.create({
         height: "auto",
         width: "90%",
         borderRadius: 10,
-        shadowColor: "#000",
+        shadowColor: "#666",
         shadowOffset: {
             width: 0,
             height: 3,
@@ -737,7 +735,7 @@ const styles = StyleSheet.create({
         height: "auto",
         width: "40%",
         borderRadius: 10,
-        shadowColor: "#000",
+        shadowColor: "#666",
         shadowOffset: {
             width: 0,
             height: 3,

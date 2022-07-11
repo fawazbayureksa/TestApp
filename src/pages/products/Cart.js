@@ -215,7 +215,6 @@ export default function Cart({ navigation }) {
                     </View>
                 </View>
                 {data.length === 0 ?
-
                     <View style={{ justifyContent: "center", alignItems: "center", height: 500 }}>
                         <Text style={{ fontSize: 20, color: "#F18910", fontWeight: "700" }}>
                             Keranjang Kosong
@@ -282,7 +281,15 @@ export default function Cart({ navigation }) {
                                                 </View>
                                             </View>
 
-                                            <View style={{ flex: 1, flexDirection: 'row', justifyContent: "space-between", alignItems: "flex-end" }}>
+                                            <View style={{
+                                                flex: 1,
+                                                flexDirection: 'row',
+                                                justifyContent: "space-between",
+                                                alignItems: "flex-end",
+                                                marginTop: -30,
+                                                marginBottom: 20
+                                            }}
+                                            >
                                                 <TouchableOpacity
                                                     style={{
                                                         backgroundColor: "#F18910",
@@ -333,6 +340,7 @@ export default function Cart({ navigation }) {
                                                     Rp{CurrencyFormat(cart.quantity * cart.mp_product_sku.price)}
                                                 </Text>
                                             </View>
+                                            {/* <View style={{ width: "100%", backgroundColor: "gray", borderWidth: 0.2 }} /> */}
                                         </View>
                                     )
                                 })}

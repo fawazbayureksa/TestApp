@@ -99,6 +99,15 @@ export default function CheckoutPay({ route, navigation }) {
                 }
             }).then(response => {
                 console.log(response.data.data)
+                console.log("Silahkan lakukan pembayaran")
+                Alert.alert(
+                    "",
+                    "Silahkan lakukan pembayaran",
+                    [
+                        { text: "OK" }
+                    ]
+                )
+                navigation.navigate("TransactionList")
                 // navigation.navigate("awaitingPayments", {
                 //     id: response.data.data.id
                 // })
