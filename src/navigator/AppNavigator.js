@@ -28,6 +28,9 @@ import DetailOrder from '../pages/membership/detailOrder';
 import axios from 'axios';
 import { API_URL, HOST } from "@env"
 import IsEmpty from '../commons/IsEmpty';
+import Forum from '../pages/forum/Forum';
+import DetailForum from '../pages/forum/Detail';
+import CreateThread from '../pages/forum/Create';
 
 const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator();
@@ -86,7 +89,6 @@ export default function AppNavigator() {
         >
             <NavigationContainer ref={navigationRef}>
                 <Stack.Navigator >
-
                     <Stack.Screen
                         name="ProductList"
                         component={ProductList}
@@ -97,11 +99,10 @@ export default function AppNavigator() {
                                 <View style={{ flexDirection: "row" }}>
                                     <View>
                                         <TouchableOpacity
-                                            onPress={() => alert('This is Chat!')}
+                                            onPress={() => navigationRef.navigate("Forum")}
                                         >
-                                            <View style={{ marginRight: 10 }}>
-                                                <Badge style={{ marginBottom: -12, zIndex: 2, marginLeft: 15, backgroundColor: "red" }}>0</Badge>
-                                                <Icon size={28} color="#F18910" name="mail" />
+                                            <View style={{ marginRight: 10, marginTop: 6 }}>
+                                                <Icon size={28} color="#F18910" name="chat" />
                                             </View>
                                         </TouchableOpacity>
                                     </View>
@@ -168,6 +169,17 @@ export default function AppNavigator() {
                         }}
                     />
                     <Stack.Screen name="DetailProduct" component={DetailProduct} />
+                    <Stack.Screen name="Forum" component={Forum} />
+                    <Stack.Screen name="DetailForum" component={DetailForum}
+                        options={{
+                            headerTitle: "Forum"
+                        }}
+                    />
+                    <Stack.Screen name="CreateThread" component={CreateThread}
+                        options={{
+                            headerTitle: "Buat Thread"
+                        }}
+                    />
                     <Stack.Screen name="Register" component={Register} />
                     <Stack.Screen name="Email" component={Email} />
                     <Stack.Screen name="Account" component={Account} />
